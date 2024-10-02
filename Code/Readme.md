@@ -8,7 +8,7 @@ TensorBeasts is deployed as a web app to github pages, you can use `npm run depl
 
 https://docs.expo.dev/distribution/publishing-websites/#github-pages
 
-See the live app at https://www.todo.com
+See the live app at https://cdeevfrr.github.io/tensorbeasts/
 
 ## Local development
 

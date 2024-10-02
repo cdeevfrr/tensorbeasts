@@ -2,6 +2,7 @@
 
 A mixmatch puzzle battler
 
+Play at https://cdeevfrr.github.io/tensorbeasts/
 
 # Placeholder for videos/examples
 
