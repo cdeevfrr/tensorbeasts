@@ -1,0 +1,3 @@
+interface Buff {
+    turnsRemaining: number,
+}
