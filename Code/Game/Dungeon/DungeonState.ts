@@ -5,18 +5,23 @@ export interface DungeonState {
 }
 
 interface Board {
-    xLength: number, // x is vertical. Blocks always fall vertically. x = 0 is the bottom block.
-    yLength: number, // y is left and right. y = 0 is the left block.
-    zLength: number, // z is into the screen. z = 0 is the closest block to you.
-    aLength: number, // a is vertical. Grids stack vertically. a = 0 is the bottom grid.
-    bLength: number, // b is horizontal. Grids stack horizontally. b = 0 is the left grid.
-    blocks: Array<Block> // Fills x dimension, then y, then z, then a, then b.
-    // Note: For any fixed y,z,a,b coordinate, the x=n block falls from location x=n+1. 
-    // If there is no n+1 on this board, the block is generated.
+    // Dimensions are named x, y, z, a, b.
+    // blocks[1][0][0][0][0] is x = 1, y thru b = 0.
+    // blocks[x][y][z][a][b]
+    // Board is always stored 5D but displayed based on other settings.
+    blocks: Array<Array<Array<Array<Array<Block>>>>>
 }
 
 export interface Block {
     color: number,
+    // If unmasked, is color shown?
+    colorVisible?: boolean,
     shape: number,
+    // if unmasked, is shape shown?
+    shapeVisible?: boolean,
     number: number,
+    // if unmasked, is number shown?
+    numberVisible?: boolean,
+
+    masked?: boolean
 }

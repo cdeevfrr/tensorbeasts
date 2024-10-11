@@ -62,27 +62,22 @@ const pseudodungeon: DungeonState = {
   }],
   enemies: [],
   board: {
-    xLength: 3,
-    yLength: 1,
-    zLength: 1,
-    aLength: 1,
-    bLength: 1,
     blocks: [
-      {
+      [[[[{
         color: 1,
         number: 1,
         shape: 1,
-      },
-      {
+      }]]]],
+      [[[[{
         color: 2,
         number: 1,
         shape: 1,
-      },
-      {
+      }]]]],
+      [[[[{
         color: 3,
         number: 1,
         shape: 1,
-      }
+      }]]]]
     ]
   }
 }
