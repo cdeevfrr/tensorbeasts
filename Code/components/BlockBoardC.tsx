@@ -1,10 +1,10 @@
-import { Block, DungeonState } from "@/Game/Dungeon/DungeonState";
-import { View } from "react-native";
+import { DungeonState } from "@/Game/Dungeon/DungeonState";
+import { View, StyleSheet } from "react-native";
 import { BlockC } from "./BlockC";
 
-export function BloclBoardC(props: {board: DungeonState["board"]}){
+export function BlockBoardC(props: {board: DungeonState["board"]}){
 
-    return <View>
+    return <View style={styles.container}>
         {props.board.blocks.map((xHyperplane) => {
             const y = 0
             const z = 0
@@ -15,3 +15,12 @@ export function BloclBoardC(props: {board: DungeonState["board"]}){
         })}
     </View>
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#25292e',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+});
