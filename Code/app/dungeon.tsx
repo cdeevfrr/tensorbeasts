@@ -102,12 +102,17 @@ const styles = StyleSheet.create({
     flex: 3,
     justifyContent: 'center',
     alignItems: 'center',
+    minHeight: 0,
+    minWidth: 0,
+    maxHeight: '95%'
   },
   rightBlock: {
     flex: 1,
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
+    minHeight: 0,
+    minWidth: 0,
   },
   stack: {
     flex: 6,
@@ -212,6 +217,21 @@ const pseudodungeon: DungeonState = {
       }]]]],
       [[[[{
         color: 3,
+        number: 1,
+        shape: 1,
+      }]]]],
+      [[[[{
+        color: 4,
+        number: 1,
+        shape: 1,
+      }]]]],
+      [[[[{
+        color: 5,
+        number: 1,
+        shape: 1,
+      }]]]],
+      [[[[{
+        color: 6,
         number: 1,
         shape: 1,
       }]]]]
