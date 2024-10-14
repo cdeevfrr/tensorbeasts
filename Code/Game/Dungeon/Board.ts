@@ -35,7 +35,11 @@ export function locationsIter<T>(board: Board){
 }
 
 export function accessLocation(location: Location, board: Board): Block | null | undefined{
-    return board.blocks[location[0]][location[1]][location[2]][location[3]][location[4]]
+    return board.blocks[location[0]]?.
+      [location[1]]?.
+      [location[2]]?.
+      [location[3]]?.
+      [location[4]]
 }
 
 // Careful to only call this on already cloned boards!

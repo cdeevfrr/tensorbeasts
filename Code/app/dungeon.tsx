@@ -1,24 +1,34 @@
 import { BeastRowC } from '@/components/BeastRowC';
 import { BlockBoardC } from '@/components/BlockBoardC';
+import { SkillSelectModal } from '@/components/SkillSelectModal';
 import { StackC } from '@/components/StackC';
-import { DungeonState } from '@/Game/Dungeon/DungeonState';
+import { SupportSkill } from '@/Game/Beasts/SupportSkill';
+import { BeastState } from '@/Game/Dungeon/BeastState';
+import { DungeonState, useSkill } from '@/Game/Dungeon/DungeonState';
 import { Skills } from '@/Game/SkillDex/SkillTypeList';
 import { useState } from 'react';
 import { Text, View, StyleSheet, Button, Alert, Modal } from 'react-native';
 
 
 
-export default function DungeonScreen({dungeonState}: {dungeonState: DungeonState}) {
-  dungeonState = pseudodungeon
+export default function DungeonScreen({loadedState}: {loadedState: DungeonState}) {
+  loadedState = pseudodungeon
 
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedBeast, setSelectedBeast] = useState<BeastState | null>(null)
+  const [dungeonState, setDungeonState] = useState(loadedState)
 
   const beastClickedCallback = (beast: BeastState) => {
-    console.log("Clicked")
     setSelectedBeast(beast)
     setModalVisible(true);
   };
+
+  const useSkillCallback = (beast: BeastState, skill: SupportSkill) => {
+    const newState = useSkill(dungeonState, beast, skill)
+    console.log("Old state:" + JSON.stringify(dungeonState))
+    console.log("New state:" + JSON.stringify(newState))
+    setDungeonState(newState)
+  }
 
 
 
@@ -57,35 +67,12 @@ export default function DungeonScreen({dungeonState}: {dungeonState: DungeonStat
         </View>
       </View>
       {/* Confirm/cancel modal */}
-      <Modal
-        transparent={true}
+      <SkillSelectModal
+        beast={selectedBeast}
+        onRequestClose={() => setModalVisible(false)}
+        useSkill={useSkillCallback}
         visible={modalVisible}
-        onRequestClose={() => {
-          Alert.alert("Modal has been closed.");
-          setModalVisible(!modalVisible);
-        }}>
-          <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            {selectedBeast && 
-              selectedBeast.beast.SupportSkills.map((skill) => {
-                if (selectedBeast.currentCharge >= skill.chargeRequirement){
-                  return <Button 
-                    onPress={() => {
-                      console.log("Pretend skill use")
-                      setModalVisible(false);
-                    }}
-                    title="Use skill"/>
-                }
-                return null
-              })          
-            }
-            <Button onPress={()=> {
-              console.log("Cancelled skill use")
-              setModalVisible(false);
-            }} title='Cancel'/>
-          </View>
-          </View>
-      </Modal>
+      />
     </View>
   );
 }
@@ -125,31 +112,6 @@ const styles = StyleSheet.create({
   text: {
     color: '#fff',
   },
-  // these next styles came from https://stackoverflow.com/questions/68350980/react-native-floating-or-popup-screen-question
-  centeredView: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 22
-  },
-  modalView: {
-    margin: 20,
-    backgroundColor: "white",
-    borderRadius: 5,
-    padding: 35,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5
-  },
-  skillButton: {
-    padding: 10
-  }
 });
 
 
@@ -172,9 +134,12 @@ const pseudodungeon: DungeonState = {
       level: 1,
       growthRate: 1,
 
-      SupportSkills: [Skills.SingleBlockDestroy.factory({})],
+      SupportSkills: [{
+        ...Skills.SingleBlockDestroy.factory({}),
+        type: "SingleBlockDestroy"
+      }],
     },
-    currentCharge: 49,
+    currentCharge: 60,
     currentHP: 70,
     maxHP: 100,
   },
@@ -196,7 +161,15 @@ const pseudodungeon: DungeonState = {
       level: 1,
       growthRate: 1,
 
-      SupportSkills: [Skills.SingleBlockDestroy.factory({}), Skills.MatchColorBlockDestroy.factory({})],
+      SupportSkills: [
+        {
+          ...Skills.SingleBlockDestroy.factory({}),
+          type: "SingleBlockDestroy"
+        }, 
+        {
+          ...Skills.MatchColorBlockDestroy.factory({}),
+          type: "MatchColorBlockDestroy"
+        }],
     },
     currentCharge: 30,
     currentHP: 100,

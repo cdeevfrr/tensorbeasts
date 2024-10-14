@@ -2,10 +2,11 @@ import { DungeonState } from "@/Game/Dungeon/DungeonState";
 import { View, StyleSheet } from "react-native";
 import { BlockC } from "./BlockC";
 
-export function BlockBoardC(props: {board: DungeonState["board"]}){
-
+export function BlockBoardC({board}: {board: DungeonState["board"]}){
+    const xPlanes = [...board.blocks]
+    xPlanes.reverse()
     return <View style={styles.container}>
-        {props.board.blocks.map((xHyperplane) => {
+        {xPlanes.map((xHyperplane) => {
             const y = 0
             const z = 0
             const a = 0

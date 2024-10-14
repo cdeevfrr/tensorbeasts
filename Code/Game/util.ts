@@ -1,6 +1,6 @@
 
 
-function randInt({
+export function randInt({
     min, 
     maxExclusive
 }: {

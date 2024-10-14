@@ -1,5 +1,5 @@
 // Represents a beast when inside a dungeon (not when managing your beasts)
-interface BeastState {
+export interface BeastState {
     beast: Beast,
 
     maxHP: number,

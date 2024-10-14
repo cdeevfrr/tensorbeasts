@@ -2,6 +2,10 @@ import { accessLocation, Board, cloneBoard } from "./Board"
 import { DestroyEvent } from "./DestroyEvent"
 import { locationsIter, Location, setLocation } from "./Board"
 import { Block } from "./Block"
+import { BeastState } from "./BeastState"
+import { SupportSkill } from "../Beasts/SupportSkill"
+import { Skills } from "../SkillDex/SkillTypeList"
+import { randInt } from "../util"
 
 export interface DungeonState {
     party: Array<BeastState>
@@ -31,7 +35,7 @@ export function fallOne(dungeonState: DungeonState, clone: boolean = true){
         // Boards should be a full on class, exposing a swap function.
         // Heck, we should probably even expose a 'Fall' that just takes a 'generateBlock' function
         // as an arg.
-        if (accessLocation([x,y,z,a,b], newBoard)) {
+        if (!accessLocation([x,y,z,a,b], newBoard)) {
             const above = accessLocation([x+1,y,z,a,b], newBoard) 
             if (above == undefined){
                 newBoard.blocks[x][y][z][a][b] = generateBlock(dungeonState)
@@ -52,6 +56,16 @@ export function fall(dungeonState: DungeonState, clone = true){
     return fallOne(dungeonState, clone)
 }
 
+/**
+ * Destroy the blocks at the selected locations; fall afterwards.
+ * 
+ * Clone is used to skip the expensive clone state if you've already cloned the dungeonState this render cycle.
+ * It has a sensible default if you aren't sure.
+ * @param dungeonState 
+ * @param locations 
+ * @param clone 
+ * @returns 
+ */
 export function destroyBlocks(dungeonState: DungeonState, locations: Array<Location>, clone = true): DungeonState{
     const newDungeonState: DungeonState = clone? JSON.parse(JSON.stringify(dungeonState)) : dungeonState
 
@@ -76,9 +90,13 @@ export function destroyBlocks(dungeonState: DungeonState, locations: Array<Locat
 
 export function generateBlock(dungeonState: DungeonState): Block{
     return {
-        color: randInt({min: 0, maxExclusive: 3}),
-        shape: randInt({min: 0, maxExclusive: 3}),
-        number: randInt({min: 0, maxExclusive: 3}),
+        color: randInt({min: 1, maxExclusive: 6}),
+        shape: randInt({min: 1, maxExclusive: 6}),
+        number: randInt({min: 1, maxExclusive: 6}),
     }
+}
+
+export function useSkill(dungeonState: DungeonState, beast: BeastState, skill: SupportSkill): DungeonState{
+    return Skills[skill.type].execute(skill, dungeonState, beast, {})
 }
 
