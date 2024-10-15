@@ -53,9 +53,7 @@ export default function DungeonScreen({loadedState}: {loadedState: DungeonState}
       {/* Right side */}
       <View style={styles.rightBlock}>
         <View style={styles.stack}>
-          <Text>HI</Text>
-          <Text>There</Text>
-
+          <Text>Stack</Text>
           <StackC 
             destroyEvents={dungeonState.stack}
           />
@@ -103,7 +101,6 @@ const styles = StyleSheet.create({
   },
   stack: {
     flex: 6,
-    justifyContent: 'center',
     alignItems: 'center',
   },
   attackButton: {
