@@ -46,7 +46,15 @@ export default function DungeonScreen({loadedState}: {loadedState: DungeonState}
 
           {/* Render the current party */} 
           <BeastRowC 
-              beasts={dungeonState.party}
+              beasts={dungeonState.vanguard}
+              beastClickCallback={beastClickedCallback}
+              />
+          <BeastRowC 
+              beasts={dungeonState.core}
+              beastClickCallback={beastClickedCallback}
+              />
+          <BeastRowC 
+              beasts={dungeonState.support}
               beastClickCallback={beastClickedCallback}
               />
       </View>
@@ -113,7 +121,9 @@ const styles = StyleSheet.create({
 
 
 const pseudodungeon: DungeonState = {
-  party: [{
+  vanguard: [],
+  core: [],
+  support: [{
     beast: {
       colors: [1],
       species: 1,

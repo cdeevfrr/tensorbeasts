@@ -8,7 +8,28 @@ import { Skills } from "../SkillDex/SkillTypeList"
 import { randInt } from "../util"
 
 export interface DungeonState {
-    party: Array<BeastState>
+    // Vanguard beasts have effects like
+    //  - if >2 combos, 9X attack
+    //  - if >10 of color purple, 2.5X attack
+    vanguard: Array<BeastState>
+    // Core beasts have stack->attack effects like 
+    //  - 'when attacking, count blocks destroyed. All beasts attack at that power' 
+    //  - 'when attacking, check if color/number/shape destroyed. All beasts of that color/number/shape attack at 100%'
+    //  - 'when attacking, if blocks destroyed > 1, all beasts attack at 100% power'
+    // and match-criteria effects (once per attack cycle) like
+    //     - a match is a continuous block of one color
+    //     - a match is a row of three of the same number
+    //     - a match is a 4D cube
+    // Core beast effects are always based on majority - the majority of core beasts must have this effect for it to trigger.
+    core: Array<BeastState> 
+    // Support beasts have active effects, like
+    //  - Destroy a fixed/selected block
+    //  - move blocks for n seconds (like PAD style movement)
+    //  - sort blocks
+    //  - Destroy selected block if it matches this beast's color
+    //  - Destroy all blocks of color ____
+    //  - Replace all blocks like __ with __
+    support: Array<BeastState>
     enemies: Array<BeastState>
     board: Board
     // effects: Array<Buff> // Things like 'increased defense for X turns', 'increased chance of yellow for 3 turns', 'increase all beast stats by 2.2X' from core beasts, similar.
