@@ -3,7 +3,9 @@ import { SupportSkill } from "./SupportSkill"
 // Represents a beast when managing your collection of beasts, outside a dungeon.
 export interface Beast {
     species: number,
-    colors: Array<number> // Each color (aka type) is represented by one number.
+    colors?: Array<number> // Should be nonempty if present.
+    numbers?: Array<number> // Should be nonempty if present.
+    shapes?: Array<number> // Should be nonempty if present.
 
     baseHP: number,
     baseAttack: number,
