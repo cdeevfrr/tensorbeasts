@@ -3,8 +3,8 @@ import { DestroyEvent } from "./DestroyEvent"
 import { locationsIter, Location, setLocation } from "./Board"
 import { Block } from "./Block"
 import { BeastState } from "./BeastState"
-import { SupportSkill } from "../Beasts/SupportSkill"
-import { SupportSkills } from "../SkillDex/Support/SkillTypeList"
+import { SupportSkill } from "../SkillDex/Support/SupportSkill"
+import { SupportSkills } from "../SkillDex/Support/SupportSkillList"
 import { randInt } from "../util"
 
 export interface DungeonState {

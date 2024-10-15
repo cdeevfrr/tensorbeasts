@@ -1,5 +1,5 @@
 import { accessLocation } from "@/Game/Dungeon/Board"
-import { SkillBlueprint } from "./SkillBlueprint"
+import { SkillBlueprint } from "./SupportSkillBlueprint"
 import { destroyBlocks } from "@/Game/Dungeon/DungeonState"
 
 
@@ -15,7 +15,7 @@ export const MatchColorBlockDestroy: SkillBlueprint = {
         const location = [0,0,0,0,0]
         const selectedBlock = accessLocation(location, dungeonState.board)
         const selectedColor = selectedBlock?.color || -1
-        if (caller.beast.colors.includes(selectedColor)){
+        if (caller.beast.colors && caller.beast.colors.includes(selectedColor)){
             return destroyBlocks(dungeonState, [[0,0,0,0,0]])
         } else {
             return dungeonState

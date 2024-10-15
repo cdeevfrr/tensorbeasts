@@ -2,10 +2,10 @@ import { BeastRowC } from '@/components/BeastRowC';
 import { BlockBoardC } from '@/components/BlockBoardC';
 import { SkillSelectModal } from '@/components/SkillSelectModal';
 import { StackC } from '@/components/StackC';
-import { SupportSkill } from '@/Game/Beasts/SupportSkill';
+import { SupportSkill } from '@/Game/SkillDex/Support/SupportSkill';
 import { BeastState } from '@/Game/Dungeon/BeastState';
 import { DungeonState, useSkill } from '@/Game/Dungeon/DungeonState';
-import { SupportSkills } from '@/Game/SkillDex/Support/SkillTypeList';
+import { SupportSkills } from '@/Game/SkillDex/Support/SupportSkillList';
 import { useState } from 'react';
 import { Text, View, StyleSheet, Button, Alert, Modal } from 'react-native';
 

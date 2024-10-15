@@ -1,4 +1,4 @@
-import { SupportSkill } from "./SupportSkill"
+import { SupportSkill } from "../SkillDex/Support/SupportSkill"
 
 // Represents a beast when managing your collection of beasts, outside a dungeon.
 export interface Beast {

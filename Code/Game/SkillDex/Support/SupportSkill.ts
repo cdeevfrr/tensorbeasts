@@ -1,4 +1,4 @@
-import { SupportSkills } from "../SkillDex/Support/SkillTypeList"
+import { SupportSkills } from "./SupportSkillList"
 
 // Represents an active skill that can be used by a beast in the support section of a dungeon, 
 // once the beast is charged enough.

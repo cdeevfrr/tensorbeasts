@@ -1,4 +1,4 @@
-import { SupportSkill } from "../../Beasts/SupportSkill"
+import { SupportSkill } from "./SupportSkill"
 import { BeastState } from "../../Dungeon/BeastState"
 import { DungeonState } from "../../Dungeon/DungeonState"
 
