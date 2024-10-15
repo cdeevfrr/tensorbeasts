@@ -4,7 +4,7 @@ import { locationsIter, Location, setLocation } from "./Board"
 import { Block } from "./Block"
 import { BeastState } from "./BeastState"
 import { SupportSkill } from "../Beasts/SupportSkill"
-import { Skills } from "../SkillDex/SkillTypeList"
+import { SupportSkills } from "../SkillDex/Support/SkillTypeList"
 import { randInt } from "../util"
 
 export interface DungeonState {
@@ -119,6 +119,6 @@ export function generateBlock(dungeonState: DungeonState): Block{
 }
 
 export function useSkill(dungeonState: DungeonState, beast: BeastState, skill: SupportSkill): DungeonState{
-    return Skills[skill.type].execute(skill, dungeonState, beast, {})
+    return SupportSkills[skill.type].execute(skill, dungeonState, beast, {})
 }
 

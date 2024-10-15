@@ -1,5 +1,5 @@
 import { destroyBlocks } from "@/Game/Dungeon/DungeonState"
-import { SkillBlueprint } from "../SkillBlueprint"
+import { SkillBlueprint } from "./SkillBlueprint"
 
 export const SingleBlockDestroy: SkillBlueprint = {
     factory: () => {

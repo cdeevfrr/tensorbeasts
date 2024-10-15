@@ -5,7 +5,7 @@ import { StackC } from '@/components/StackC';
 import { SupportSkill } from '@/Game/Beasts/SupportSkill';
 import { BeastState } from '@/Game/Dungeon/BeastState';
 import { DungeonState, useSkill } from '@/Game/Dungeon/DungeonState';
-import { Skills } from '@/Game/SkillDex/SkillTypeList';
+import { SupportSkills } from '@/Game/SkillDex/Support/SkillTypeList';
 import { useState } from 'react';
 import { Text, View, StyleSheet, Button, Alert, Modal } from 'react-native';
 
@@ -142,7 +142,7 @@ const pseudodungeon: DungeonState = {
       growthRate: 1,
 
       SupportSkills: [{
-        ...Skills.SingleBlockDestroy.factory({}),
+        ...SupportSkills.SingleBlockDestroy.factory({}),
         type: "SingleBlockDestroy"
       }],
     },
@@ -170,11 +170,11 @@ const pseudodungeon: DungeonState = {
 
       SupportSkills: [
         {
-          ...Skills.SingleBlockDestroy.factory({}),
+          ...SupportSkills.SingleBlockDestroy.factory({}),
           type: "SingleBlockDestroy"
         }, 
         {
-          ...Skills.MatchColorBlockDestroy.factory({}),
+          ...SupportSkills.MatchColorBlockDestroy.factory({}),
           type: "MatchColorBlockDestroy"
         }],
     },

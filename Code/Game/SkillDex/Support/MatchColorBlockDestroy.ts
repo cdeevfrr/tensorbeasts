@@ -1,5 +1,5 @@
 import { accessLocation } from "@/Game/Dungeon/Board"
-import { SkillBlueprint } from "../SkillBlueprint"
+import { SkillBlueprint } from "./SkillBlueprint"
 import { destroyBlocks } from "@/Game/Dungeon/DungeonState"
 
 
