@@ -72,8 +72,9 @@ export function destroyBlocks(dungeonState: DungeonState, locations: Array<Locat
     const destroyEvent: DestroyEvent = {
         blocksDestroyed: cloneBoard(dungeonState.board)
     }
+    const locationsSet = new Set(locations.map(location => JSON.stringify(location)))
     for (const location of locationsIter(destroyEvent.blocksDestroyed)){
-        if (!locations.includes(location)) {
+        if (!locationsSet.has(JSON.stringify(location))) {
             setLocation(location, destroyEvent.blocksDestroyed, null)
         }
     }
