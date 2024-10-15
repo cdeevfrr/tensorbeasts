@@ -11,7 +11,7 @@ export interface DungeonState {
     party: Array<BeastState>
     enemies: Array<BeastState>
     board: Board
-    // effects: Array<Buff> // Things like 'increased defense for X turns', 'increased chance of yellow for 3 turns'.
+    // effects: Array<Buff> // Things like 'increased defense for X turns', 'increased chance of yellow for 3 turns', 'increase all beast stats by 2.2X' from core beasts, similar.
     stack: Array<DestroyEvent>
 }
 
