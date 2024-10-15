@@ -1,3 +1,6 @@
+import { Beast } from "../Beasts/Beast";
+import { Buff } from "./Buff";
+
 // Represents a beast when inside a dungeon (not when managing your beasts)
 export interface BeastState {
     beast: Beast,

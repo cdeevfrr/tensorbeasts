@@ -1,6 +1,7 @@
+import { SupportSkill } from "./SupportSkill"
 
 // Represents a beast when managing your collection of beasts, outside a dungeon.
-interface Beast {
+export interface Beast {
     species: number,
     colors: Array<number> // Each color (aka type) is represented by one number.
 
