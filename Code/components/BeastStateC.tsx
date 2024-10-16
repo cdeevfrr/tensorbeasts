@@ -1,3 +1,4 @@
+import { BeastState } from "@/Game/Dungeon/BeastState";
 import Svg, { Rect } from "react-native-svg";
 
 export function BeastStateC({
@@ -7,9 +8,10 @@ export function BeastStateC({
     beast: BeastState
     beastClickCallback: (beast: BeastState) => any
 }){
-    const maxCharge = beast.beast.SupportSkills
+    const maxCharge = beast.beast.supportSkills
         .map(skill => skill.chargeRequirement)
-        .reduce((a, b) => Math.max(a, b), -Infinity)
+        .reduce((a, b) => Math.max(a, b), 0)
+    
     return <Svg height="50%" width="50%" viewBox="0 0 100 100">
         <Rect onPress={() => beastClickCallback(beast)}
             x="15"
@@ -42,7 +44,7 @@ export function BeastStateC({
         />
 
         {/* Charge bar */}
-        <Rect
+        {maxCharge > 0 && <Rect
             x="20"
             y="75"
             width="60"
@@ -50,8 +52,8 @@ export function BeastStateC({
             stroke="grey"
             strokeWidth="0.2"
             fill="grey"
-        />
-        <Rect
+        />}
+        {maxCharge > 0 && <Rect
             x="20"
             y="75"
             width={ Math.floor(beast.currentCharge / maxCharge * 60)}
@@ -59,9 +61,9 @@ export function BeastStateC({
             stroke="grey"
             strokeWidth="0.2"
             fill="green"
-        />
+        />}
         {
-            beast.beast.SupportSkills.map(skill => {
+            beast.beast.supportSkills.map(skill => {
                 return <Rect
                     x={Math.floor(skill.chargeRequirement / maxCharge * 60) + 20}
                     y="75"

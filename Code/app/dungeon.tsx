@@ -132,14 +132,16 @@ const pseudodungeon: DungeonState = {
       baseDefense: 1,
       baseHP: 100,
 
+      growthDetails: {
 
-      attackGain: 1,
-      defenseGain: 1,
-      hpGain: 1,
-
-      experience: 100,
+        attackGain: 1,
+        defenseGain: 1,
+        hpGain: 1,
+  
+        experience: 100,
+        growthRate: 1,
+      },
       level: 1,
-      growthRate: 1,
 
       supportSkills: [],
       coreMatchSkill: {
@@ -164,14 +166,16 @@ const pseudodungeon: DungeonState = {
       baseDefense: 1,
       baseHP: 100,
 
+      growthDetails: {
 
-      attackGain: 1,
-      defenseGain: 1,
-      hpGain: 1,
-
-      experience: 100,
+        attackGain: 1,
+        defenseGain: 1,
+        hpGain: 1,
+  
+        experience: 100,
+        growthRate: 1,
+      },
       level: 1,
-      growthRate: 1,
 
       supportSkills: [{
         ...SupportSkills.SingleBlockDestroy.factory({}),
@@ -191,14 +195,17 @@ const pseudodungeon: DungeonState = {
       baseDefense: 1,
       baseHP: 100,
 
+      growthDetails: {
 
-      attackGain: 1,
-      defenseGain: 1,
-      hpGain: 1,
+        attackGain: 1,
+        defenseGain: 1,
+        hpGain: 1,
+  
+        experience: 100,
+        growthRate: 1,
+      },
 
-      experience: 100,
       level: 1,
-      growthRate: 1,
 
       supportSkills: [
         {
@@ -214,7 +221,20 @@ const pseudodungeon: DungeonState = {
     currentHP: 100,
     maxHP: 100,
   }],
-  enemies: [],
+  enemies: [{
+    currentCharge: 50,
+    currentHP: 100,
+    maxHP: 100,
+    beast: {
+      baseAttack: 100,
+      baseDefense: 2,
+      baseHP: 100,
+      level: 1,
+      species: 3,
+      supportSkills: [],
+      colors: [2],
+    }
+  }],
   board: {
     blocks: [
       [[[[{

@@ -17,14 +17,17 @@ export interface Beast {
     // baseCharge: number,
 
     level: number
-    experience: number,
-    growthRate: number // How much experience per level
 
-    // Gains are "how much are these values increased per levelUp".
-    hpGain: number,
-    attackGain: number,
-    defenseGain: number,
-
+    growthDetails?: {
+        experience: number,
+        growthRate: number // How much experience per level
+    
+        // Gains are "how much are these values increased per levelUp".
+        hpGain: number,
+        attackGain: number,
+        defenseGain: number,
+    }
+    
     // VanguardSkills: Array<VanguardSkill>, // Changes results of matching, eg multiplies damage when ___.
     // CoreSkills: Array<CoreSkill>, // Changes how matching works & dimension length.
     supportSkills: Array<SupportSkill>, // Active effects started by player
