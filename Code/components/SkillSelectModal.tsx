@@ -23,7 +23,7 @@ export function SkillSelectModal({
           <View style={styles.centeredView}>
           <View style={styles.modalView}>
             {beast && 
-              beast.beast.SupportSkills.map((skill) => {
+              beast.beast.supportSkills.map((skill) => {
                 if (beast.currentCharge >= skill.chargeRequirement){
                   return <Button 
                     onPress={() => {

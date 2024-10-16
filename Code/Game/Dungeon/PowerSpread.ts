@@ -37,6 +37,25 @@ export function matchToString(match: Match): MatchString{
     )
 }
 
+export function createPowerSpread({
+    matches,
+    powers,
+}: {
+    matches: Array<Match>,
+    powers: Array<number>
+}){
+    const result: PowerSpread = {}
+    if (matches.length !== powers.length){
+        throw new Error(
+            "Tried to create a power spread with unequal size matches & powers" 
+            + JSON.stringify({powers, matches}))
+    }
+    for (let i =0; i < matches.length; i++){
+        result[matchToString(matches[i])] = powers[i]
+    }
+    return result;
+}
+
 export function calculateAttack(
     powerSpread: PowerSpread, 
     beast: {

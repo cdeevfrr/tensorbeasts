@@ -1,0 +1,1 @@
+// Count blocks destroyed for each color/number/shape. All beasts of that color/number/shape attack at 100% power.

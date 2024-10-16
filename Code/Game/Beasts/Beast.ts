@@ -1,3 +1,4 @@
+import { StackAttackSkill } from "../SkillDex/Core/StackAttack/StackAttackSkill"
 import { SupportSkill } from "../SkillDex/Support/SupportSkill"
 
 // Represents a beast when managing your collection of beasts, outside a dungeon.
@@ -26,5 +27,8 @@ export interface Beast {
 
     // VanguardSkills: Array<VanguardSkill>, // Changes results of matching, eg multiplies damage when ___.
     // CoreSkills: Array<CoreSkill>, // Changes how matching works & dimension length.
-    SupportSkills: Array<SupportSkill>, // Active effects started by player
+    supportSkills: Array<SupportSkill>, // Active effects started by player
+
+    coreAttackSkill?: StackAttackSkill,
+    coreMatchSkill?: {fixME: number} // TODO: MatchSkill
 }

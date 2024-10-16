@@ -8,6 +8,7 @@ import { DungeonState, useSkill } from '@/Game/Dungeon/DungeonState';
 import { SupportSkills } from '@/Game/SkillDex/Support/SupportSkillList';
 import { useState } from 'react';
 import { Text, View, StyleSheet, Button, Alert, Modal } from 'react-native';
+import { StackAttackSkills } from '@/Game/SkillDex/Core/StackAttack/StackAttackList';
 
 
 
@@ -122,7 +123,38 @@ const styles = StyleSheet.create({
 
 const pseudodungeon: DungeonState = {
   vanguard: [],
-  core: [],
+  core: [{
+    beast: {
+      colors: [2],
+      species: 2,
+
+      baseAttack: 1,
+      baseDefense: 1,
+      baseHP: 100,
+
+
+      attackGain: 1,
+      defenseGain: 1,
+      hpGain: 1,
+
+      experience: 100,
+      level: 1,
+      growthRate: 1,
+
+      supportSkills: [],
+      coreMatchSkill: {
+        fixME: 1
+      },
+      coreAttackSkill: {
+        ...StackAttackSkills.CountAttack.factory({quality: 1}),
+        type: "CountAttack"
+      }
+
+    },
+    currentCharge: 0,
+    currentHP: 100,
+    maxHP: 100,
+  }],
   support: [{
     beast: {
       colors: [1],
@@ -141,7 +173,7 @@ const pseudodungeon: DungeonState = {
       level: 1,
       growthRate: 1,
 
-      SupportSkills: [{
+      supportSkills: [{
         ...SupportSkills.SingleBlockDestroy.factory({}),
         type: "SingleBlockDestroy"
       }],
@@ -168,7 +200,7 @@ const pseudodungeon: DungeonState = {
       level: 1,
       growthRate: 1,
 
-      SupportSkills: [
+      supportSkills: [
         {
           ...SupportSkills.SingleBlockDestroy.factory({}),
           type: "SingleBlockDestroy"
