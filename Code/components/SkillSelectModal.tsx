@@ -1,7 +1,7 @@
 
 import { Modal, View, StyleSheet, Button } from 'react-native';
 import { BeastState } from '../Game/Dungeon/BeastState'
-import { SupportSkill } from '@/Game/Beasts/SupportSkill';
+import { SupportSkill } from '@/Game/SkillDex/Support/SupportSkill';
 
 export function SkillSelectModal({
     onRequestClose,
