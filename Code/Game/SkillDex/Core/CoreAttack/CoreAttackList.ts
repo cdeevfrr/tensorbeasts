@@ -1,5 +1,5 @@
 import { CountAttack } from "./CountAttack";
 
-export const StackAttackSkills = {
+export const CoreAttackSkills = {
     "CountAttack": CountAttack
 }

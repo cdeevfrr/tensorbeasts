@@ -4,11 +4,11 @@
 // Higher quality versions of this skill will have lower threshold.
 
 import { countBlocksDestroyed, DestroyEvent } from "@/Game/Dungeon/DestroyEvent"
-import { StackAttackSkill } from "./StackAttackSkill"
-import { StackAttackSkillBlueprint } from "./StackAttackSkillBlueprint"
+import { CoreAttackSkill } from "./CoreAttackSkill"
+import { CoreAttackSkillBlueprint } from "./CoreAttackSkillBlueprint"
 import { createPowerSpread } from "@/Game/Dungeon/PowerSpread"
 
-export const CountAttack: StackAttackSkillBlueprint = {
+export const CountAttack: CoreAttackSkillBlueprint = {
     factory: ({quality}: {quality: number}) => {
         return {
             threshold: 5 - Math.floor(quality / 3),
@@ -20,7 +20,7 @@ export const CountAttack: StackAttackSkillBlueprint = {
         self, 
         stack
     }:{
-        self: StackAttackSkill & any
+        self: CoreAttackSkill & any
         stack: Array<DestroyEvent>
     }) => {
         const count = stack.map((event) => {

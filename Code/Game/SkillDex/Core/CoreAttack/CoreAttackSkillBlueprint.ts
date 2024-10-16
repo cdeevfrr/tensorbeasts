@@ -1,14 +1,14 @@
 import { DestroyEvent } from "@/Game/Dungeon/DestroyEvent";
-import { StackAttackSkill } from "./StackAttackSkill";
+import { CoreAttackSkill } from "./CoreAttackSkill";
 import { PowerSpread } from "@/Game/Dungeon/PowerSpread";
 
-export interface StackAttackSkillBlueprint {
-    factory: ({quality}: {quality: number}) => Omit<StackAttackSkill, "type">,
+export interface CoreAttackSkillBlueprint {
+    factory: ({quality}: {quality: number}) => Omit<CoreAttackSkill, "type">,
     process: ({
         self, 
         stack
     }: {
-        self: StackAttackSkill & any, 
+        self: CoreAttackSkill & any, 
         stack: Array<DestroyEvent>
     }) => PowerSpread
 }

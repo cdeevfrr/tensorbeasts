@@ -8,7 +8,7 @@ import { DungeonState, useSkill } from '@/Game/Dungeon/DungeonState';
 import { SupportSkills } from '@/Game/SkillDex/Support/SupportSkillList';
 import { useState } from 'react';
 import { Text, View, StyleSheet, Button, Alert, Modal } from 'react-native';
-import { StackAttackSkills } from '@/Game/SkillDex/Core/StackAttack/StackAttackList';
+import { CoreAttackSkills } from '@/Game/SkillDex/Core/CoreAttack/CoreAttackList';
 
 
 
@@ -146,7 +146,7 @@ const pseudodungeon: DungeonState = {
         fixME: 1
       },
       coreAttackSkill: {
-        ...StackAttackSkills.CountAttack.factory({quality: 1}),
+        ...CoreAttackSkills.CountAttack.factory({quality: 1}),
         type: "CountAttack"
       }
 
