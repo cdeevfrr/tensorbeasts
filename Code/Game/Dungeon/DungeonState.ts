@@ -6,6 +6,7 @@ import { BeastState } from "./BeastState"
 import { SupportSkill } from "../SkillDex/Support/SupportSkill"
 import { SupportSkills } from "../SkillDex/Support/SupportSkillList"
 import { randInt } from "../util"
+import { BeastLocation } from "../Beasts/BeastLocation"
 
 export interface DungeonState {
     // Vanguard beasts have effects like
@@ -122,3 +123,81 @@ export function useSkill(dungeonState: DungeonState, beast: BeastState, skill: S
     return SupportSkills[skill.type].execute(skill, dungeonState, beast, {})
 }
 
+// Note: This function intentionally tries to find _something_ to give you, 
+// even if the location isn't quite right.
+// That way attacks will still do something even if the target was killed.
+export function beastAt({
+    d, 
+    location
+}:{
+    d: DungeonState, 
+    location: BeastLocation
+}): BeastState | undefined{
+    const array = d[location.array]
+
+    if (array == undefined){
+        return undefined
+    }
+
+    if (location.index > array.length - 1){
+        return array[array.length - 1]
+    }
+
+    if (location.index < 0){
+        return array[0]
+    }
+
+    return array[location.index]
+}
+
+export function processBeastAttack({
+    beastLocation,
+    d
+}: {
+    d: DungeonState,
+    beastLocation: BeastLocation
+}): DungeonState {
+    let attacker = beastAt({d, location: beastLocation})
+    if (!attacker){
+        return d
+    }
+    const attacks = attacker.pendingAttacks;
+
+    if (!attacks){
+        return d
+    }
+    if (attacks.length == 0){
+        return d
+    }
+
+    const newState: DungeonState = JSON.parse(JSON.stringify(d))
+
+    attacker = beastAt({d: newState, location: beastLocation}) as BeastState
+    attacker.pendingAttacks = []
+
+    for (const attack of attacks){
+        const target = beastAt({d: newState, location: attack.target})
+        if (!target){
+            continue
+        }
+        const preDefDamage = attacker.beast.baseAttack * attack.power
+        // TODO: Modify power based on color/number/shape of attack & target
+        const def = target.beast.baseDefense
+        console.log(attack.power)
+        console.log(preDefDamage)
+        console.log(def)
+        const damage = preDefDamage * Math.pow(3, -1 + (preDefDamage / def - 1)/2)
+
+        console.log("Dealing " + damage  + "damage")
+        target.currentHP -= damage
+
+        // Check for dead beasts
+        if (target.currentHP < 0){
+            // Because beastAt may cleverly 'find' a beast, 
+            // to eliminate something, we have to lookup its true index.
+            const trueIndex = newState[attack.target.array].indexOf(target)
+            newState[attack.target.array].splice(trueIndex, 1)
+        }
+    } 
+    return newState
+}

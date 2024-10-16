@@ -15,27 +15,9 @@
 //    the power of a color 3 number 2 shape 4 is 100% * 50% * 150% = 75%
 //
 
+import { Match, MatchString, matchToString } from "../Beasts/Match"
+
 export type PowerSpread = Record<MatchString, number>
-
-export type MatchString = string
-
-export interface Match {
-    color?: number,
-    shape?: number,
-    number?: number,
-}
-
-// This toString function lets us use matches as keys in a powerSpread. 
-// It mainly just ensures it's stringified in alphabetical order
-export function matchToString(match: Match): MatchString{
-    return JSON.stringify(
-        {
-            color: match.color,
-            shape: match.shape,
-            number: match.number
-        }
-    )
-}
 
 export function createPowerSpread({
     matches,
@@ -56,13 +38,16 @@ export function createPowerSpread({
     return result;
 }
 
-export function calculateAttack(
+export function calculateAttack({
+    powerSpread, beast
+}: {
     powerSpread: PowerSpread, 
     beast: {
         colors?: Array<number>
         numbers?: Array<number>
         shapes?: Array<number>
-    }): Array<Attack> {
+    }
+}): Array<Attack> {
         let matches: Array<Match> = [{}]
         if (beast.colors) {
             const newMatches = []
@@ -103,18 +88,21 @@ export function calculateAttack(
 
         const result: Array<Attack> = []
         for (const match of matches){
-            result.push({
-                power: powerForMatch(powerSpread, match),
-                match: match
-            })
+            const power = powerForMatch(powerSpread, match)
+            if (power != 0){
+                result.push({
+                    power,
+                    match
+                })
+            }
         }
+
         return result
 }
 
 function powerForMatch(powerSpread: PowerSpread, match: Match): number{
     // Check {}, {color}, {number}, {shape}, {color number}, {color shape}, {number shape}, {color, number, shape}
     const multipliers:Array<number | undefined> = [];
-    console.log(powerSpread)
     if (match.color){
         const toCheck = {
             color: match.color
@@ -171,7 +159,6 @@ function powerForMatch(powerSpread: PowerSpread, match: Match): number{
     }
     multipliers.push(powerSpread[matchToString({})])
 
-    console.log(multipliers)
     // Types here are weird - we return early before any undefineds can be returned.
     if (multipliers.filter(x => x !== undefined).length == 0){
         return 0

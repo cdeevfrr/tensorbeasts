@@ -1,5 +1,7 @@
+import { CoreAttackSkills } from "./CoreAttackList";
+
 export interface CoreAttackSkill {
     quality: number,
     name: string,
-    type: string, // Used to lookup the correct `process` function.
+    type: keyof typeof CoreAttackSkills, // Used to lookup the correct `process` function.
 }

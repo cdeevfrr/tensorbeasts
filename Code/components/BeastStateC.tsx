@@ -1,5 +1,7 @@
+import { GameColors } from "@/constants/GameColors";
 import { BeastState } from "@/Game/Dungeon/BeastState";
-import Svg, { Rect } from "react-native-svg";
+import { View } from "react-native";
+import Svg, { Rect, Text } from "react-native-svg";
 
 export function BeastStateC({
     beast,
@@ -20,7 +22,9 @@ export function BeastStateC({
             height="70"
             stroke="red"
             strokeWidth="2"
-            fill="yellow"
+            fill={beast.beast.colors?.[0] ?
+                GameColors[beast.beast.colors[0]].background 
+                : GameColors['default'].background}
         />
 
         {/* Health bar */}
@@ -53,7 +57,7 @@ export function BeastStateC({
             strokeWidth="0.2"
             fill="grey"
         />}
-        {maxCharge > 0 && <Rect
+        {maxCharge > 0 && <Rect 
             x="20"
             y="75"
             width={ Math.floor(beast.currentCharge / maxCharge * 60)}
@@ -75,5 +79,15 @@ export function BeastStateC({
                 />
             })
         }
+
+        {beast.pendingAttacks && beast.pendingAttacks.map((atk, index) => {
+            const preDefDamage = atk.power * beast.beast.baseAttack
+            return <Text 
+              x="20" 
+              y={"" + (40 + index * 5)}
+              fill={atk.match.color? GameColors[atk.match.color].border: "black"}>
+                {preDefDamage > 1000? preDefDamage.toExponential() : preDefDamage}
+            </Text>
+        })}
     </Svg>
 }

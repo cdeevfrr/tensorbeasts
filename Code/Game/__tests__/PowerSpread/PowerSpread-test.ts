@@ -1,5 +1,5 @@
+import { matchToString } from "@/Game/Beasts/Match"
 import { calculateAttack, PowerSpread } from "@/Game/Dungeon/PowerSpread"
-import { matchToString } from "@/Game/Dungeon/PowerSpread"
 
 it('Works with the example in comments', () => {
     const p: PowerSpread = {
@@ -34,10 +34,9 @@ it('Works with the example in comments', () => {
         numbers: [2],
         shapes: [4],
     }
-    expect(calculateAttack(p, beast1)[0].power).toBe(0)
-    expect(calculateAttack(p, beast2)[0].power).toBe(1)
-    expect(calculateAttack(p, beast3)[0].power).toBe(.5)
-    expect(calculateAttack(p, beast4)[0].power).toBe(.75)
+    expect(calculateAttack({powerSpread: p, beast: beast2})[0].power).toBe(1)
+    expect(calculateAttack({powerSpread: p, beast: beast3})[0].power).toBe(.5)
+    expect(calculateAttack({powerSpread: p, beast: beast4})[0].power).toBe(.75)
 
 })
 
@@ -61,28 +60,28 @@ it('Handles beasts with multiple colors/shapes/numbers', () => {
         })]: 7,
     }
 
-    expect(calculateAttack(p, {
+    expect(calculateAttack({
+        powerSpread: p, 
+        beast: {
         colors: [1, 2]
-    })).toEqual([
-        {match: {color: 1,}, power: 2},
-        {match: {color: 2,}, power: 0}
+    }})).toEqual([
+        {match: {color: 1,}, power: 2}
     ])
 
-    expect(calculateAttack(p, {
+    expect(calculateAttack({powerSpread: p, beast: {
         colors: [1, 2],
         numbers: [1, 2]
-    })).toEqual([
+    }})).toEqual([
         {match: {color: 1, number: 1}, power: 2},
-        {match: {color: 2, number: 1}, power: 0},
         {match: {color: 1, number: 2}, power: 2},
         {match: {color: 2, number: 2}, power: 3},
     ])
 
-    expect(calculateAttack(p, {
+    expect(calculateAttack({powerSpread: p, beast: {
         colors: [3],
         shapes: [4],
         numbers: [5, 6]
-    })).toEqual([
+    }})).toEqual([
         {match: {color: 3, number: 5, shape: 4}, power: 5 * 7},
         {match: {color: 3, number: 6, shape: 4}, power: 5},
     ])
