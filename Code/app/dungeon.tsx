@@ -3,15 +3,15 @@ import { BlockBoardC } from '@/components/BlockBoardC';
 import { SkillSelectModal } from '@/components/SkillSelectModal';
 import { StackC } from '@/components/StackC';
 import { SupportSkill } from '@/Game/SkillDex/Support/SupportSkill';
-import { BeastState } from '@/Game/Dungeon/BeastState';
-import { DungeonState, processBeastAttack, useSkill } from '@/Game/Dungeon/DungeonState';
+import { BeastState } from '@/Game/Battle/BeastState';
+import { BattleState, processBeastAttack, useSkill } from '@/Game/Battle/BattleState';
 import { SupportSkills } from '@/Game/SkillDex/Support/SupportSkillList';
 import { useState } from 'react';
 import { Text, View, StyleSheet, Button, Alert, Modal } from 'react-native';
 import { CoreAttackSkills } from '@/Game/SkillDex/Core/CoreAttack/CoreAttackList';
 import { ConfirmCoreModal } from '@/components/ConfirmCoreModal';
 import { CoreAttackSkill } from '@/Game/SkillDex/Core/CoreAttack/CoreAttackSkill';
-import { calculateAttack } from '@/Game/Dungeon/PowerSpread';
+import { calculateAttack } from '@/Game/Battle/PowerSpread';
 
 
 // Flow from not yet attacking (initial) to 
@@ -23,16 +23,16 @@ type attackFlowState = {
   selectedAttacker?: BeastState,
 }
 
-export default function DungeonScreen({loadedState}: {loadedState: DungeonState}) {
+export default function BattleScreen({loadedState}: {loadedState: BattleState}) {
   loadedState = pseudodungeon
 
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedBeast, setSelectedBeast] = useState<BeastState | null>(null)
-  const [dungeonState, setDungeonState] = useState(loadedState)
+  const [battleState, setBattleState] = useState(loadedState)
 
   const [attackFlowState, setAttackFlowState] = useState<attackFlowState>({state: 'initial'})
 
-  console.log(dungeonState)
+  console.log(battleState)
 
 
   // TODO: Combine these two callbacks into a supportSkillFlowState
@@ -41,8 +41,8 @@ export default function DungeonScreen({loadedState}: {loadedState: DungeonState}
     setModalVisible(true);
   };
   const useSkillCallback = (beast: BeastState, skill: SupportSkill) => {
-    const newState = useSkill(dungeonState, beast, skill)
-    setDungeonState(newState)
+    const newState = useSkill(battleState, beast, skill)
+    setBattleState(newState)
   }
 
   return (
@@ -51,23 +51,23 @@ export default function DungeonScreen({loadedState}: {loadedState: DungeonState}
       <View style={styles.leftBlock}>
           {/* Render any enemies */} 
           <BeastRowC 
-              beasts={dungeonState.enemies}
+              beasts={battleState.enemies}
               beastClickCallback={() => {}}
               minimize={attackFlowState.state == 'pickCore'}
           />
 
           {/* Render the block board */} 
-          <BlockBoardC board={dungeonState.board}/>
+          <BlockBoardC board={battleState.board}/>
 
           {/* Vanguard */} 
           <BeastRowC 
-              beasts={dungeonState.vanguard}
+              beasts={battleState.vanguard}
               beastClickCallback={() => {}}
               minimize={attackFlowState.state == 'pickCore'}
               />
           {/* Core */} 
           <BeastRowC 
-              beasts={dungeonState.core}
+              beasts={battleState.core}
               beastClickCallback={attackFlowState.state == 'pickCore'? (beast: BeastState) => {
                   // TODO: confirm button?
                   setAttackFlowState({
@@ -79,7 +79,7 @@ export default function DungeonScreen({loadedState}: {loadedState: DungeonState}
               />
           {/* Support */} 
           <BeastRowC 
-              beasts={dungeonState.support}
+              beasts={battleState.support}
               beastClickCallback={
                 attackFlowState.state == 'initial'? 
                   useSupportSkillCallback : 
@@ -92,7 +92,7 @@ export default function DungeonScreen({loadedState}: {loadedState: DungeonState}
         <View style={styles.stack}>
           <Text>Stack</Text>
           <StackC 
-            destroyEvents={dungeonState.stack}
+            destroyEvents={battleState.stack}
           />
         </View>
         <View style={styles.attackButton}>
@@ -106,8 +106,8 @@ export default function DungeonScreen({loadedState}: {loadedState: DungeonState}
             title={"Do it!"} 
             onPress={async () => {
               await animateTeamAttacks({
-                dungeonState,
-                setDungeonState,
+                battleState,
+                setBattleState,
               })
               setAttackFlowState({
                 state: 'initial'
@@ -132,15 +132,15 @@ export default function DungeonScreen({loadedState}: {loadedState: DungeonState}
               state: 'selectAttackerOrFinish'
             })
             await matchAnimation({
-              dungeonState: dungeonState,
+              battleState,
               matchCriteria: undefined, // attackFlowState.coreBeast?.beast.coreMatchSkill,
-              setDungeonState,
+              setBattleState,
             })
             console.log("Done matching")
             await calculateDamageAnimation({
-              dungeonState: dungeonState,
+              battleState: battleState,
               coreAttackCriteria: attackFlowState.coreBeast?.beast?.coreAttackSkill,
-              setDungeonState,
+              setBattleState: setBattleState,
             })
             console.log("Done calculating damage")
         }}
@@ -151,45 +151,45 @@ export default function DungeonScreen({loadedState}: {loadedState: DungeonState}
 }
 
 async function matchAnimation({
-  dungeonState,
+  battleState,
   matchCriteria,
 }: {
-  dungeonState: DungeonState
+  battleState: BattleState
   matchCriteria: undefined,
-  setDungeonState: (d: DungeonState) => void
+  setBattleState: (d: BattleState) => void
 }){
   // todo: 
-  // define `matchOne` in DungeonState
+  // define `matchOne` in BattleState
   // In this function:
   // until no changes: {
-  //    repeatedly call matchOne, setDungeonState, until no matches found
+  //    repeatedly call matchOne, setBattleState, until no matches found
   //    until no changes: {
-  //       repeatedly call fallOne, setDungeonState
+  //       repeatedly call fallOne, setBattleState
   //    }
   // }
 }
 
 async function calculateDamageAnimation({
-  dungeonState,
+  battleState: battleState,
   coreAttackCriteria,
-  setDungeonState,
+  setBattleState: setBattleState,
 }: {
-  dungeonState: DungeonState,
+  battleState: BattleState,
   coreAttackCriteria?: CoreAttackSkill,
-  setDungeonState: (d: DungeonState) => void,
+  setBattleState: (d: BattleState) => void,
 }){
   if (!coreAttackCriteria){
     return
   }
-  const newDungeonState: DungeonState = JSON.parse(JSON.stringify(dungeonState))
-  newDungeonState.stack = []
+  const newBattleState: BattleState = JSON.parse(JSON.stringify(battleState))
+  newBattleState.stack = []
 
   const powerSpread = CoreAttackSkills[coreAttackCriteria.type].process({
     self: coreAttackCriteria,
-    stack: dungeonState.stack
+    stack: battleState.stack
   })
 
-  for (const beast of [...newDungeonState.vanguard, ...newDungeonState.core, ...newDungeonState.support]){
+  for (const beast of [...newBattleState.vanguard, ...newBattleState.core, ...newBattleState.support]){
     beast.pendingAttacks = []
     const powers = calculateAttack({
       powerSpread,
@@ -205,7 +205,7 @@ async function calculateDamageAnimation({
       })
     }
     console.log("Calculated beast " + JSON.stringify(beast))
-    setDungeonState(JSON.parse(JSON.stringify(newDungeonState)))
+    setBattleState(JSON.parse(JSON.stringify(newBattleState)))
     await new Promise(resolve => setTimeout(resolve, 500));
   }
   
@@ -214,26 +214,26 @@ async function calculateDamageAnimation({
 
 type arrayName = 'vanguard' | 'core' | 'support' | 'enemies'
 async function animateTeamAttacks({
-  dungeonState,
-  setDungeonState,
+  battleState: battleState,
+  setBattleState: setBattleState,
 }:{
-  dungeonState: DungeonState
-  setDungeonState: (d: DungeonState) => void
+  battleState: BattleState
+  setBattleState: (d: BattleState) => void
 }){
   // Actions taken while animating will be undone, since we'll keep setting
-  // dungeonState equal to this animatedDungeonState (which nothing else can touch.)
-  let animatedDungeonState = dungeonState
+  // battleState equal to this animatedBattleState (which nothing else can touch.)
+  let animatedBattleState = battleState
   const groupsToAttack: Array<arrayName> = ['vanguard', 'core', 'support']
   for (const array of groupsToAttack) {
-    for (let i = 0; i < dungeonState[array].length; i++){
-      animatedDungeonState = processBeastAttack({
-        d: animatedDungeonState,
+    for (let i = 0; i < battleState[array].length; i++){
+      animatedBattleState = processBeastAttack({
+        d: animatedBattleState,
         beastLocation: {
           array: array,
           index: i
         }
       })
-      setDungeonState(animatedDungeonState)
+      setBattleState(animatedBattleState)
       await new Promise(resolve => setTimeout(resolve, 500));
 
     }
@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
 });
 
 
-const pseudodungeon: DungeonState = {
+const pseudodungeon: BattleState = {
   vanguard: [],
   core: [{
     beast: {

@@ -1,5 +1,5 @@
 import { matchToString } from "@/Game/Beasts/Match"
-import { calculateAttack, PowerSpread } from "@/Game/Dungeon/PowerSpread"
+import { calculateAttack, PowerSpread } from "@/Game/Battle/PowerSpread"
 
 it('Works with the example in comments', () => {
     const p: PowerSpread = {

@@ -1,4 +1,4 @@
-import { destroyBlocks } from "@/Game/Dungeon/DungeonState"
+import { destroyBlocks } from "@/Game/Battle/BattleState"
 import { SkillBlueprint } from "./SupportSkillBlueprint"
 
 export const SingleBlockDestroy: SkillBlueprint = {
@@ -8,7 +8,9 @@ export const SingleBlockDestroy: SkillBlueprint = {
             name: "Simple Destroy"
         }
     },
-    execute: (self, dungeonState, caller, props) => {
-        return destroyBlocks(dungeonState, [[0, 0, 0, 0, 0]])
-    }
+    psuedolevels: [...Array.from(Array(15).keys())], 
+    execute: (self, battleState, caller, props) => {
+        return destroyBlocks(battleState, [[0, 0, 0, 0, 0]])
+    },
+    commonality: 100,
 }

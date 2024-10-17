@@ -1,4 +1,4 @@
-import { countBlocksDestroyed, DestroyEvent } from "@/Game/Dungeon/DestroyEvent";
+import { countBlocksDestroyed, DestroyEvent } from "@/Game/Battle/DestroyEvent";
 import { View, Text, StyleSheet} from "react-native";
 
 export function StackC({destroyEvents}: {destroyEvents: Array<DestroyEvent>}){

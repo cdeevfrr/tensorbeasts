@@ -20,12 +20,18 @@ export interface Beast {
 
     growthDetails?: {
         experience: number,
-        growthRate: number // How much experience per level
+
+        // How much experience per level. 
+        // At 1, beasts often top out at around lvl 100. 
+        // At 2, around lvl 200 (which is an additional 2-3 pseudolevels with normal stat gain)
+        // At .5, around lvl 50 (which is about one pseudolevel less at normal stat gain.)
+        growthRate: number 
     
         // Gains are "how much are these values increased per levelUp".
         hpGain: number,
         attackGain: number,
         defenseGain: number,
+        // TODO: maxLevel: number,
     }
     
     // VanguardSkills: Array<VanguardSkill>, // Changes results of matching, eg multiplies damage when ___.
@@ -34,4 +40,23 @@ export interface Beast {
 
     coreAttackSkill?: CoreAttackSkill,
     coreMatchSkill?: {fixME: number} // TODO: MatchSkill
+}
+
+function expForNextLevel({beast}: {beast: Beast}){
+    const growthRate = beast.growthDetails?.growthRate || 1
+    return Math.pow(10 / growthRate, beast.level)
+}
+
+
+export function levelUp({beast}: {beast: Beast}){
+    const newBeast = JSON.parse(JSON.stringify(beast))
+
+    newBeast.level += 1
+    newBeast.experience = Math.max(0, newBeast.experience - expForNextLevel({beast}))
+
+    newBeast.baseHP += Math.floor((newBeast.hpGain + 1) * Math.random())
+    newBeast.baseAttack += Math.floor((newBeast.attackGain + 1) * Math.random())
+    newBeast.baseDefense += Math.floor((newBeast.defenseGain + 1) * Math.random())
+
+    return newBeast;
 }

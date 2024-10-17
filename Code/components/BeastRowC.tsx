@@ -1,6 +1,6 @@
 import { View, StyleSheet } from "react-native"
 import { BeastStateC } from "./BeastStateC"
-import { BeastState } from "@/Game/Dungeon/BeastState"
+import { BeastState } from "@/Game/Battle/BeastState"
 
 export function BeastRowC({
     beasts,

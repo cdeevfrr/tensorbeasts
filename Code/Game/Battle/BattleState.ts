@@ -8,7 +8,7 @@ import { SupportSkills } from "../SkillDex/Support/SupportSkillList"
 import { randInt } from "../util"
 import { BeastLocation } from "../Beasts/BeastLocation"
 
-export interface DungeonState {
+export interface BattleState {
     // Vanguard beasts have effects like
     //  - if >2 combos, 9X attack
     //  - if >10 of color purple, 2.5X attack
@@ -37,22 +37,22 @@ export interface DungeonState {
     stack: Array<DestroyEvent>
 }
 
-// fill in all nulls in the dungeon's board.
-// This function must live here because we need things like the dungeon current effects to decide
+// fill in all nulls in the battle's board.
+// This function must live here because we need things like the battle current effects to decide
 // what new blocks to generate.
-export function fallOne(dungeonState: DungeonState, clone: boolean = true){
-    const newDungeonState: DungeonState = clone? JSON.parse(JSON.stringify(dungeonState)) : dungeonState
+export function fallOne(battleState: BattleState, clone: boolean = true){
+    const newBattleState: BattleState = clone? JSON.parse(JSON.stringify(battleState)) : battleState
 
     // Gravity goes in the x direction, x=0 is the bottom of the screen & the bottom of gravity.
 
-    const newBoard = newDungeonState.board
+    const newBoard = newBattleState.board
 
     // For each y, z, a, b coordinate:
     //   check at x=0, x=1, x=2, and so on.
     //   If null, grab from the one above (if exists).
     //   If null and at top, generate one. 
     // This relies on the fact that locationsIter presents locations with lower x value first.
-    for (const [x, y, z, a, b] of locationsIter(dungeonState.board)){
+    for (const [x, y, z, a, b] of locationsIter(battleState.board)){
         // TODO: Clean this up.
         // Boards should be a full on class, exposing a swap function.
         // Heck, we should probably even expose a 'Fall' that just takes a 'generateBlock' function
@@ -60,7 +60,7 @@ export function fallOne(dungeonState: DungeonState, clone: boolean = true){
         if (!accessLocation([x,y,z,a,b], newBoard)) {
             const above = accessLocation([x+1,y,z,a,b], newBoard) 
             if (above == undefined){
-                newBoard.blocks[x][y][z][a][b] = generateBlock(dungeonState)
+                newBoard.blocks[x][y][z][a][b] = generateBlock(battleState)
             } else {
                 newBoard.blocks[x][y][z][a][b] = above
                 newBoard.blocks[x+1][y][z][a][b] = null
@@ -68,31 +68,31 @@ export function fallOne(dungeonState: DungeonState, clone: boolean = true){
         }
     }
 
-    newDungeonState.board = newBoard
-    return newDungeonState
+    newBattleState.board = newBoard
+    return newBattleState
 }
 
-export function fall(dungeonState: DungeonState, clone = true){
+export function fall(battleState: BattleState, clone = true){
     // TODO:
     // While fallOne causes changes, keep falling. 
-    return fallOne(dungeonState, clone)
+    return fallOne(battleState, clone)
 }
 
 /**
  * Destroy the blocks at the selected locations; fall afterwards.
  * 
- * Clone is used to skip the expensive clone state if you've already cloned the dungeonState this render cycle.
+ * Clone is used to skip the expensive clone state if you've already cloned the battleState this render cycle.
  * It has a sensible default if you aren't sure.
- * @param dungeonState 
+ * @param battleState 
  * @param locations 
  * @param clone 
  * @returns 
  */
-export function destroyBlocks(dungeonState: DungeonState, locations: Array<Location>, clone = true): DungeonState{
-    const newDungeonState: DungeonState = clone? JSON.parse(JSON.stringify(dungeonState)) : dungeonState
+export function destroyBlocks(battleState: BattleState, locations: Array<Location>, clone = true): BattleState{
+    const newBattleState: BattleState = clone? JSON.parse(JSON.stringify(battleState)) : battleState
 
     const destroyEvent: DestroyEvent = {
-        blocksDestroyed: cloneBoard(dungeonState.board)
+        blocksDestroyed: cloneBoard(battleState.board)
     }
     const locationsSet = new Set(locations.map(location => JSON.stringify(location)))
     for (const location of locationsIter(destroyEvent.blocksDestroyed)){
@@ -102,16 +102,16 @@ export function destroyBlocks(dungeonState: DungeonState, locations: Array<Locat
     }
 
 
-    newDungeonState.stack.push(destroyEvent)
+    newBattleState.stack.push(destroyEvent)
 
     for (const location of locations){
-        setLocation(location, newDungeonState.board, null)
+        setLocation(location, newBattleState.board, null)
     }
 
-    return fall(newDungeonState, false)
+    return fall(newBattleState, false)
 }
 
-export function generateBlock(dungeonState: DungeonState): Block{
+export function generateBlock(battleState: BattleState): Block{
     return {
         color: randInt({min: 1, maxExclusive: 6}),
         shape: randInt({min: 1, maxExclusive: 6}),
@@ -119,8 +119,8 @@ export function generateBlock(dungeonState: DungeonState): Block{
     }
 }
 
-export function useSkill(dungeonState: DungeonState, beast: BeastState, skill: SupportSkill): DungeonState{
-    return SupportSkills[skill.type].execute(skill, dungeonState, beast, {})
+export function useSkill(battleState: BattleState, beast: BeastState, skill: SupportSkill): BattleState{
+    return SupportSkills[skill.type].execute(skill, battleState, beast, {})
 }
 
 // Note: This function intentionally tries to find _something_ to give you, 
@@ -130,7 +130,7 @@ export function beastAt({
     d, 
     location
 }:{
-    d: DungeonState, 
+    d: BattleState, 
     location: BeastLocation
 }): BeastState | undefined{
     const array = d[location.array]
@@ -154,9 +154,9 @@ export function processBeastAttack({
     beastLocation,
     d
 }: {
-    d: DungeonState,
+    d: BattleState,
     beastLocation: BeastLocation
-}): DungeonState {
+}): BattleState {
     let attacker = beastAt({d, location: beastLocation})
     if (!attacker){
         return d
@@ -170,7 +170,7 @@ export function processBeastAttack({
         return d
     }
 
-    const newState: DungeonState = JSON.parse(JSON.stringify(d))
+    const newState: BattleState = JSON.parse(JSON.stringify(d))
 
     attacker = beastAt({d: newState, location: beastLocation}) as BeastState
     attacker.pendingAttacks = []

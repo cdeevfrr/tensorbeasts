@@ -36,3 +36,7 @@ export const GameColors: {[key: string]: GameColor} = {
         border: '#0f0f0f'
     }
 }
+
+export const maxColor = 5
+export const maxShape = 5
+export const maxNumber = 5

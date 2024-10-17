@@ -3,10 +3,10 @@
 // The actual power this turn will be (count / threshold)
 // Higher quality versions of this skill will have lower threshold.
 
-import { countBlocksDestroyed, DestroyEvent } from "@/Game/Dungeon/DestroyEvent"
+import { countBlocksDestroyed, DestroyEvent } from "@/Game/Battle/DestroyEvent"
 import { CoreAttackSkill } from "./CoreAttackSkill"
 import { CoreAttackSkillBlueprint } from "./CoreAttackSkillBlueprint"
-import { createPowerSpread } from "@/Game/Dungeon/PowerSpread"
+import { createPowerSpread } from "@/Game/Battle/PowerSpread"
 
 export const CountAttack: CoreAttackSkillBlueprint = {
     factory: ({quality}: {quality: number}) => {
@@ -31,5 +31,6 @@ export const CountAttack: CoreAttackSkillBlueprint = {
             matches: [{}],
             powers: [count / self.threshold]
         })
-    }
+    },
+    pseudolevels: [...Array.from(Array(30).keys())]
 }

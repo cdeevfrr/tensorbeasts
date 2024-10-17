@@ -1,6 +1,6 @@
-import { accessLocation } from "@/Game/Dungeon/Board"
+import { accessLocation } from "@/Game/Battle/Board"
 import { SkillBlueprint } from "./SupportSkillBlueprint"
-import { destroyBlocks } from "@/Game/Dungeon/DungeonState"
+import { destroyBlocks } from "@/Game/Battle/BattleState"
 
 
 export const MatchColorBlockDestroy: SkillBlueprint = {
@@ -10,16 +10,17 @@ export const MatchColorBlockDestroy: SkillBlueprint = {
             name: "Destroy Color",
         }
     },
-    execute: (self, dungeonState, caller, props) => {
+    execute: (self, battleState, caller, props) => {
         // TODO somehow, get a location from the player?
         const location = [0,0,0,0,0]
-        const selectedBlock = accessLocation(location, dungeonState.board)
+        const selectedBlock = accessLocation(location, battleState.board)
         const selectedColor = selectedBlock?.color || -1
         if (caller.beast.colors && caller.beast.colors.includes(selectedColor)){
-            return destroyBlocks(dungeonState, [[0,0,0,0,0]])
+            return destroyBlocks(battleState, [[0,0,0,0,0]])
         } else {
-            return dungeonState
+            return battleState
         }
-    }
-
+    },
+    psuedolevels: [...Array.from(Array(15).keys())],
+    commonality: 200,
 }

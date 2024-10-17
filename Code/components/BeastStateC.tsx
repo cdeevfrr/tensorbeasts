@@ -1,5 +1,5 @@
 import { GameColors } from "@/constants/GameColors";
-import { BeastState } from "@/Game/Dungeon/BeastState";
+import { BeastState } from "@/Game/Battle/BeastState";
 import { View } from "react-native";
 import Svg, { Rect, Text } from "react-native-svg";
 
