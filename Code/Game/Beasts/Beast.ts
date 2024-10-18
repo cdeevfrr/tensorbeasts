@@ -3,6 +3,7 @@ import { SupportSkill } from "../SkillDex/Support/SupportSkill"
 
 // Represents a beast when managing your collection of beasts, outside a dungeon.
 export interface Beast {
+    uuid: string,
     species: number,
     colors?: Array<number> // Should be nonempty if present.
     numbers?: Array<number> // Should be nonempty if present.

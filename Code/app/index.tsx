@@ -7,11 +7,14 @@ export default function Index() {
       style={styles.container}
     >
       <Text>Welcome!</Text>
-      <Link href="/dungeon" style={styles.button}>
-        Go to a Dungeon
+      <Link href="/battle" style={styles.button}>
+        Go to a Dungeon (currently starts a random battle - Dungeon coming soon!)
       </Link>
       <Link href="/beasts" style={styles.button}>
         Manage Beasts
+      </Link>
+      <Link href="/parties" style={styles.button}>
+        Manage Parties
       </Link>
     </View>
   );

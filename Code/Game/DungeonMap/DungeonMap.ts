@@ -9,6 +9,7 @@ import { Location } from "../Battle/Board";
 import { gaussianRandom, randChoice, randInt } from "../util";
 import { CoreAttackSkills } from "../SkillDex/Core/CoreAttack/CoreAttackList";
 import { SupportSkills } from "../SkillDex/Support/SupportSkillList";
+import { v4 as uuidv4 } from 'uuid';
 
 export interface DungeonMap {
     getBattleAt: ({location}: {location: Location}) => Array<Beast>,
@@ -66,6 +67,7 @@ export function generateBeast({
 
     // Make it at level 1
     let beast: Beast = {
+        uuid: uuidv4(),
         baseAttack: coreVal * (gaussianRandom(atkLean, .2)),
         baseDefense: coreVal * (gaussianRandom(defLean, .2)),
         baseHP: coreVal * (gaussianRandom(hpLean, .2)),

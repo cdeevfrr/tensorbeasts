@@ -1,19 +1,17 @@
+import { Beast } from "@/Game/Beasts/Beast";
 import { View, StyleSheet } from "react-native"
-import { BeastStateC } from "./BeastStateC"
-import { BeastState } from "@/Game/Battle/BeastState"
+import { BeastC } from "./BeastC";
 
 export function BeastRowC({
     beasts,
     beastClickCallback,
-    minimize,
 }: {
-    beasts: Array<BeastState>
-    beastClickCallback: (beast: BeastState) => any,
-    minimize?: boolean,
+    beasts: Array<Beast | null>
+    beastClickCallback: (beast: Beast | null) => any,
 }){
-    return <View style={minimize? styles.containerMin : styles.container}>
+    return <View style={styles.container}>
         { beasts.map(beast => {
-            return <BeastStateC beast={beast} beastClickCallback={beastClickCallback}/>
+            return <BeastC beast={beast} beastClickCallback={beastClickCallback}/>
         })}
     </View>
 }
@@ -24,13 +22,5 @@ const styles = StyleSheet.create({
       flexDirection: 'row', // Arrange children horizontally
       justifyContent: 'flex-start',
       alignItems: 'center', // Center vertically
-    },
-    containerMin: {
-        flex: 1,
-        flexDirection: 'row', // Arrange children horizontally
-        justifyContent: 'flex-start',
-        alignItems: 'center', // Center vertically
-        maxHeight: '40%',
-        maxWidth: '40%',
-    },
+    }
   });
