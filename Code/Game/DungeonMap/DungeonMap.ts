@@ -9,10 +9,14 @@ import { Location } from "../Battle/Board";
 import { gaussianRandom, randChoice, randInt } from "../util";
 import { CoreAttackSkills } from "../SkillDex/Core/CoreAttack/CoreAttackList";
 import { SupportSkills } from "../SkillDex/Support/SupportSkillList";
-import { v4 as uuidv4 } from 'uuid';
+import 'react-native-get-random-values'
+import { v4 } from "uuid"
+import { beginnerDungeon } from "./BeginnerDungeon";
+import { intermediateDungeon } from "./IntermediateDungeon";
 
 export interface DungeonMap {
     getBattleAt: ({location}: {location: Location}) => Array<Beast>,
+    id: string, // Must be unique across dungeon maps. Used for loading from JSON.
 }
 
 /**
@@ -67,7 +71,7 @@ export function generateBeast({
 
     // Make it at level 1
     let beast: Beast = {
-        uuid: uuidv4(),
+        uuid: v4(),
         baseAttack: coreVal * (gaussianRandom(atkLean, .2)),
         baseDefense: coreVal * (gaussianRandom(defLean, .2)),
         baseHP: coreVal * (gaussianRandom(hpLean, .2)),
@@ -131,18 +135,20 @@ export function generateBeast({
             SupportSkills[skillType].psuedolevels.includes(pseudolevel)
         })
 
-        const probabilities = allowedSkillTypes.map(skillType => {
-            return SupportSkills[skillType].commonality
-        })
+        if (allowedSkillTypes.length != 0){
+            const probabilities = allowedSkillTypes.map(skillType => {
+                return SupportSkills[skillType].commonality
+            })
 
-        const skillType = randChoice({
-            array: allowedSkillTypes,
-            probabilities: probabilities
-        }) as keyof typeof SupportSkills
-        beast.supportSkills.push({
-            ...SupportSkills[skillType].factory({}),
-            type: skillType,
-        })
+            const skillType = randChoice({
+                array: allowedSkillTypes,
+                probabilities: probabilities
+            }) as keyof typeof SupportSkills
+            beast.supportSkills.push({
+                ...SupportSkills[skillType].factory({}),
+                type: skillType,
+            })
+        }
     }
 
     // Core skills
@@ -157,7 +163,26 @@ export function generateBeast({
 
 
     while (beast.level < (level || 1)){
+        console.log(beast)
         beast = levelUp({beast})
     }
     return beast
+}
+
+export function findMap({
+    id,
+}: {
+    id: string
+}) {
+    if (id in mapTypes){
+        return mapTypes[id]
+    }
+    else {
+        return mapTypes['beginnerDungeon']
+    }
+}
+
+const mapTypes: Record<string, DungeonMap>= {
+    'beginnerDungeon': beginnerDungeon,
+    'intermediateDungeon': intermediateDungeon,
 }

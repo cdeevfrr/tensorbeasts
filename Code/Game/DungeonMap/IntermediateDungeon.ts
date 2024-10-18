@@ -3,7 +3,8 @@ import { Location } from "../Battle/Board"
 import { DungeonMap, generateBeast } from "./DungeonMap"
 
 export const intermediateDungeon : DungeonMap = {
-    getBattleAt: getBattleAt
+    getBattleAt: getBattleAt,
+    id: 'intermediateDungeon',
 }
 
 function getBattleAt({location}:{location: Location}): Array<Beast>{

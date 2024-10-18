@@ -5,11 +5,9 @@ import { View, Text, StyleSheet, Button } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Beast } from "@/Game/Beasts/Beast";
 import { CoreAttackSkills } from "@/Game/SkillDex/Core/CoreAttack/CoreAttackList";
-import { v4 as uuidv4 } from 'uuid';
 import { SupportSkills } from "@/Game/SkillDex/Support/SupportSkillList";
-
-
-const partiesKey = 'parties';
+import { partiesKey } from "@/constants/GameConstants";
+import { router } from "expo-router";
 
 export default function Parties() {
   const [parties, setParties] = useState<Array<PartyPlan>>([{
@@ -50,6 +48,7 @@ export default function Parties() {
               partiesKey,
               JSON.stringify(parties)
             )
+            router.navigate('/')
           }}
         ></Button>
       </View>
@@ -68,8 +67,8 @@ text: {
 },
 });
 
-const fakeBox: Array<Beast> = [{
-  uuid: uuidv4(),
+const fakeBox: Array<Beast> = [
+{ uuid: '9ef62d3d-64a1-4bab-83f5-fa0522acc9e5',
   colors: [2],
   species: 2,
 
@@ -97,9 +96,7 @@ const fakeBox: Array<Beast> = [{
     type: "CountAttack"
   }
 
-},
-{
-  uuid: uuidv4(),
+},{ uuid: 'e85b3be9-1d48-4709-b8eb-d354b51d79de',
   colors: [1],
   species: 1,
 
@@ -122,8 +119,7 @@ const fakeBox: Array<Beast> = [{
     ...SupportSkills.SingleBlockDestroy.factory({}),
     type: "SingleBlockDestroy"
   }],
-}, {
-  uuid: uuidv4(),
+},{ uuid: '736c475e-e3db-4ef6-aefe-ce245cfaa687',
   colors: [1],
   species: 1,
 

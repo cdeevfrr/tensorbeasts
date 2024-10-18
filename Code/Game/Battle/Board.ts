@@ -60,3 +60,23 @@ export function cloneBoard(board: Board){
         blocks: deepCloneBlocks(board.blocks)
     }
 }
+
+export function addLocations(l1: Location, l2: Location){
+    return l1.map((val, index) => {return val + l2[index]})
+}
+
+export function emptyBoard(dimensions: Array<number>): Board{
+    return {
+        blocks: Array(dimensions[0]).fill(
+            Array(dimensions[1]).fill(
+                Array(dimensions[2]).fill(
+                    Array(dimensions[3]).fill(
+                        Array(dimensions[4]).fill(
+                            null
+                        )
+                    )
+                )
+            )
+        )
+    }
+}

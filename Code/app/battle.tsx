@@ -6,13 +6,14 @@ import { SupportSkill } from '@/Game/SkillDex/Support/SupportSkill';
 import { BeastState } from '@/Game/Battle/BeastState';
 import { BattleState, processBeastAttack, useSkill } from '@/Game/Battle/BattleState';
 import { SupportSkills } from '@/Game/SkillDex/Support/SupportSkillList';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Text, View, StyleSheet, Button, Alert, Modal } from 'react-native';
 import { CoreAttackSkills } from '@/Game/SkillDex/Core/CoreAttack/CoreAttackList';
 import { ConfirmCoreModal } from '@/components/ConfirmCoreModal';
 import { CoreAttackSkill } from '@/Game/SkillDex/Core/CoreAttack/CoreAttackSkill';
 import { calculateAttack } from '@/Game/Battle/PowerSpread';
-import { v4 as uuidv4 } from 'uuid';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { battleStateKey } from '@/constants/GameConstants';
 
 
 
@@ -25,14 +26,28 @@ type attackFlowState = {
   selectedAttacker?: BeastState,
 }
 
-export default function BattleScreen({loadedState}: {loadedState: BattleState}) {
-  loadedState = pseudodungeon
-
+export default function BattleScreen({presetState}: {presetState: BattleState}) {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedBeast, setSelectedBeast] = useState<BeastState | null>(null)
-  const [battleState, setBattleState] = useState(loadedState)
-
+  const [battleState, setBattleState] = useState<BattleState | undefined>(presetState)
   const [attackFlowState, setAttackFlowState] = useState<attackFlowState>({state: 'initial'})
+
+  if (!presetState){
+    useEffect(() => {
+      (async () => {
+        const battleStateString = await AsyncStorage.getItem(battleStateKey)
+        if (battleStateString) {
+          setBattleState(JSON.parse(battleStateString))
+        } else {
+          setBattleState(pseudobattle)
+        }
+      })()
+    }, []);
+  }
+
+  if (battleState === undefined){
+    return <Text>Loading</Text>
+  }
 
   console.log(battleState)
 
@@ -279,11 +294,11 @@ const styles = StyleSheet.create({
 });
 
 
-const pseudodungeon: BattleState = {
+const pseudobattle: BattleState = {
   vanguard: [],
   core: [{
     beast: {
-      uuid: uuidv4(),
+      uuid: '9ef62d3d-64a1-4bab-83f5-fa0522acc9e5',
       colors: [2],
       species: 2,
 
@@ -318,7 +333,7 @@ const pseudodungeon: BattleState = {
   }],
   support: [{
     beast: {
-      uuid: uuidv4(),
+      uuid: 'e85b3be9-1d48-4709-b8eb-d354b51d79de',
       colors: [1],
       species: 1,
 
@@ -348,7 +363,7 @@ const pseudodungeon: BattleState = {
   },
   {
     beast: {
-      uuid: uuidv4(),
+      uuid: '736c475e-e3db-4ef6-aefe-ce245cfaa687',
       colors: [1],
       species: 1,
 
@@ -387,7 +402,7 @@ const pseudodungeon: BattleState = {
     currentHP: 100,
     maxHP: 100,
     beast: {
-      uuid: uuidv4(),
+      uuid: 'FakeEnemyUUID',
       baseAttack: 100,
       baseDefense: 2,
       baseHP: 100,

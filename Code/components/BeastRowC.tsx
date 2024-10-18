@@ -10,8 +10,11 @@ export function BeastRowC({
     beastClickCallback: (beast: Beast | null) => any,
 }){
     return <View style={styles.container}>
-        { beasts.map(beast => {
-            return <BeastC beast={beast} beastClickCallback={beastClickCallback}/>
+        { beasts.map((beast, index) => {
+            return <BeastC 
+              beast={beast} 
+              beastClickCallback={beastClickCallback} 
+              key={beast? beast.uuid : index}/>
         })}
     </View>
 }

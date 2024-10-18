@@ -19,3 +19,12 @@ export interface BeastState {
         target: BeastLocation,
     }>
 }
+
+export function toBeastState(beast: Beast): BeastState{
+    return {
+        beast: beast,
+        currentCharge: 0,
+        currentHP: beast.baseHP,
+        maxHP: beast.baseHP,
+    }
+}

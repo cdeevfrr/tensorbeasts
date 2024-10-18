@@ -1,5 +1,6 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Link } from "expo-router";
-import { Text, View, StyleSheet } from "react-native";
+import { Text, View, StyleSheet, Button } from "react-native";
 
 export default function Index() {
   return (
@@ -8,7 +9,10 @@ export default function Index() {
     >
       <Text>Welcome!</Text>
       <Link href="/battle" style={styles.button}>
-        Go to a Dungeon (currently starts a random battle - Dungeon coming soon!)
+        Go to a test battle
+      </Link>
+      <Link href="/enterdungeon" style={styles.button}>
+        Go to a real dungeon
       </Link>
       <Link href="/beasts" style={styles.button}>
         Manage Beasts
@@ -16,6 +20,12 @@ export default function Index() {
       <Link href="/parties" style={styles.button}>
         Manage Parties
       </Link>
+      <Button 
+        title="Clear all storage (DANGEROUS!!! DELETES ALL BEASTS!)"
+        onPress={() => {
+          AsyncStorage.clear()
+        }}
+      />
     </View>
   );
 }

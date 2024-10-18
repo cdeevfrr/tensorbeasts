@@ -4,12 +4,13 @@ import { DungeonMap, generateBeast } from "./DungeonMap";
 
 
 export const beginnerDungeon : DungeonMap = {
-    getBattleAt: getBattleAt
+    getBattleAt: getBattleAt,
+    id: 'beginnerDungeon',
 }
 
 function getBattleAt({location}:{location: Location}): Array<Beast>{
     return [generateBeast({
-        pseudolevel: location.reduce((a, b) => a+b, 0),
+        pseudolevel: Math.max(1, location.reduce((a, b) => a+b, 0)),
         level: 5
     }) ]
 }

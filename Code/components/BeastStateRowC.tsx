@@ -12,8 +12,12 @@ export function BeastStateRowC({
     minimize?: boolean,
 }){
     return <View style={minimize? styles.containerMin : styles.container}>
-        { beasts.map(beast => {
-            return <BeastStateC beast={beast} beastClickCallback={beastClickCallback}/>
+        { beasts.map((beast, index) => {
+            return <BeastStateC 
+              beast={beast} 
+              beastClickCallback={beastClickCallback}
+              key={beast? beast.beast.uuid : index}
+            />
         })}
     </View>
 }

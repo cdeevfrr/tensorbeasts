@@ -50,14 +50,23 @@ function expForNextLevel({beast}: {beast: Beast}){
 
 
 export function levelUp({beast}: {beast: Beast}){
-    const newBeast = JSON.parse(JSON.stringify(beast))
+    const newBeast : Beast = JSON.parse(JSON.stringify(beast))
+
+    if (!newBeast.growthDetails){
+        throw new Error("Cannot level up a beast with no growth details! " + newBeast)
+    }
 
     newBeast.level += 1
-    newBeast.experience = Math.max(0, newBeast.experience - expForNextLevel({beast}))
+    newBeast.growthDetails.experience = 
+        Math.max(0, 
+            newBeast.growthDetails.experience - expForNextLevel({beast}))
 
-    newBeast.baseHP += Math.floor((newBeast.hpGain + 1) * Math.random())
-    newBeast.baseAttack += Math.floor((newBeast.attackGain + 1) * Math.random())
-    newBeast.baseDefense += Math.floor((newBeast.defenseGain + 1) * Math.random())
+    newBeast.baseHP += Math.floor((newBeast.growthDetails.hpGain + 1) * Math.random())
+    newBeast.baseAttack += Math.floor((newBeast.growthDetails.attackGain + 1) * Math.random())
+    newBeast.baseDefense += Math.floor((newBeast.growthDetails.defenseGain + 1) * Math.random())
+
+    console.log(newBeast.baseHP)
+
 
     return newBeast;
 }

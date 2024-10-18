@@ -35,7 +35,8 @@ export function BoxModal({
           {modifiedBox.map((beast) => {
               return <BeastC 
                 beast={beast} 
-                beastClickCallback={onSelect}/>
+                beastClickCallback={onSelect}
+                key={beast && beast.uuid}/>
           })}
           <Button onPress={()=> {
             onRequestClose();

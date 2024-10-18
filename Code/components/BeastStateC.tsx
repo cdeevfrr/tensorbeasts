@@ -1,7 +1,9 @@
 import { GameColors } from "@/constants/GameColors";
 import { BeastState } from "@/Game/Battle/BeastState";
-import { View } from "react-native";
+import { useState } from "react";
+import { Pressable, View } from "react-native";
 import Svg, { Rect, Text } from "react-native-svg";
+import { BeastDetailModal } from "./BeastDetailModal";
 
 export function BeastStateC({
     beast,
@@ -10,12 +12,25 @@ export function BeastStateC({
     beast: BeastState
     beastClickCallback: (beast: BeastState) => any
 }){
+    const [showDetail, setShowDetail] = useState(false)
+
     const maxCharge = beast.beast.supportSkills
         .map(skill => skill.chargeRequirement)
         .reduce((a, b) => Math.max(a, b), 0)
     
-    return <Svg height="50%" width="50%" viewBox="0 0 100 100">
-        <Rect onPress={() => beastClickCallback(beast)}
+    return <View>
+      <Pressable 
+        onPress={() => beastClickCallback(beast)}
+        onLongPress={() => {
+            console.log("Long press!")
+            setShowDetail(true)
+        }}>
+      <Svg 
+        height="50%" 
+        width="50%" 
+        viewBox="0 0 100 100"
+    >
+        <Rect 
             x="15"
             y="15"
             width="70"
@@ -67,8 +82,9 @@ export function BeastStateC({
             fill="green"
         />}
         {
-            beast.beast.supportSkills.map(skill => {
+            beast.beast.supportSkills.map((skill, index)=> {
                 return <Rect
+                    key={index}
                     x={Math.floor(skill.chargeRequirement / maxCharge * 60) + 20}
                     y="75"
                     width="2"
@@ -89,5 +105,14 @@ export function BeastStateC({
                 {preDefDamage > 1000? preDefDamage.toExponential() : preDefDamage}
             </Text>
         })}
-    </Svg>
+      </Svg>
+      </Pressable>
+      {showDetail && 
+        <BeastDetailModal 
+          beast={beast}
+          onRequestClose={() => setShowDetail(false)}
+          visible={true}
+        />
+      }
+    </View>
 }
