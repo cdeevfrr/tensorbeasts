@@ -120,7 +120,12 @@ export function generateBlock(battleState: BattleState): Block{
 }
 
 export function useSkill(battleState: BattleState, beast: BeastState, skill: SupportSkill): BattleState{
-    return SupportSkills[skill.type].execute(skill, battleState, beast, {})
+    const newState = SupportSkills[skill.type].execute(skill, battleState, beast, {})
+    const newBeast = findBeast(newState, beast)
+    if (newBeast){
+        newBeast.currentCharge -= skill.chargeRequirement
+    }
+    return newState
 }
 
 // Note: This function intentionally tries to find _something_ to give you, 
@@ -148,6 +153,22 @@ export function beastAt({
     }
 
     return array[location.index]
+}
+
+// Used when you cloned a battleState and want to find the new Beast JSON that
+// has the same UUID as the one in the previous battleState.
+export function findBeast(state: BattleState, beast: BeastState){
+    for (const otherBeast of [
+        ...state.vanguard,
+        ...state.core,
+        ...state.support,
+        ...state.enemies,
+    ]) {
+        if(otherBeast.beast.uuid == beast.beast.uuid){
+            return otherBeast
+        }
+    }
+    return null
 }
 
 export function processBeastAttack({
@@ -199,5 +220,24 @@ export function processBeastAttack({
             newState[attack.target.array].splice(trueIndex, 1)
         }
     } 
+    return newState
+}
+
+export function addCharge(b: BattleState, charge: number): BattleState{
+    const newState: BattleState = JSON.parse(JSON.stringify(b))
+    for (const beast of [
+        ...newState.vanguard,
+        ...newState.core,
+        ...newState.support,
+        ...newState.enemies
+    ]){
+        beast.currentCharge += charge
+        const maxCharge = beast.beast.supportSkills.map(skill => {
+            return skill.chargeRequirement
+        }).reduce((a, b) => Math.max(a, b), 0)
+        beast.currentCharge = Math.min(beast.currentCharge, maxCharge)
+        // TODO: Should enemies try to use any skills? 
+    }
+
     return newState
 }

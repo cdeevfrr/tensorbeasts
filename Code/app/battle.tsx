@@ -4,10 +4,10 @@ import { SkillSelectModal } from '@/components/SkillSelectModal';
 import { StackC } from '@/components/StackC';
 import { SupportSkill } from '@/Game/SkillDex/Support/SupportSkill';
 import { BeastState } from '@/Game/Battle/BeastState';
-import { BattleState, processBeastAttack, useSkill } from '@/Game/Battle/BattleState';
+import { addCharge, BattleState, processBeastAttack, useSkill } from '@/Game/Battle/BattleState';
 import { SupportSkills } from '@/Game/SkillDex/Support/SupportSkillList';
 import { useEffect, useState } from 'react';
-import { Text, View, StyleSheet, Button, Alert, Modal } from 'react-native';
+import { Text, View, StyleSheet, Button, Alert, Modal, Pressable } from 'react-native';
 import { CoreAttackSkills } from '@/Game/SkillDex/Core/CoreAttack/CoreAttackList';
 import { ConfirmCoreModal } from '@/components/ConfirmCoreModal';
 import { CoreAttackSkill } from '@/Game/SkillDex/Core/CoreAttack/CoreAttackSkill';
@@ -24,6 +24,10 @@ type attackFlowState = {
   state: 'initial' | 'pickCore' | 'confirmCore' | 'selectAttackerOrFinish' | 'selectTarget',
   coreBeast?: BeastState,
   selectedAttacker?: BeastState,
+}
+
+const runningInterval: {interval: null | NodeJS.Timeout} = {
+  interval: null
 }
 
 export default function BattleScreen({presetState}: {presetState: BattleState}) {
@@ -130,6 +134,28 @@ export default function BattleScreen({presetState}: {presetState: BattleState}) 
                 state: 'initial'
               })
               }}/>
+            }
+          {attackFlowState.state == 'initial' && <Pressable
+              onPressIn={() => {
+                runningInterval.interval = setInterval(
+                  () => {
+                    setBattleState((prevBattleState)=> {
+                      return prevBattleState && addCharge(prevBattleState, 1)
+                    })
+                  },
+                  100
+                )
+              }}
+              onPressOut={()=>{
+                runningInterval.interval &&
+                clearInterval(runningInterval.interval)
+              }}
+              style={({pressed}) => [
+                styles.button,
+                pressed && styles.pressedButton
+              ]}>
+              <Text style={styles.text}>Charge</Text>
+            </Pressable>
             }
         </View>
       </View>
@@ -287,6 +313,15 @@ const styles = StyleSheet.create({
   },
   attackButton: {
     flex: 1
+  },
+  button: {
+    backgroundColor: '#2196f3',
+    padding: 10,
+    borderRadius: 5,
+    margin: 10,
+  },
+  pressedButton: {
+    opacity: 0.7
   },
   text: {
     color: '#fff',
