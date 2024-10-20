@@ -154,7 +154,7 @@ export default function BattleScreen({presetState}: {presetState: BattleState}) 
                 styles.button,
                 pressed && styles.pressedButton
               ]}>
-              <Text style={styles.text}>Charge</Text>
+              <Text style={styles.text} suppressHighlighting={true}>Charge</Text>
             </Pressable>
             }
         </View>
