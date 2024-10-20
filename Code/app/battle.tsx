@@ -136,7 +136,7 @@ export default function BattleScreen({presetState}: {presetState: BattleState}) 
               }}/>
             }
           {attackFlowState.state == 'initial' && <Pressable
-              onPressIn={() => {
+              onPressIn={(e) => {
                 runningInterval.interval = setInterval(
                   () => {
                     setBattleState((prevBattleState)=> {
@@ -145,16 +145,18 @@ export default function BattleScreen({presetState}: {presetState: BattleState}) 
                   },
                   100
                 )
+                e.stopPropagation()
               }}
-              onPressOut={()=>{
+              onPressOut={(e)=>{
                 runningInterval.interval &&
                 clearInterval(runningInterval.interval)
+                e.stopPropagation()
               }}
               style={({pressed}) => [
                 styles.button,
                 pressed && styles.pressedButton
               ]}>
-              <Text style={styles.text} suppressHighlighting={true}>Charge</Text>
+              <Text style={styles.text} suppressHighlighting={true} selectable={false}>Charge</Text>
             </Pressable>
             }
         </View>
