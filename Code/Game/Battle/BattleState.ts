@@ -7,6 +7,7 @@ import { SupportSkill } from "../SkillDex/Support/SupportSkill"
 import { SupportSkills } from "../SkillDex/Support/SupportSkillList"
 import { randInt } from "../util"
 import { BeastLocation } from "../Beasts/BeastLocation"
+import { Beast, calcExpReward, calculateDrop } from "../Beasts/Beast"
 
 export interface BattleState {
     // Vanguard beasts have effects like
@@ -34,7 +35,9 @@ export interface BattleState {
     enemies: Array<BeastState>
     board: Board
     // effects: Array<Buff> // Things like 'increased defense for X turns', 'increased chance of yellow for 3 turns', 'increase all beast stats by 2.2X' from core beasts, similar.
-    stack: Array<DestroyEvent>
+    stack: Array<DestroyEvent>,
+    beastDrops?: Array<Beast>,
+    expReward?: number,
 }
 
 // fill in all nulls in the battle's board.
@@ -209,7 +212,9 @@ export function processBeastAttack({
         console.log(def)
         const damage = preDefDamage * Math.pow(3, -1 + (preDefDamage / def - 1)/2)
 
+        // TODO: Make this visible with an animation.
         console.log("Dealing " + damage  + "damage")
+
         target.currentHP -= damage
 
         // Check for dead beasts
@@ -217,7 +222,27 @@ export function processBeastAttack({
             // Because beastAt may cleverly 'find' a beast, 
             // to eliminate something, we have to lookup its true index.
             const trueIndex = newState[attack.target.array].indexOf(target)
+
+            // Remove the enemy (or target) from its list.
+            // TODO: This won't work with revives. Might need to consider that later.
             newState[attack.target.array].splice(trueIndex, 1)
+
+            // Calculate rewards
+
+            // TODO: Reward EXP to the beast that struck the final blow
+
+            if (!newState.expReward){
+                newState.expReward = 0
+            }
+            newState.expReward += calcExpReward(target.beast)
+            if (!newState.beastDrops){
+                newState.beastDrops = []
+            }
+            // TODO: Calculate drop probability based on more stuff
+            const dropProbability = 1
+            if (Math.random() < dropProbability){
+                newState.beastDrops.push(calculateDrop(target.beast))
+            }
         }
     } 
     return newState
@@ -240,4 +265,8 @@ export function addCharge(b: BattleState, charge: number): BattleState{
     }
 
     return newState
+}
+
+export function completed(b: BattleState){
+    return b.enemies.length === 0
 }

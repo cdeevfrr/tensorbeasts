@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Beast } from "@/Game/Beasts/Beast";
 import { CoreAttackSkills } from "@/Game/SkillDex/Core/CoreAttack/CoreAttackList";
 import { SupportSkills } from "@/Game/SkillDex/Support/SupportSkillList";
-import { partiesKey } from "@/constants/GameConstants";
+import { boxKey, partiesKey } from "@/constants/GameConstants";
 import { router } from "expo-router";
 
 export default function Parties() {
@@ -15,12 +15,30 @@ export default function Parties() {
     support: [null, null],
     vanguard: [null, null],
   }])
+
+  const [box, setBox] = useState<Array<Beast>>([])
+
   useEffect(() => {
-    AsyncStorage.getItem(partiesKey).then((result) => {
-      if (result){
-        setParties(JSON.parse(result))
+    const callback = async () => {
+      const partiesString = await AsyncStorage.getItem(partiesKey)
+
+      if (partiesString){
+        setParties(JSON.parse(partiesString))
       }
-    });
+
+      const boxString = await AsyncStorage.getItem(boxKey)
+
+      if (!boxString){
+        // TODO: Move fakeBox to some kind if "init" phase of the game
+        // that only triggers if box isn't found.
+        await AsyncStorage.setItem(boxKey, JSON.stringify(fakeBox))
+        setBox(fakeBox)
+      } else {
+        setBox(JSON.parse(boxString))
+      }
+    }
+
+    callback().catch(console.error)
   }, []);
 
   const [selectedParty, setSelectedParty] = useState(0)
@@ -39,7 +57,7 @@ export default function Parties() {
               parties[selectedParty] = partyPlan
               setParties([...parties])
             }}
-            box={fakeBox}
+            box={box}
           />
         <Button
           title="Save"

@@ -43,7 +43,7 @@ export interface Beast {
     coreMatchSkill?: {fixME: number} // TODO: MatchSkill
 }
 
-function expForNextLevel({beast}: {beast: Beast}){
+export function expForNextLevel({beast}: {beast: Beast}){
     const growthRate = beast.growthDetails?.growthRate || 1
     return Math.pow(10 / growthRate, beast.level)
 }
@@ -69,4 +69,19 @@ export function levelUp({beast}: {beast: Beast}){
 
 
     return newBeast;
+}
+
+export function calcExpReward(b: Beast){
+    const c = {
+        ...b,
+        level: b.level - 1
+    }
+    return expForNextLevel({beast: c})
+}
+
+export function calculateDrop(b: Beast){
+    // TODO What to do if b doesn't have growth details?
+    // It will for now (dungeon maps include growth details in the beasts they make.)
+    // TODO: How to downLevel / downSpecies (if evolved) b
+    return b
 }
