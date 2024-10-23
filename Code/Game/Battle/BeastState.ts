@@ -18,6 +18,10 @@ export interface BeastState {
         power: number,
         target: Target,
     }>
+    // Because beasts can move locations during a turn (eg someone dies),
+    // and we need to say newState = attack(oldState) multiple times,
+    // it's easiest if each beast keeps track of whether it's gone or not this turn.
+    hasAttackedThisTurn?: boolean
 }
 
 export function toBeastState(beast: Beast): BeastState{

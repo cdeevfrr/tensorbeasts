@@ -4,7 +4,7 @@ import { SkillSelectModal } from '@/components/SkillSelectModal';
 import { StackC } from '@/components/StackC';
 import { SupportSkill } from '@/Game/SkillDex/Support/SupportSkill';
 import { BeastState } from '@/Game/Battle/BeastState';
-import { addCharge, BattleState, completed, processBeastAttack, useSkill } from '@/Game/Battle/BattleState';
+import { addCharge, BattleState, completed, findNextAttacker, processBeastAttack, useSkill } from '@/Game/Battle/BattleState';
 import { SupportSkills } from '@/Game/SkillDex/Support/SupportSkillList';
 import { useEffect, useState } from 'react';
 import { Text, View, StyleSheet, Button, Alert, Modal, Pressable } from 'react-native';
@@ -328,25 +328,31 @@ async function animateTeamAttacks({
   setBattleState: (d: BattleState) => void
 }){
   let animatedBattleState = battleState
+
+
   for (const array of [
-    battleState.playerParty.vanguard,
-    battleState.enemyParty.vanguard,
-    battleState.playerParty.core,
-    battleState.playerParty.support,
-    battleState.enemyParty.core,
-    battleState.enemyParty.support,
+    animatedBattleState.playerParty.vanguard,
+    animatedBattleState.enemyParty.vanguard,
+    animatedBattleState.playerParty.core,
+    animatedBattleState.playerParty.support,
+    animatedBattleState.enemyParty.core,
+    animatedBattleState.enemyParty.support,
   ]) {
     for (const beast of array) {
-      animatedBattleState = processBeastAttack({
-        battleState: animatedBattleState,
-        attacker: beast,
-      })
-      if (animatedBattleState !== battleState) {
-        setBattleState(animatedBattleState)
-        await new Promise(resolve => setTimeout(resolve, 500));
-      } // Else the beast was dead or something. 
-      // Even no damage will lead to a change to battleState.
+      beast.hasAttackedThisTurn = false;
     }
+  }
+
+  let nextAttacker = findNextAttacker(animatedBattleState)
+  while (nextAttacker){
+    animatedBattleState = processBeastAttack({
+      battleState: animatedBattleState,
+      attacker: nextAttacker,
+    })
+    nextAttacker = findNextAttacker(animatedBattleState)
+
+    setBattleState(animatedBattleState)
+    await new Promise(resolve => setTimeout(resolve, 500));
   }
 }
 

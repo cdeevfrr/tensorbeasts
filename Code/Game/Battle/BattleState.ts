@@ -184,8 +184,7 @@ export function processBeastAttack({
       attacker   
     ) as BeastState // Not null since we just checked before cloning.
     attacker.pendingAttacks = []
-
-
+    attacker.hasAttackedThisTurn = true
     // actually do the attacks
 
     for (const attack of attacks){
@@ -314,4 +313,22 @@ function getTargetedBeast({
         exact,
         living,
     })
+}
+
+export function findNextAttacker(battleState: BattleState){
+    for(const array of [
+        battleState.playerParty.vanguard,
+        battleState.enemyParty.vanguard,
+        battleState.playerParty.core,
+        battleState.playerParty.support,
+        battleState.enemyParty.core,
+        battleState.enemyParty.support
+    ]) {
+        for (const beast of array){
+            if (beast.hasAttackedThisTurn === false){
+                return beast
+            }
+        }
+    }
+    return null
 }
