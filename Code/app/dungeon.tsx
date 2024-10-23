@@ -134,21 +134,24 @@ async function makeNewRun({
 }
 
 function makeNewBattle({party, enemies}:{party: Party, enemies: Array<Beast>}): BattleState {
-  const result = {
+  const result: BattleState = {
     board: emptyBoard([3,1,1,1,1]),
-    support: party.support,
-    core: party.core,
-    vanguard: party.vanguard,
-    enemies: enemies.map(toBeastState),
+    playerParty: party,
+    enemyParty: {
+      vanguard: [],
+      core: enemies.map(toBeastState),
+      support: [],
+    },
     stack: []
   }
 
-  console.log(result)
+  console.log("Starting battle" + result)
 
   let fall = fallOne(result)
   
   while(fall.board.blocks[0][0][0][0][0] === null){
     fall = fallOne(fall)
   }
+
   return fall;
 }

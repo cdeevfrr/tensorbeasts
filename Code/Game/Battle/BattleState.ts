@@ -6,33 +6,13 @@ import { BeastState } from "./BeastState"
 import { SupportSkill } from "../SkillDex/Support/SupportSkill"
 import { SupportSkills } from "../SkillDex/Support/SupportSkillList"
 import { randInt } from "../util"
-import { BeastLocation } from "../Beasts/BeastLocation"
 import { Beast, calcExpReward, calculateDrop } from "../Beasts/Beast"
+import { beastAt, Party, PartyLocation } from "../Dungeon/Party"
+import { Target } from "./Target"
 
 export interface BattleState {
-    // Vanguard beasts have effects like
-    //  - if >2 combos, 9X attack
-    //  - if >10 of color purple, 2.5X attack
-    vanguard: Array<BeastState>
-    // Core beasts have stack->attack effects like 
-    //  - 'when attacking, count blocks destroyed. All beasts attack at that power' 
-    //  - 'when attacking, check if color/number/shape destroyed. All beasts of that color/number/shape attack at 100%'
-    //  - 'when attacking, if blocks destroyed > 1, all beasts attack at 100% power'
-    // and match-criteria effects (once per attack cycle) like
-    //     - a match is a continuous block of one color
-    //     - a match is a row of three of the same number
-    //     - a match is a 4D cube
-    // Core beast effects are always based on majority - the majority of core beasts must have this effect for it to trigger.
-    core: Array<BeastState> 
-    // Support beasts have active effects, like
-    //  - Destroy a fixed/selected block
-    //  - move blocks for n seconds (like PAD style movement)
-    //  - sort blocks
-    //  - Destroy selected block if it matches this beast's color
-    //  - Destroy all blocks of color ____
-    //  - Replace all blocks like __ with __
-    support: Array<BeastState>
-    enemies: Array<BeastState>
+    playerParty: Party
+    enemyParty: Party
     board: Board
     // effects: Array<Buff> // Things like 'increased defense for X turns', 'increased chance of yellow for 3 turns', 'increase all beast stats by 2.2X' from core beasts, similar.
     stack: Array<DestroyEvent>,
@@ -131,44 +111,44 @@ export function useSkill(battleState: BattleState, beast: BeastState, skill: Sup
     return newState
 }
 
-// Note: This function intentionally tries to find _something_ to give you, 
-// even if the location isn't quite right.
-// That way attacks will still do something even if the target was killed.
-export function beastAt({
-    d, 
-    location
-}:{
-    d: BattleState, 
-    location: BeastLocation
-}): BeastState | undefined{
-    const array = d[location.array]
-
-    if (array == undefined){
-        return undefined
-    }
-
-    if (location.index > array.length - 1){
-        return array[array.length - 1]
-    }
-
-    if (location.index < 0){
-        return array[0]
-    }
-
-    return array[location.index]
-}
-
 // Used when you cloned a battleState and want to find the new Beast JSON that
 // has the same UUID as the one in the previous battleState.
 export function findBeast(state: BattleState, beast: BeastState){
-    for (const otherBeast of [
-        ...state.vanguard,
-        ...state.core,
-        ...state.support,
-        ...state.enemies,
+    for (const array of [
+        state.playerParty.vanguard,
+        state.playerParty.core,
+        state.playerParty.support,
+        state.enemyParty.vanguard,
+        state.enemyParty.core,
+        state.enemyParty.support,
     ]) {
-        if(otherBeast.beast.uuid == beast.beast.uuid){
-            return otherBeast
+        for (const otherBeast of array){
+            if(otherBeast.beast.uuid == beast.beast.uuid){
+                return otherBeast
+            }
+        }
+    }
+    return null
+}
+
+export function findBeastLocation(state: BattleState, uuid: string): Target | null{
+    // Have to tell typescript that parties will only have these TWO values.
+    const parties: Array<'playerParty' | 'enemyParty'> = ['playerParty', 'enemyParty']
+    const partyArrays: Array<keyof Party> = ['vanguard', 'core', 'support']
+    for (const party of parties ){
+        for (const arrayName of partyArrays ){
+            const array = state[party][arrayName]
+            for (let index = 0; index < array.length; index ++){
+                if (array[index].beast.uuid === uuid){
+                    return {
+                        party,
+                        partylocation: {
+                            array: arrayName,
+                            index,
+                        }
+                    }
+                }
+            }
         }
     }
     return null
@@ -176,40 +156,63 @@ export function findBeast(state: BattleState, beast: BeastState){
 
 export function processBeastAttack({
     beastLocation,
-    d
+    battleState,
 }: {
-    d: BattleState,
-    beastLocation: BeastLocation
+    battleState: BattleState,
+    beastLocation: Target
 }): BattleState {
-    let attacker = beastAt({d, location: beastLocation})
-    if (!attacker){
-        return d
+    let attacker = getTargetedBeast({
+        b: battleState, 
+        t: beastLocation, 
+        exact: true,
+    })
+
+    // collect 'attacks' & return early if needed.
+
+    if (!attacker || attacker.currentHP <= 0){
+        return battleState
     }
+
     const attacks = attacker.pendingAttacks;
 
     if (!attacks){
-        return d
+        return battleState
     }
     if (attacks.length == 0){
-        return d
+        return battleState
     }
 
-    const newState: BattleState = JSON.parse(JSON.stringify(d))
+    // Clone & wipe new pendingAttacks
 
-    attacker = beastAt({d: newState, location: beastLocation}) as BeastState
+    const newState: BattleState = JSON.parse(JSON.stringify(battleState))
+    attacker = getTargetedBeast({
+        b: newState, 
+        t: beastLocation,
+        exact: true
+    }) as BeastState // Not null since we just checked before cloning.
     attacker.pendingAttacks = []
 
+
+    // actually do the attacks
+
     for (const attack of attacks){
-        const target = beastAt({d: newState, location: attack.target})
+        const target = getTargetedBeast({
+            b: newState, 
+            t: attack.target,
+            exact: false,
+            living: true
+        })
+
+        // Should only happen after battle is over since exact=false
+        // .... Better safe than sorry!
         if (!target){
             continue
         }
+
         const preDefDamage = attacker.beast.baseAttack * attack.power
         // TODO: Modify power based on color/number/shape of attack & target
         const def = target.beast.baseDefense
-        console.log(attack.power)
-        console.log(preDefDamage)
-        console.log(def)
+        
         const damage = preDefDamage * Math.pow(3, -1 + (preDefDamage / def - 1)/2)
 
         // TODO: Make this visible with an animation.
@@ -219,17 +222,23 @@ export function processBeastAttack({
 
         // Check for dead beasts
         if (target.currentHP < 0){
-            // Because beastAt may cleverly 'find' a beast, 
-            // to eliminate something, we have to lookup its true index.
-            const trueIndex = newState[attack.target.array].indexOf(target)
+            // Because getTargetedBeast may cleverly 'find' a beast, 
+            // to remove a beast, we have to lookup its true index.
+            const trueIndex = findBeastLocation(newState, target.beast.uuid)
+
+            if (!trueIndex){
+                throw new Error("Cannot find the beast that just died! "+
+                    "Old state: " + JSON.stringify(battleState) +
+                    "New state: " + JSON.stringify(newState))
+            }
 
             // Remove the enemy (or target) from its list.
             // TODO: This won't work with revives. Might need to consider that later.
-            newState[attack.target.array].splice(trueIndex, 1)
+            newState[trueIndex.party][trueIndex.partylocation.array].splice(trueIndex.partylocation.index, 1)
 
             // Calculate rewards
 
-            // TODO: Reward EXP to the beast that struck the final blow
+            // TODO: Reward EXP to the beast that struck the final blow?
 
             if (!newState.expReward){
                 newState.expReward = 0
@@ -250,23 +259,66 @@ export function processBeastAttack({
 
 export function addCharge(b: BattleState, charge: number): BattleState{
     const newState: BattleState = JSON.parse(JSON.stringify(b))
-    for (const beast of [
-        ...newState.vanguard,
-        ...newState.core,
-        ...newState.support,
-        ...newState.enemies
-    ]){
-        beast.currentCharge += charge
-        const maxCharge = beast.beast.supportSkills.map(skill => {
-            return skill.chargeRequirement
-        }).reduce((a, b) => Math.max(a, b), 0)
-        beast.currentCharge = Math.min(beast.currentCharge, maxCharge)
-        // TODO: Should enemies try to use any skills? 
+    for (const array of [
+        newState.enemyParty.vanguard,
+        newState.enemyParty.core,
+        newState.enemyParty.support,
+        newState.playerParty.vanguard,
+        newState.playerParty.core,
+        newState.playerParty.support,
+    ]) {
+        for (const beast of array){
+            beast.currentCharge += charge
+            const maxCharge = beast.beast.supportSkills.map(skill => {
+                return skill.chargeRequirement
+            }).reduce((a, b) => Math.max(a, b), 0)
+            beast.currentCharge = Math.min(beast.currentCharge, maxCharge)
+            // TODO: Should enemies try to use any skills? 
+        }
     }
-
     return newState
 }
 
 export function completed(b: BattleState){
-    return b.enemies.length === 0
+    // All enemies dead OR all player beasts dead.
+    return beastAt({
+        party: b.enemyParty,
+        location: {
+            array: 'vanguard',
+            index: 0
+        },
+        exact: false,
+        living: true
+    }) === undefined
+     || 
+    beastAt({
+        party: b.playerParty,
+        location: {
+            array: 'vanguard',
+            index: 0
+        },
+        exact: false,
+        living: true
+    }) === undefined
+}
+
+function getTargetedBeast({
+    b, 
+    t, 
+    exact=false, 
+    living=true
+}: {
+    b: BattleState, 
+    t: Target,
+    exact?: boolean,
+    living?: boolean,
+}){
+    return beastAt({
+        location: {
+            ...t.partylocation
+        },
+        party: b[t.party],
+        exact,
+        living,
+    })
 }

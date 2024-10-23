@@ -15,6 +15,7 @@ import { calculateAttack } from '@/Game/Battle/PowerSpread';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { battleStateKey } from '@/constants/GameConstants';
 import { BattleOverModal } from '@/components/BattleOverModal';
+import { Party } from '@/Game/Dungeon/Party';
 
 
 
@@ -54,8 +55,6 @@ export default function BattleScreen({presetState}: {presetState: BattleState}) 
     return <Text>Loading</Text>
   }
 
-  console.log(battleState)
-
 
   // TODO: Combine these two callbacks into a supportSkillFlowState
   const useSupportSkillCallback = (beast: BeastState) => {
@@ -73,7 +72,23 @@ export default function BattleScreen({presetState}: {presetState: BattleState}) 
       <View style={styles.leftBlock}>
           {/* Render any enemies */} 
           <BeastStateRowC 
-              beasts={battleState.enemies}
+              beasts={[
+                ...battleState.enemyParty.support,
+              ]}
+              beastClickCallback={() => {}}
+              minimize={attackFlowState.state == 'pickCore'}
+          />
+          <BeastStateRowC 
+              beasts={[
+                ...battleState.enemyParty.core,
+              ]}
+              beastClickCallback={() => {}}
+              minimize={attackFlowState.state == 'pickCore'}
+          />
+          <BeastStateRowC 
+              beasts={[
+                ...battleState.enemyParty.vanguard,
+              ]}
               beastClickCallback={() => {}}
               minimize={attackFlowState.state == 'pickCore'}
           />
@@ -83,13 +98,13 @@ export default function BattleScreen({presetState}: {presetState: BattleState}) 
 
           {/* Vanguard */} 
           <BeastStateRowC 
-              beasts={battleState.vanguard}
+              beasts={battleState.playerParty.vanguard}
               beastClickCallback={() => {}}
               minimize={attackFlowState.state == 'pickCore'}
               />
           {/* Core */} 
           <BeastStateRowC 
-              beasts={battleState.core}
+              beasts={battleState.playerParty.core}
               beastClickCallback={attackFlowState.state == 'pickCore'? (beast: BeastState) => {
                   // TODO: confirm button?
                   setAttackFlowState({
@@ -101,7 +116,7 @@ export default function BattleScreen({presetState}: {presetState: BattleState}) 
               />
           {/* Support */} 
           <BeastStateRowC 
-              beasts={battleState.support}
+              beasts={battleState.playerParty.support}
               beastClickCallback={
                 attackFlowState.state == 'initial'? 
                   useSupportSkillCallback : 
@@ -238,30 +253,38 @@ async function calculateDamageAnimation({
     stack: battleState.stack
   })
 
-  for (const beast of [...newBattleState.vanguard, ...newBattleState.core, ...newBattleState.support]){
-    beast.pendingAttacks = []
-    const powers = calculateAttack({
-      powerSpread,
-      beast: beast.beast
-    })
-    for (const power of powers){
-      beast.pendingAttacks.push({
-        target: {
-          array: 'enemies',
-          index: 0,
-        },
-        ...power
+  for (const array of [
+    newBattleState.playerParty.vanguard,
+    newBattleState.playerParty.core,
+    newBattleState.playerParty.support,
+  ]){
+    for (const beast of array){
+      beast.pendingAttacks = []
+      const powers = calculateAttack({
+        powerSpread,
+        beast: beast.beast
       })
+      for (const power of powers){
+        beast.pendingAttacks.push({
+          target: {
+            party: 'enemyParty',
+            partylocation: {
+              array: 'vanguard',
+              index: 0
+            }
+          },
+          ...power
+        })
+      }
+      console.log("Calculated beast " + JSON.stringify(beast))
+      setBattleState(JSON.parse(JSON.stringify(newBattleState)))
+      await new Promise(resolve => setTimeout(resolve, 500));
     }
-    console.log("Calculated beast " + JSON.stringify(beast))
-    setBattleState(JSON.parse(JSON.stringify(newBattleState)))
-    await new Promise(resolve => setTimeout(resolve, 500));
   }
   
 }
 
 
-type arrayName = 'vanguard' | 'core' | 'support' | 'enemies'
 async function animateTeamAttacks({
   battleState: battleState,
   setBattleState: setBattleState,
@@ -269,17 +292,21 @@ async function animateTeamAttacks({
   battleState: BattleState
   setBattleState: (d: BattleState) => void
 }){
-  // Actions taken while animating will be undone, since we'll keep setting
+  // Interestingly, actions taken while animating will be undone, since we'll keep setting
   // battleState equal to this animatedBattleState (which nothing else can touch.)
+
   let animatedBattleState = battleState
-  const groupsToAttack: Array<arrayName> = ['vanguard', 'core', 'support']
+  const groupsToAttack: Array<keyof Party> = ['vanguard', 'core', 'support']
   for (const array of groupsToAttack) {
-    for (let i = 0; i < battleState[array].length; i++){
+    for (let i = 0; i < battleState.playerParty[array].length; i++){
       animatedBattleState = processBeastAttack({
-        d: animatedBattleState,
+        battleState: animatedBattleState,
         beastLocation: {
-          array: array,
-          index: i
+          party: 'playerParty',
+          partylocation: {
+            array: array,
+            index: i,
+          }
         }
       })
       setBattleState(animatedBattleState)
@@ -336,123 +363,129 @@ const styles = StyleSheet.create({
 
 
 const pseudobattle: BattleState = {
-  vanguard: [],
-  core: [{
-    beast: {
-      uuid: '9ef62d3d-64a1-4bab-83f5-fa0522acc9e5',
-      colors: [2],
-      species: 2,
+  playerParty: {
+    vanguard: [],
+    core: [{
+      beast: {
+        uuid: '9ef62d3d-64a1-4bab-83f5-fa0522acc9e5',
+        colors: [2],
+        species: 2,
 
-      baseAttack: 12,
-      baseDefense: 1,
-      baseHP: 100,
+        baseAttack: 12,
+        baseDefense: 1,
+        baseHP: 100,
 
-      growthDetails: {
+        growthDetails: {
 
-        attackGain: 1,
-        defenseGain: 1,
-        hpGain: 1,
-  
-        experience: 100,
-        growthRate: 1,
+          attackGain: 1,
+          defenseGain: 1,
+          hpGain: 1,
+
+          experience: 100,
+          growthRate: 1,
+        },
+        level: 1,
+
+        supportSkills: [],
+        coreMatchSkill: {
+          fixME: 1
+        },
+        coreAttackSkill: {
+          ...CoreAttackSkills.CountAttack.factory({ quality: 1 }),
+          type: "CountAttack"
+        }
+
       },
-      level: 1,
+      currentCharge: 0,
+      currentHP: 100,
+      maxHP: 100,
+    }],
+    support: [{
+      beast: {
+        uuid: 'e85b3be9-1d48-4709-b8eb-d354b51d79de',
+        colors: [1],
+        species: 1,
 
-      supportSkills: [],
-      coreMatchSkill: {
-        fixME: 1
-      },
-      coreAttackSkill: {
-        ...CoreAttackSkills.CountAttack.factory({quality: 1}),
-        type: "CountAttack"
-      }
+        baseAttack: 1,
+        baseDefense: 1,
+        baseHP: 100,
 
-    },
-    currentCharge: 0,
-    currentHP: 100,
-    maxHP: 100,
-  }],
-  support: [{
-    beast: {
-      uuid: 'e85b3be9-1d48-4709-b8eb-d354b51d79de',
-      colors: [1],
-      species: 1,
+        growthDetails: {
 
-      baseAttack: 1,
-      baseDefense: 1,
-      baseHP: 100,
+          attackGain: 1,
+          defenseGain: 1,
+          hpGain: 1,
 
-      growthDetails: {
+          experience: 100,
+          growthRate: 1,
+        },
+        level: 1,
 
-        attackGain: 1,
-        defenseGain: 1,
-        hpGain: 1,
-  
-        experience: 100,
-        growthRate: 1,
-      },
-      level: 1,
-
-      supportSkills: [{
-        ...SupportSkills.SingleBlockDestroy.factory({}),
-        type: "SingleBlockDestroy"
-      }],
-    },
-    currentCharge: 60,
-    currentHP: 70,
-    maxHP: 100,
-  },
-  {
-    beast: {
-      uuid: '736c475e-e3db-4ef6-aefe-ce245cfaa687',
-      colors: [1],
-      species: 1,
-
-      baseAttack: 1,
-      baseDefense: 1,
-      baseHP: 100,
-
-      growthDetails: {
-
-        attackGain: 1,
-        defenseGain: 1,
-        hpGain: 1,
-  
-        experience: 100,
-        growthRate: 1,
-      },
-
-      level: 1,
-
-      supportSkills: [
-        {
+        supportSkills: [{
           ...SupportSkills.SingleBlockDestroy.factory({}),
           type: "SingleBlockDestroy"
-        }, 
-        {
-          ...SupportSkills.MatchColorBlockDestroy.factory({}),
-          type: "MatchColorBlockDestroy"
         }],
+      },
+      currentCharge: 60,
+      currentHP: 70,
+      maxHP: 100,
     },
-    currentCharge: 30,
-    currentHP: 100,
-    maxHP: 100,
-  }],
-  enemies: [{
-    currentCharge: 50,
-    currentHP: 100,
-    maxHP: 100,
-    beast: {
-      uuid: 'FakeEnemyUUID',
-      baseAttack: 100,
-      baseDefense: 2,
-      baseHP: 100,
-      level: 1,
-      species: 3,
-      supportSkills: [],
-      colors: [2],
-    }
-  }],
+    {
+      beast: {
+        uuid: '736c475e-e3db-4ef6-aefe-ce245cfaa687',
+        colors: [1],
+        species: 1,
+
+        baseAttack: 1,
+        baseDefense: 1,
+        baseHP: 100,
+
+        growthDetails: {
+
+          attackGain: 1,
+          defenseGain: 1,
+          hpGain: 1,
+
+          experience: 100,
+          growthRate: 1,
+        },
+
+        level: 1,
+
+        supportSkills: [
+          {
+            ...SupportSkills.SingleBlockDestroy.factory({}),
+            type: "SingleBlockDestroy"
+          },
+          {
+            ...SupportSkills.MatchColorBlockDestroy.factory({}),
+            type: "MatchColorBlockDestroy"
+          }],
+      },
+      currentCharge: 30,
+      currentHP: 100,
+      maxHP: 100,
+    }],
+  },
+  enemyParty: {
+    vanguard: [{
+      currentCharge: 50,
+      currentHP: 100,
+      maxHP: 100,
+      beast: {
+        uuid: 'FakeEnemyUUID',
+        baseAttack: 100,
+        baseDefense: 2,
+        baseHP: 100,
+        level: 1,
+        species: 3,
+        supportSkills: [],
+        colors: [2],
+      }
+    }],
+    core: [],
+    support: [],
+  },
   board: {
     blocks: [
       [[[[{

@@ -1,7 +1,7 @@
 import { Beast } from "../Beasts/Beast";
-import { BeastLocation } from "../Beasts/BeastLocation";
 import { Match } from "../Beasts/Match";
 import { Buff } from "./Buff";
+import { Target } from "./Target";
 
 // Represents a beast when inside a dungeon (not when managing your beasts)
 export interface BeastState {
@@ -16,7 +16,7 @@ export interface BeastState {
     pendingAttacks?: Array<{
         match: Match,
         power: number,
-        target: BeastLocation,
+        target: Target,
     }>
 }
 
