@@ -155,17 +155,12 @@ export function findBeastLocation(state: BattleState, uuid: string): Target | nu
 }
 
 export function processBeastAttack({
-    beastLocation,
+    attacker,
     battleState,
 }: {
+    attacker: BeastState,
     battleState: BattleState,
-    beastLocation: Target
 }): BattleState {
-    let attacker = getTargetedBeast({
-        b: battleState, 
-        t: beastLocation, 
-        exact: true,
-    })
 
     // collect 'attacks' & return early if needed.
 
@@ -182,14 +177,12 @@ export function processBeastAttack({
         return battleState
     }
 
-    // Clone & wipe new pendingAttacks
-
+    // Clone, then wipe the new pendingAttacks array.
     const newState: BattleState = JSON.parse(JSON.stringify(battleState))
-    attacker = getTargetedBeast({
-        b: newState, 
-        t: beastLocation,
-        exact: true
-    }) as BeastState // Not null since we just checked before cloning.
+    attacker = findBeast(
+      newState,
+      attacker   
+    ) as BeastState // Not null since we just checked before cloning.
     attacker.pendingAttacks = []
 
 

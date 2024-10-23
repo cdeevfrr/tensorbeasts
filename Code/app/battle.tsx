@@ -233,6 +233,10 @@ async function matchAnimation({
   // }
 }
 
+
+// TODO:
+// This function should animate one stack process at a time, not one beast at a time.
+// It should also divide the calculation part (especially the target choice) from the animation order.
 async function calculateDamageAnimation({
   battleState: battleState,
   coreAttackCriteria,
@@ -253,6 +257,7 @@ async function calculateDamageAnimation({
     stack: battleState.stack
   })
 
+  // Player calculation
   for (const array of [
     newBattleState.playerParty.vanguard,
     newBattleState.playerParty.core,
@@ -281,6 +286,36 @@ async function calculateDamageAnimation({
       await new Promise(resolve => setTimeout(resolve, 500));
     }
   }
+
+  // Enemy calculation (should be consolidated with player calculation.)
+  for (const array of [
+    newBattleState.enemyParty.vanguard,
+    newBattleState.enemyParty.core,
+    newBattleState.enemyParty.support,
+  ]){
+    for (const beast of array){
+      beast.pendingAttacks = []
+      const powers = calculateAttack({
+        powerSpread,
+        beast: beast.beast
+      })
+      for (const power of powers){
+        beast.pendingAttacks.push({
+          target: {
+            party: 'playerParty',
+            partylocation: {
+              array: 'vanguard',
+              index: 0
+            }
+          },
+          ...power
+        })
+      }
+      console.log("Calculated beast " + JSON.stringify(beast))
+      setBattleState(JSON.parse(JSON.stringify(newBattleState)))
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+  }
   
 }
 
@@ -292,26 +327,25 @@ async function animateTeamAttacks({
   battleState: BattleState
   setBattleState: (d: BattleState) => void
 }){
-  // Interestingly, actions taken while animating will be undone, since we'll keep setting
-  // battleState equal to this animatedBattleState (which nothing else can touch.)
-
   let animatedBattleState = battleState
-  const groupsToAttack: Array<keyof Party> = ['vanguard', 'core', 'support']
-  for (const array of groupsToAttack) {
-    for (let i = 0; i < battleState.playerParty[array].length; i++){
+  for (const array of [
+    battleState.playerParty.vanguard,
+    battleState.enemyParty.vanguard,
+    battleState.playerParty.core,
+    battleState.playerParty.support,
+    battleState.enemyParty.core,
+    battleState.enemyParty.support,
+  ]) {
+    for (const beast of array) {
       animatedBattleState = processBeastAttack({
         battleState: animatedBattleState,
-        beastLocation: {
-          party: 'playerParty',
-          partylocation: {
-            array: array,
-            index: i,
-          }
-        }
+        attacker: beast,
       })
-      setBattleState(animatedBattleState)
-      await new Promise(resolve => setTimeout(resolve, 500));
-
+      if (animatedBattleState !== battleState) {
+        setBattleState(animatedBattleState)
+        await new Promise(resolve => setTimeout(resolve, 500));
+      } // Else the beast was dead or something. 
+      // Even no damage will lead to a change to battleState.
     }
   }
 }
