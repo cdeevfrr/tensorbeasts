@@ -4,6 +4,7 @@ import { Beast, expForNextLevel, levelUp } from "@/Game/Beasts/Beast"
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { Button, Modal, StyleSheet, View, Text } from "react-native";
+import { BeastRowC } from "./BeastRowC";
 
 export function BattleOverModal({
     visible,
@@ -25,6 +26,13 @@ export function BattleOverModal({
         <View style={styles.modalView}>
           <Text>You did it!</Text>
           <Button onPress={completed} title='Done'/>
+
+          <Text>Rewards: </Text>
+          <Text>EXP: {battleState.expReward}</Text>
+          <BeastRowC
+            beasts={battleState.beastDrops || []}
+            beastClickCallback={() => {}}
+          />
         </View>
         </View>
     </Modal>
