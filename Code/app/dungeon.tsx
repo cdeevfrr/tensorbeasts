@@ -138,8 +138,8 @@ function makeNewBattle({party, enemies}:{party: Party, enemies: Array<Beast>}): 
     board: emptyBoard([3,1,1,1,1]),
     playerParty: party,
     enemyParty: {
-      vanguard: [],
-      core: enemies.map(toBeastState),
+      vanguard: enemies.map(toBeastState),
+      core: [],
       support: [],
     },
     stack: []
