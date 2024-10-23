@@ -65,9 +65,6 @@ export function levelUp({beast}: {beast: Beast}){
     newBeast.baseAttack += Math.floor((newBeast.growthDetails.attackGain + 1) * Math.random())
     newBeast.baseDefense += Math.floor((newBeast.growthDetails.defenseGain + 1) * Math.random())
 
-    console.log(newBeast.baseHP)
-
-
     return newBeast;
 }
 

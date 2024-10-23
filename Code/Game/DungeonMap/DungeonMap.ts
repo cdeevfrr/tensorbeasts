@@ -163,7 +163,6 @@ export function generateBeast({
 
 
     while (beast.level < (level || 1)){
-        console.log(beast)
         beast = levelUp({beast})
     }
     return beast
