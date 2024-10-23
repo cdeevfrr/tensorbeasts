@@ -30,7 +30,8 @@ export function SkillSelectModal({
                       useSkill(beast, skill)
                       onRequestClose();
                     }}
-                    title="Use skill"/>
+                    title={"Use skill " + skill.name}
+                    key={skill.name}/>
                 }
                 return null
               })          
