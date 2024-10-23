@@ -2,9 +2,9 @@ import PartyPlanC from "@/components/PartyPlanC";
 import { partiesKey } from "@/constants/GameConstants";
 import { PartyPlan } from "@/Game/Beasts/PartyPlan";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Link } from "expo-router";
+import { router } from "expo-router";
 import { useEffect, useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Button } from "react-native";
 
 export default function EnterDungeon({
     inputParties
@@ -40,18 +40,18 @@ export default function EnterDungeon({
         )? 
             <View style={styles.container}>
                 <PartyPlanC editable={false} party={parties[0]}/>
-                <Link 
-                    replace
-                    href={{
-                        pathname: "/dungeon",
+                <Button
+                  title='Ready! Go to dungeon'
+                  onPress={() => {
+                    router.replace({
+                        pathname: '/dungeon',
                         params: {
                             partyNumber: 0,
                             dungeonNumber: 1,
-                        } 
-                    }}
-                    style={styles.button}>
-                    Ready! Go to dungeon
-                </Link>
+                        }
+                    })
+                  }}
+                />
             </View>
             :
             <Text style={styles.text}>You need to make a party first!</Text>

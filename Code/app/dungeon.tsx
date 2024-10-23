@@ -79,7 +79,8 @@ export default function Dungeon({
           // TODO run an animation
 
           // Navigate to the battle screen!
-          router.replace('/battle')
+          // Make sure a 'pop' will put you back in the dungeon screen.
+          router.navigate('/battle')
         }}
       />
     </View>

@@ -14,7 +14,7 @@ export function BattleOverModal({
 }){
   const completed = () => {
     saveRewards(battleState);
-    router.back();
+    router.navigate('/dungeon');
   }
 
   return <Modal
