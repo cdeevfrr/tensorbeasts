@@ -49,7 +49,7 @@ export function calculateAttack({
     }
 }): Array<Attack> {
         let matches: Array<Match> = [{}]
-        if (beast.colors) {
+        if (beast.colors && beast.colors.length > 0) {
             const newMatches = []
             for (const color of beast.colors){
                 for (const match of matches){
@@ -61,7 +61,7 @@ export function calculateAttack({
             }
             matches = newMatches
         } 
-        if (beast.numbers){
+        if (beast.numbers && beast.numbers.length > 0){
             const newMatches = []
             for (const number of beast.numbers){
                 for (const match of matches){
@@ -73,7 +73,7 @@ export function calculateAttack({
             }
             matches = newMatches
         }
-        if (beast.shapes){
+        if (beast.shapes && beast.shapes.length > 0){
             const newMatches = []
             for (const shape of beast.shapes){
                 for (const match of matches){

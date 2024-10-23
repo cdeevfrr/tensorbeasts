@@ -87,3 +87,70 @@ it('Handles beasts with multiple colors/shapes/numbers', () => {
     ])
 
 })
+
+it('Handles many kinds of undefined colors lists', () => {
+    const p: PowerSpread = {
+        [matchToString({
+            color: 1,
+        })]: 2,
+        [matchToString({
+            color: 2,
+            number: 2
+        })]: 3,
+        [matchToString({
+            color: 3,
+            shape: 4
+        })]: 5,
+        [matchToString({
+            color: 3,
+            shape: 4,
+            number: 5
+        })]: 7,
+    }
+
+    expect(calculateAttack({
+        powerSpread: p, 
+        beast: {
+        colors: [1]
+    }})).toEqual([
+        {match: {color: 1,}, power: 2}
+    ])
+
+    expect(calculateAttack({
+        powerSpread: p, 
+        beast: {
+        colors: [1],
+        numbers: []
+    }})).toEqual([
+        {match: {color: 1,}, power: 2}
+    ])
+
+    expect(calculateAttack({
+        powerSpread: p, 
+        beast: {
+        colors: [1],
+        numbers: undefined
+    }})).toEqual([
+        {match: {color: 1,}, power: 2}
+    ])
+
+    expect(calculateAttack({
+        powerSpread: p, 
+        beast: {
+    }})).toEqual([
+    ])
+
+    expect(calculateAttack({
+        powerSpread: p, 
+        beast: {
+        colors: []
+    }})).toEqual([
+    ])
+
+    expect(calculateAttack({
+        powerSpread: p, 
+        beast: {
+        colors: undefined
+    }})).toEqual([
+    ])
+})
