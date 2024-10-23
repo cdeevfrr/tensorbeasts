@@ -15,7 +15,6 @@ import { calculateAttack } from '@/Game/Battle/PowerSpread';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { battleStateKey } from '@/constants/GameConstants';
 import { BattleOverModal } from '@/components/BattleOverModal';
-import { Party } from '@/Game/Dungeon/Party';
 
 
 
@@ -23,10 +22,12 @@ import { Party } from '@/Game/Dungeon/Party';
 // selecting a core beast (match style & core attack style)
 // to selecting which beast attacks which other beasts (select targets)
 type attackFlowState = {
-  state: 'initial' | 'pickCore' | 'confirmCore' | 'selectAttackerOrFinish' | 'selectTarget',
+  state: 'initial' | 'pickCore' | 'confirmCore' | 'selectAttackerOrFinish' | 'selectTarget' | 'animating',
   coreBeast?: BeastState,
   selectedAttacker?: BeastState,
 }
+
+const animationMs = 300
 
 const runningInterval: {interval: null | NodeJS.Timeout} = {
   interval: null
@@ -142,6 +143,10 @@ export default function BattleScreen({presetState}: {presetState: BattleState}) 
           {attackFlowState.state == 'selectAttackerOrFinish' && <Button 
             title={"Do it!"} 
             onPress={async () => {
+              setAttackFlowState({
+                ...attackFlowState,
+                state: 'animating'
+              })
               await animateTeamAttacks({
                 battleState,
                 setBattleState,
@@ -190,7 +195,7 @@ export default function BattleScreen({presetState}: {presetState: BattleState}) 
         onRequestConfirm={async () => {
             setAttackFlowState({
               ...attackFlowState,
-              state: 'selectAttackerOrFinish'
+              state: 'animating'
             })
             await matchAnimation({
               battleState,
@@ -202,6 +207,10 @@ export default function BattleScreen({presetState}: {presetState: BattleState}) 
               battleState: battleState,
               coreAttackCriteria: attackFlowState.coreBeast?.beast?.coreAttackSkill,
               setBattleState: setBattleState,
+            })
+            setAttackFlowState({
+              ...attackFlowState,
+              state: 'selectAttackerOrFinish'
             })
             console.log("Done calculating damage")
         }}
@@ -283,7 +292,7 @@ async function calculateDamageAnimation({
       }
       console.log("Calculated beast " + beast.beast.uuid)
       setBattleState(JSON.parse(JSON.stringify(newBattleState)))
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, animationMs));
     }
   }
 
@@ -313,7 +322,7 @@ async function calculateDamageAnimation({
       }
       console.log("Calculated beast " + beast.beast.uuid)
       setBattleState(JSON.parse(JSON.stringify(newBattleState)))
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, animationMs));
     }
   }
   
@@ -352,7 +361,7 @@ async function animateTeamAttacks({
     nextAttacker = findNextAttacker(animatedBattleState)
 
     setBattleState(animatedBattleState)
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, animationMs));
   }
 }
 
