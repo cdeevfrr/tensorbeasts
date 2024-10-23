@@ -281,7 +281,7 @@ async function calculateDamageAnimation({
           ...power
         })
       }
-      console.log("Calculated beast " + JSON.stringify(beast))
+      console.log("Calculated beast " + beast.beast.uuid)
       setBattleState(JSON.parse(JSON.stringify(newBattleState)))
       await new Promise(resolve => setTimeout(resolve, 500));
     }
@@ -311,7 +311,7 @@ async function calculateDamageAnimation({
           ...power
         })
       }
-      console.log("Calculated beast " + JSON.stringify(beast))
+      console.log("Calculated beast " + beast.beast.uuid)
       setBattleState(JSON.parse(JSON.stringify(newBattleState)))
       await new Promise(resolve => setTimeout(resolve, 500));
     }

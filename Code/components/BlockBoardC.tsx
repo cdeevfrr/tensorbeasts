@@ -14,7 +14,10 @@ export function BlockBoardC({board}: {board: BattleState["board"]}){
             const block = xHyperplane[y][z][a][b]
             return <BlockC 
               block={block} 
-              key={block ? JSON.stringify(block): index}/>
+              // Use index here because 
+              // JSON.stringify(block) isn't actually unique and causes errors in practice,
+              // and there's no state on blocks.
+              key={index}/>
         })}
     </View>
 }
