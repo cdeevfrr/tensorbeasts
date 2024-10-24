@@ -73,12 +73,18 @@ export default function Dungeon({
         dimensions={[true, false, false, false, false]}
         moveCallback={(l) => {
           const newLocation = addLocations(dungeonState.location, l)
-          setDungeonState({
-            ...dungeonState,
-            location: newLocation
-          })
 
-          // TODO: If you haven't cleared that location yet
+          const newDungeonState = {
+              ...dungeonState,
+              location: newLocation
+          }
+
+          // No need to await these - the user will see the battle screen now.
+          setDungeonState(newDungeonState)
+          AsyncStorage.setItem(dungeonStateKey, JSON.stringify(newDungeonState))
+
+          // TODO: Only if you haven't cleared that location yet.
+
           // Create battle state & save to async storage
           const b = makeNewBattle({
             enemies: dungeonState.map.getBattleAt({location: newLocation}),

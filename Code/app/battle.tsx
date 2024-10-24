@@ -4,7 +4,7 @@ import { SkillSelectModal } from '@/components/SkillSelectModal';
 import { StackC } from '@/components/StackC';
 import { SupportSkill } from '@/Game/SkillDex/Support/SupportSkill';
 import { BeastState } from '@/Game/Battle/BeastState';
-import { addCharge, BattleState, completed, findNextAttacker, processBeastAttack, useSkill } from '@/Game/Battle/BattleState';
+import { addCharge, BattleState, findNextAttacker, lost, processBeastAttack, useSkill, won } from '@/Game/Battle/BattleState';
 import { SupportSkills } from '@/Game/SkillDex/Support/SupportSkillList';
 import { useEffect, useState } from 'react';
 import { Text, View, StyleSheet, Button, Alert, Modal, Pressable } from 'react-native';
@@ -15,6 +15,7 @@ import { calculateAttack } from '@/Game/Battle/PowerSpread';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { battleStateKey } from '@/constants/GameConstants';
 import { BattleOverModal } from '@/components/BattleOverModal';
+import { DiedModal } from '@/components/DiedModal';
 
 
 
@@ -217,8 +218,9 @@ export default function BattleScreen({presetState}: {presetState: BattleState}) 
         visible={attackFlowState.state == 'confirmCore'}
       />}
       <BattleOverModal
-        visible={completed(battleState)}
+        visible={won(battleState)}
         battleState = {battleState}/>
+      {lost(battleState) && <DiedModal visible={true}/>}
     </View>
   );
 }

@@ -272,7 +272,10 @@ export function addCharge(b: BattleState, charge: number): BattleState{
 }
 
 export function completed(b: BattleState){
-    // All enemies dead OR all player beasts dead.
+    return won(b) || lost(b)
+}
+
+export function won(b: BattleState){
     return beastAt({
         party: b.enemyParty,
         location: {
@@ -282,16 +285,15 @@ export function completed(b: BattleState){
         exact: false,
         living: true
     }) === undefined
-     || 
-    beastAt({
-        party: b.playerParty,
-        location: {
-            array: 'vanguard',
-            index: 0
-        },
-        exact: false,
-        living: true
-    }) === undefined
+}
+
+export function lost(b: BattleState){
+    // Player loses when all their core beasts are dead.
+    const livingCore = b.playerParty.core.find(b => {
+        return b && b.currentHP >0
+    })
+    console.log(livingCore)
+    return livingCore === undefined
 }
 
 function getTargetedBeast({

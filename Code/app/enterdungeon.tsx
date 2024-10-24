@@ -1,5 +1,5 @@
 import PartyPlanC from "@/components/PartyPlanC";
-import { partiesKey } from "@/constants/GameConstants";
+import { dungeonStateKey, partiesKey } from "@/constants/GameConstants";
 import { PartyPlan } from "@/Game/Beasts/PartyPlan";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
@@ -43,13 +43,17 @@ export default function EnterDungeon({
                 <Button
                   title='Ready! Go to dungeon'
                   onPress={() => {
-                    router.replace({
-                        pathname: '/dungeon',
-                        params: {
-                            partyNumber: 0,
-                            dungeonNumber: 1,
-                        }
-                    })
+                    (async () => {
+                      // TODO: disable button before our async behavior.
+                      await AsyncStorage.removeItem(dungeonStateKey)
+                      router.replace({
+                          pathname: '/dungeon',
+                          params: {
+                              partyNumber: 0,
+                              dungeonNumber: 1,
+                          }
+                      })
+                    })()
                   }}
                 />
             </View>
