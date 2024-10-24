@@ -1,11 +1,11 @@
 import { JSONView } from "@/components/JSONView";
 import { Movement } from "@/components/Movement";
 import { battleStateKey, dungeonStateKey, partiesKey } from "@/constants/GameConstants";
-import { BattleState, fallOne } from "@/Game/Battle/BattleState";
+import { BattleState, fallOne, lost } from "@/Game/Battle/BattleState";
 import { toBeastState } from "@/Game/Battle/BeastState";
 import { addLocations, emptyBoard, locationsEqual } from "@/Game/Battle/Board";
 import { Beast } from "@/Game/Beasts/Beast";
-import { DungeonState, generateNewDungeonRun, isRunComplete, loadDungeon } from "@/Game/Dungeon/DungeonState";
+import { DungeonState, generateNewDungeonRun, loadDungeon } from "@/Game/Dungeon/DungeonState";
 import { Party } from "@/Game/Dungeon/Party";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
@@ -39,7 +39,7 @@ export default function Dungeon({
     const load = async () => {
       const result = await AsyncStorage.getItem(dungeonStateKey)
 
-      if (result === null || isRunComplete(JSON.parse(result))) {
+      if (result === null || lost({playerParty: loadDungeon(result).party})) {
         const newDungeonState = await makeNewRun({
           partyNumberParam: partyNumber,
           dungeonNumberParam: dungeonNumber

@@ -10,8 +10,6 @@ export interface DungeonState {
     location: Location,
     spoils: any,
     map: DungeonMap,
-    // TODO: remove runComplete, use battleState.lost(party), if it's even needed at all.
-    runComplete: boolean,
     seen: Array<Location>
 }
 
@@ -28,7 +26,6 @@ export async function generateNewDungeonRun({
         location: [0,0,0,0,0],
         spoils: [],
         map: maps[dungeonMapNumber - 1],
-        runComplete: false,
         seen: [[0,0,0,0,0]],
     }
 }
@@ -36,10 +33,6 @@ const maps = [
     beginnerDungeon,
     intermediateDungeon
 ]
-
-export function isRunComplete(d: DungeonState){
-    return d.runComplete
-}
 
 export function loadDungeon(savedData: string){
     const partial = JSON.parse(savedData) as DungeonState

@@ -287,12 +287,11 @@ export function won(b: BattleState){
     }) === undefined
 }
 
-export function lost(b: BattleState){
+export function lost(b: Pick<BattleState, "playerParty">){
     // Player loses when all their core beasts are dead.
     const livingCore = b.playerParty.core.find(b => {
         return b && b.currentHP >0
     })
-    console.log(livingCore)
     return livingCore === undefined
 }
 
