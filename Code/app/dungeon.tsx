@@ -3,7 +3,7 @@ import { Movement } from "@/components/Movement";
 import { battleStateKey, dungeonStateKey, partiesKey } from "@/constants/GameConstants";
 import { BattleState, fallOne } from "@/Game/Battle/BattleState";
 import { toBeastState } from "@/Game/Battle/BeastState";
-import { addLocations, emptyBoard } from "@/Game/Battle/Board";
+import { addLocations, emptyBoard, locationsEqual } from "@/Game/Battle/Board";
 import { Beast } from "@/Game/Beasts/Beast";
 import { DungeonState, generateNewDungeonRun, isRunComplete, loadDungeon } from "@/Game/Dungeon/DungeonState";
 import { Party } from "@/Game/Dungeon/Party";
@@ -68,61 +68,65 @@ export default function Dungeon({
 
   return (
     <View style={styles.container}>
-      <JSONView json={dungeonState}/>
+      <JSONView json={{
+        location: dungeonState.location,
+        seen: dungeonState.seen,
+      }}/>
       <Movement
         dimensions={[true, false, false, false, false]}
         moveCallback={(l) => {
           const newLocation = addLocations(dungeonState.location, l)
 
-          const newDungeonState = {
-              ...dungeonState,
-              location: newLocation
+          const asyncBehavior = async () => {
+
+            const newDungeonState = {
+                ...dungeonState,
+                location: newLocation
+            }
+
+            console.log("Checking locations")
+            console.log(newDungeonState.seen)
+            console.log(newLocation)
+
+            const isNewLocation = newDungeonState.seen.every(l => {
+              const equal = ! locationsEqual(newLocation, l)
+              console.log("Doesn't match " + l + "? " + equal)
+              return equal
+            })
+
+            console.log("Is new location" + isNewLocation)
+
+
+            if (isNewLocation) {
+              // Create battle state & save to async storage
+              const b = makeNewBattle({
+                enemies: dungeonState.map.getBattleAt({location: newLocation}),
+                party: dungeonState.party
+              })
+
+              console.log("Created new battle " + JSON.stringify(b))
+
+              await AsyncStorage.setItem(battleStateKey, JSON.stringify(b))
+
+              newDungeonState.seen.push(newLocation)
+
+              // TODO run an animation
+
+              // Navigate to the battle screen!
+              // Make sure a 'pop' will put you back in the dungeon screen.
+              router.navigate('/battle')
+            }
+
+            await AsyncStorage.setItem(dungeonStateKey, JSON.stringify(newDungeonState))
+            setDungeonState(newDungeonState)
           }
 
-          // No need to await these - the user will see the battle screen now.
-          setDungeonState(newDungeonState)
-          AsyncStorage.setItem(dungeonStateKey, JSON.stringify(newDungeonState))
-
-          // TODO: Only if you haven't cleared that location yet.
-
-          // Create battle state & save to async storage
-          const b = makeNewBattle({
-            enemies: dungeonState.map.getBattleAt({location: newLocation}),
-            party: dungeonState.party
-          })
-
-          console.log("Created new battle " + JSON.stringify(b))
-
-          AsyncStorage.setItem(battleStateKey, JSON.stringify(b))
-
-          // TODO run an animation
-
-          // Navigate to the battle screen!
-          // Make sure a 'pop' will put you back in the dungeon screen.
-          router.navigate('/battle')
+          asyncBehavior().catch(console.error)
         }}
       />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#25292e',
-    margin: '2%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  scrollViewContainer: {
-    flex: 1,
-    backgroundColor: '#25292e',
-    margin: '2%',
-  },
-  text: {
-    color: '#fff',
-  },
-});
 
 async function makeNewRun({
   partyNumberParam,
@@ -174,3 +178,22 @@ function makeNewBattle({party, enemies}:{party: Party, enemies: Array<Beast>}): 
 
   return fall;
 }
+
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#25292e',
+    margin: '2%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  scrollViewContainer: {
+    flex: 1,
+    backgroundColor: '#25292e',
+    margin: '2%',
+  },
+  text: {
+    color: '#fff',
+  },
+});

@@ -10,7 +10,9 @@ export interface DungeonState {
     location: Location,
     spoils: any,
     map: DungeonMap,
+    // TODO: remove runComplete, use battleState.lost(party), if it's even needed at all.
     runComplete: boolean,
+    seen: Array<Location>
 }
 
 
@@ -27,6 +29,7 @@ export async function generateNewDungeonRun({
         spoils: [],
         map: maps[dungeonMapNumber - 1],
         runComplete: false,
+        seen: [[0,0,0,0,0]],
     }
 }
 const maps = [

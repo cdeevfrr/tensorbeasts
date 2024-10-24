@@ -65,6 +65,18 @@ export function addLocations(l1: Location, l2: Location){
     return l1.map((val, index) => {return val + l2[index]})
 }
 
+export function locationsEqual(l1: Location, l2: Location){
+    console.log(l1)
+    console.log(l2)
+    const result = l1[0] === l2[0] &&
+    l1[1] === l2[1] &&
+    l1[2] === l2[2] &&
+    l1[3] === l2[3] &&
+    l1[4] === l2[4]
+    console.log(result)
+    return result
+}
+
 export function emptyBoard(dimensions: Array<number>): Board{
     return {
         blocks: Array(dimensions[0]).fill(
