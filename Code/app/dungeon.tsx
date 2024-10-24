@@ -13,6 +13,10 @@ import React from "react";
 import { useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 
+// A bit misleading name - it really is the chance to get a new beast at this cleared location.
+// A respawn would be the same beast again.
+const respawnChance = 0.2
+
 export default function Dungeon({
   initialDungeonState,
 }: {
@@ -96,8 +100,7 @@ export default function Dungeon({
 
             console.log("Is new location" + isNewLocation)
 
-
-            if (isNewLocation) {
+            if (isNewLocation || Math.random() < respawnChance) {
               // Create battle state & save to async storage
               const b = makeNewBattle({
                 enemies: dungeonState.map.getBattleAt({location: newLocation}),
