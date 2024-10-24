@@ -111,7 +111,9 @@ export default function Dungeon({
 
               await AsyncStorage.setItem(battleStateKey, JSON.stringify(b))
 
-              newDungeonState.seen.push(newLocation)
+              if (isNewLocation){
+                newDungeonState.seen.push(newLocation)
+              }
 
               // TODO run an animation
 
