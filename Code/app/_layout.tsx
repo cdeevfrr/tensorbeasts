@@ -1,5 +1,8 @@
 import { Stack } from "expo-router";
 
+// Some handy docs on expo router stack
+// https://docs.expo.dev/router/advanced/stack/#configure-header-bar
+
 export default function RootLayout() {
   return (
     <Stack>
