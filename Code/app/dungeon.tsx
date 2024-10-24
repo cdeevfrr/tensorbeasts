@@ -8,9 +8,10 @@ import { Beast } from "@/Game/Beasts/Beast";
 import { DungeonState, generateNewDungeonRun, isRunComplete, loadDungeon } from "@/Game/Dungeon/DungeonState";
 import { Party } from "@/Game/Dungeon/Party";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { router, useLocalSearchParams, useNavigation } from "expo-router";
-import { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import React from "react";
+import { useState } from "react";
+import { View, Text, StyleSheet } from "react-native";
 
 export default function Dungeon({
   initialDungeonState,
@@ -24,26 +25,38 @@ export default function Dungeon({
 
   const [dungeonState, setDungeonState] = useState<DungeonState | null>(initialDungeonState || null)
 
-  const navigation = useNavigation();
-
   // Check dungeonStateKey to make sure we're ready to start a new dungeon.
-  useEffect(() => {
+  useFocusEffect(React.useCallback(() => {
+    let isActive = true
+    const cancelFunction = () => {
+      isActive = false
+    }
+
     const load = async () => {
       const result = await AsyncStorage.getItem(dungeonStateKey)
 
       if (result === null || isRunComplete(JSON.parse(result))) {
-        setDungeonState(
-          await makeNewRun({
-            partyNumberParam: partyNumber,
-            dungeonNumberParam: dungeonNumber
-          }))
+        const newDungeonState = await makeNewRun({
+          partyNumberParam: partyNumber,
+          dungeonNumberParam: dungeonNumber
+        })
+        if (isActive) {
+          AsyncStorage.setItem(dungeonStateKey, JSON.stringify(newDungeonState))
+          setDungeonState(newDungeonState)
+        }
       } else {
-        setDungeonState(loadDungeon(result))
+        if (isActive){
+          setDungeonState(loadDungeon(result))
+        }
       }
     }
 
     load().catch(console.error);
-  }, []);
+    return cancelFunction
+  }, []));
+
+
+
 
   if (dungeonState === null) {
     return <View style={styles.container}>

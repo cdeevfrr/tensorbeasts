@@ -173,15 +173,17 @@ export function findMap({
 }: {
     id: string
 }) {
-    if (id in mapTypes){
-        return mapTypes[id]
+    // For some reason, putting this const outside this function causes beginner dungeon
+    // to have value 'undefined'. Cannot for the life of me understand why.
+    const maps123: Record<string, DungeonMap> = {
+        'beginnerDungeon': beginnerDungeon,
+        'intermediateDungeon': intermediateDungeon,
+    }
+    
+    if (id in maps123){
+        return maps123[id]
     }
     else {
-        return mapTypes['beginnerDungeon']
+        return maps123['beginnerDungeon']
     }
-}
-
-const mapTypes: Record<string, DungeonMap>= {
-    'beginnerDungeon': beginnerDungeon,
-    'intermediateDungeon': intermediateDungeon,
 }

@@ -1,10 +1,11 @@
-import { boxKey } from "@/constants/GameConstants";
+import { boxKey, dungeonStateKey } from "@/constants/GameConstants";
 import { BattleState } from "@/Game/Battle/BattleState";
 import { Beast, expForNextLevel, levelUp } from "@/Game/Beasts/Beast"
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { Button, Modal, StyleSheet, View, Text } from "react-native";
 import { BeastRowC } from "./BeastRowC";
+import { DungeonState } from "@/Game/Dungeon/DungeonState";
 
 export function BattleOverModal({
     visible,
@@ -14,8 +15,15 @@ export function BattleOverModal({
     battleState: BattleState
 }){
   const completed = () => {
-    saveRewards(battleState);
-    router.navigate('/dungeon');
+    const saveState = async () => {
+      console.log("Saving state")
+      await saveRewards(battleState);
+      await savePartyToDungeon(battleState);
+      console.log("Saved state")
+      router.navigate('/dungeon');
+    }
+
+    saveState().catch(console.error)
   }
 
   return <Modal
@@ -38,6 +46,8 @@ export function BattleOverModal({
     </Modal>
 }
 
+// DON'T export this!
+// it's kinda hacky to go to storage like this.
 async function saveRewards(battleState: BattleState){
     // Load box
     const boxString = await AsyncStorage.getItem(boxKey) || '[]'
@@ -79,6 +89,26 @@ async function saveRewards(battleState: BattleState){
     // Save box
     console.log("Saving new box " + JSON.stringify(box))
     await AsyncStorage.setItem(boxKey, JSON.stringify(box))
+}
+
+// DON'T export this!
+// it's kinda hacky to go to storage like this.
+async function savePartyToDungeon(b: BattleState){
+  const dungeonString = await AsyncStorage.getItem(dungeonStateKey)
+
+  console.log("Updating dungeon state " + dungeonString)
+
+  if (!dungeonString){
+    return
+  }
+
+  const dungeon: DungeonState = JSON.parse(dungeonString) 
+
+  dungeon.party = b.playerParty
+
+  console.log("Updated dungeon state: " + JSON.stringify(dungeon))
+
+  await AsyncStorage.setItem(dungeonStateKey, JSON.stringify(dungeon))
 }
 
 const styles = StyleSheet.create({
