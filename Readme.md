@@ -7,7 +7,9 @@ Play at https://cdeevfrr.github.io/tensorbeasts/
 # Placeholder for videos/examples
 
 
+# Contributing
 
+Still working on a contribution pipeline - for now, if you want to contribute, push a branch and ping cdeevfrr when you're ready for a merge request!
 
 
 
