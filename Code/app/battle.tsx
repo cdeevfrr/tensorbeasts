@@ -16,6 +16,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { battleStateKey } from '@/constants/GameConstants';
 import { BattleOverModal } from '@/components/BattleOverModal';
 import { DiedModal } from '@/components/DiedModal';
+import { useFocusEffect } from 'expo-router';
+import React from 'react';
 
 
 
@@ -34,23 +36,35 @@ const runningInterval: {interval: null | NodeJS.Timeout} = {
   interval: null
 }
 
-export default function BattleScreen({presetState}: {presetState: BattleState}) {
+export default function BattleScreen({
+  presetState
+}: {
+  presetState: BattleState
+}) {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedBeast, setSelectedBeast] = useState<BeastState | null>(null)
   const [battleState, setBattleState] = useState<BattleState | undefined>(presetState)
   const [attackFlowState, setAttackFlowState] = useState<attackFlowState>({state: 'initial'})
 
   if (!presetState){
-    useEffect(() => {
-      (async () => {
+    useFocusEffect(React.useCallback(() => {
+      let isActive = true
+      const cancelFunction = () => {
+        isActive = false
+      }
+      const load = async () => {
         const battleStateString = await AsyncStorage.getItem(battleStateKey)
         if (battleStateString) {
-          setBattleState(JSON.parse(battleStateString))
-        } else {
-          setBattleState(pseudobattle)
-        }
-      })()
-    }, []);
+          if (isActive){
+            setBattleState(JSON.parse(battleStateString))
+          }
+        } 
+      }
+
+      load().catch(console.error)
+
+      return cancelFunction
+    }, []));
   }
 
   if (battleState === undefined){
@@ -411,165 +425,3 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
 });
-
-
-const pseudobattle: BattleState = {
-  playerParty: {
-    vanguard: [],
-    core: [{
-      beast: {
-        uuid: '9ef62d3d-64a1-4bab-83f5-fa0522acc9e5',
-        colors: [2],
-        species: 2,
-
-        baseAttack: 12,
-        baseDefense: 1,
-        baseHP: 100,
-
-        growthDetails: {
-
-          attackGain: 1,
-          defenseGain: 1,
-          hpGain: 1,
-
-          experience: 100,
-          growthRate: 1,
-        },
-        level: 1,
-
-        supportSkills: [],
-        coreMatchSkill: {
-          fixME: 1
-        },
-        coreAttackSkill: {
-          ...CoreAttackSkills.CountAttack.factory({ quality: 1 }),
-          type: "CountAttack"
-        }
-
-      },
-      currentCharge: 0,
-      currentHP: 100,
-      maxHP: 100,
-    }],
-    support: [{
-      beast: {
-        uuid: 'e85b3be9-1d48-4709-b8eb-d354b51d79de',
-        colors: [1],
-        species: 1,
-
-        baseAttack: 1,
-        baseDefense: 1,
-        baseHP: 100,
-
-        growthDetails: {
-
-          attackGain: 1,
-          defenseGain: 1,
-          hpGain: 1,
-
-          experience: 100,
-          growthRate: 1,
-        },
-        level: 1,
-
-        supportSkills: [{
-          ...SupportSkills.SingleBlockDestroy.factory({}),
-          type: "SingleBlockDestroy"
-        }],
-      },
-      currentCharge: 60,
-      currentHP: 70,
-      maxHP: 100,
-    },
-    {
-      beast: {
-        uuid: '736c475e-e3db-4ef6-aefe-ce245cfaa687',
-        colors: [1],
-        species: 1,
-
-        baseAttack: 1,
-        baseDefense: 1,
-        baseHP: 100,
-
-        growthDetails: {
-
-          attackGain: 1,
-          defenseGain: 1,
-          hpGain: 1,
-
-          experience: 100,
-          growthRate: 1,
-        },
-
-        level: 1,
-
-        supportSkills: [
-          {
-            ...SupportSkills.SingleBlockDestroy.factory({}),
-            type: "SingleBlockDestroy"
-          },
-          {
-            ...SupportSkills.MatchColorBlockDestroy.factory({}),
-            type: "MatchColorBlockDestroy"
-          }],
-      },
-      currentCharge: 30,
-      currentHP: 100,
-      maxHP: 100,
-    }],
-  },
-  enemyParty: {
-    vanguard: [{
-      currentCharge: 50,
-      currentHP: 100,
-      maxHP: 100,
-      beast: {
-        uuid: 'FakeEnemyUUID',
-        baseAttack: 100,
-        baseDefense: 2,
-        baseHP: 100,
-        level: 1,
-        species: 3,
-        supportSkills: [],
-        colors: [2],
-      }
-    }],
-    core: [],
-    support: [],
-  },
-  board: {
-    blocks: [
-      [[[[{
-        color: 1,
-        number: 1,
-        shape: 1,
-      }]]]],
-      [[[[{
-        color: 2,
-        number: 1,
-        shape: 1,
-      }]]]],
-      [[[[{
-        color: 3,
-        number: 1,
-        shape: 1,
-      }]]]],
-      [[[[{
-        color: 4,
-        number: 1,
-        shape: 1,
-      }]]]],
-      [[[[{
-        color: 5,
-        number: 1,
-        shape: 1,
-      }]]]],
-      [[[[{
-        color: 6,
-        number: 1,
-        shape: 1,
-      }]]]]
-    ]
-  },
-  stack: []
-}

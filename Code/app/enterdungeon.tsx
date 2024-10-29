@@ -2,7 +2,8 @@ import PartyPlanC from "@/components/PartyPlanC";
 import { dungeonStateKey, partiesKey } from "@/constants/GameConstants";
 import { PartyPlan } from "@/Game/Beasts/PartyPlan";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
+import React from "react";
 import { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Button } from "react-native";
 
@@ -19,13 +20,26 @@ export default function EnterDungeon({
     // Check if there's already a non-completed dungeonState.
     // If so, take them straight there.
 
-    useEffect(() => {
-        AsyncStorage.getItem(partiesKey).then((result) => {
-          if (result){
+    useFocusEffect(React.useCallback(() => {
+      let isActive = true
+      const cancelFunction = () => {
+        isActive = false
+      }
+
+      const load = async () => {
+        if (!inputParties){
+          const result = await AsyncStorage.getItem(partiesKey)
+
+          if (result && isActive){
             setParties(JSON.parse(result))
           }
-        });
-    }, []);
+        }
+      }
+
+      load().catch(console.error)
+
+      return cancelFunction
+    }, []));
 
     return (
       <View style={styles.container}>

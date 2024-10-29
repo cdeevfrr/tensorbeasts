@@ -7,39 +7,61 @@ import { Beast } from "@/Game/Beasts/Beast";
 import { CoreAttackSkills } from "@/Game/SkillDex/Core/CoreAttack/CoreAttackList";
 import { SupportSkills } from "@/Game/SkillDex/Support/SupportSkillList";
 import { boxKey, partiesKey } from "@/constants/GameConstants";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
+import React from "react";
 
-export default function Parties() {
-  const [parties, setParties] = useState<Array<PartyPlan>>([{
+export default function Parties({
+  initialParties,
+  initialBox,
+}:{
+  initialParties?: Array<PartyPlan>,
+  initialBox?: Array<Beast>,
+}) {
+  const [parties, setParties] = useState<Array<PartyPlan>>(initialParties || [{
     core: [null, null],
     support: [null, null],
     vanguard: [null, null],
   }])
 
-  const [box, setBox] = useState<Array<Beast>>([])
+  const [box, setBox] = useState<Array<Beast>>(initialBox || [])
 
-  useEffect(() => {
+  useFocusEffect(React.useCallback(() => {
+    let isActive = true
+    const cancelFunction = () => {
+      isActive = false
+    }
+
     const callback = async () => {
-      const partiesString = await AsyncStorage.getItem(partiesKey)
+      if (!initialParties){
+        const partiesString = await AsyncStorage.getItem(partiesKey)
 
-      if (partiesString){
-        setParties(JSON.parse(partiesString))
+        if (partiesString && isActive){
+          setParties(JSON.parse(partiesString))
+        }
       }
 
-      const boxString = await AsyncStorage.getItem(boxKey)
-
-      if (!boxString){
-        // TODO: Move fakeBox to some kind if "init" phase of the game
-        // that only triggers if box isn't found.
-        await AsyncStorage.setItem(boxKey, JSON.stringify(fakeBox))
-        setBox(fakeBox)
-      } else {
-        setBox(JSON.parse(boxString))
+      if (!initialBox){
+        const boxString = await AsyncStorage.getItem(boxKey)
+  
+        if (!boxString){
+          // TODO: Move fakeBox to some kind if "init" phase of the game
+          // that only triggers if box isn't found.
+          await AsyncStorage.setItem(boxKey, JSON.stringify(fakeBox))
+          if (isActive){
+            setBox(fakeBox)
+          }
+        } else {
+          if (isActive){
+            setBox(JSON.parse(boxString))
+          }
+        }
       }
     }
 
     callback().catch(console.error)
-  }, []);
+
+    return cancelFunction
+  }, []));
 
   const [selectedParty, setSelectedParty] = useState(0)
 

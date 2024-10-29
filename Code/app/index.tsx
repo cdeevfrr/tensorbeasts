@@ -8,11 +8,8 @@ export default function Index() {
       style={styles.container}
     >
       <Text>Welcome!</Text>
-      <Link href="/battle" style={styles.button}>
-        Go to a test battle
-      </Link>
       <Link href="/enterdungeon" style={styles.button}>
-        Go to a real dungeon
+        Go to a dungeon
       </Link>
       <Link href="/beasts" style={styles.button}>
         Manage Beasts

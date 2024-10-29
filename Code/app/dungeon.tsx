@@ -1,7 +1,7 @@
 import { JSONView } from "@/components/JSONView";
 import { Movement } from "@/components/Movement";
 import { battleStateKey, dungeonStateKey, partiesKey } from "@/constants/GameConstants";
-import { BattleState, fallOne, lost } from "@/Game/Battle/BattleState";
+import { BattleState, completed, fallOne, lost } from "@/Game/Battle/BattleState";
 import { toBeastState } from "@/Game/Battle/BeastState";
 import { addLocations, emptyBoard, locationsEqual } from "@/Game/Battle/Board";
 import { Beast } from "@/Game/Beasts/Beast";
