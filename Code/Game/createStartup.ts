@@ -6,16 +6,16 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Beast } from "./Beasts/Beast";
 import { CoreAttackSkills } from "./SkillDex/Core/CoreAttack/CoreAttackList";
 import { SupportSkills } from "./SkillDex/Support/SupportSkillList";
-import { boxKey } from "@/constants/GameConstants";
+import { boxKey, partiesKey } from "@/constants/GameConstants";
+import { PartyPlan } from "./Beasts/PartyPlan";
 
 // All functions should operate very carefully to ensure you don't delete data
 // if there's already data at that spot.
 
 export async function cleanStartup() {
-    await createBox()
+    await createBox() // <- Also creates an initial party
     // clearDungeonState()
     // clearBattleState()
-    // clearPartyState()
 }
 
 export async function createBox() {
@@ -27,7 +27,28 @@ export async function createBox() {
         throw new Error("Cannot wipe box - found that it already had contents.")
     }
 
-    return JSON.parse(JSON.stringify(initialBox))
+    // Wipe parties without checking. They can always be recreated, and
+    // we don't want someone keeping a non-existent beast around in a party.
+
+    const result: Array<Beast> = JSON.parse(JSON.stringify(initialBox))
+
+    const initialParty: PartyPlan = {
+        vanguard: [null, null],
+        core: [
+          ...result.filter(beast => 
+          beast.uuid === '9ef62d3d-64a1-4bab-83f5-fa0522acc9e5'),
+          null
+        ],
+        support: [
+          ...result.filter(beast => 
+            beast.uuid === '736c475e-e3db-4ef6-aefe-ce245cfaa687' ),
+          null
+        ],
+    }
+
+    AsyncStorage.setItem(partiesKey, JSON.stringify([initialParty]))
+
+    return result
 }
 
 const initialBox: Array<Beast> = [

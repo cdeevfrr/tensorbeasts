@@ -31,14 +31,8 @@ export default function Parties({
     }
 
     const callback = async () => {
-      if (!initialParties){
-        const partiesString = await AsyncStorage.getItem(partiesKey)
-
-        if (partiesString && isActive){
-          setParties(JSON.parse(partiesString))
-        }
-      }
-
+      // Must get box first.
+      // If no box found, it'll create the initial box and set an initial party.
       if (!initialBox){
         const boxString = await AsyncStorage.getItem(boxKey)
   
@@ -51,6 +45,14 @@ export default function Parties({
           if (isActive){
             setBox(JSON.parse(boxString))
           }
+        }
+      }
+
+      if (!initialParties){
+        const partiesString = await AsyncStorage.getItem(partiesKey)
+
+        if (partiesString && isActive){
+          setParties(JSON.parse(partiesString))
         }
       }
     }
