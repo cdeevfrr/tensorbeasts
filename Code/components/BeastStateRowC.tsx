@@ -11,11 +11,12 @@ export function BeastStateRowC({
     beastClickCallback: (beast: BeastState) => any,
     minimize?: boolean,
 }){
-    return <View style={minimize? styles.containerMin : styles.container}>
+    return <View style={styles.container}>
         { beasts.map((beast, index) => {
             return <BeastStateC 
               beast={beast} 
               beastClickCallback={beastClickCallback}
+              minimize={minimize}
               key={beast? beast.beast.uuid : index}
             />
         })}
@@ -27,14 +28,9 @@ const styles = StyleSheet.create({
       flex: 1,
       flexDirection: 'row', // Arrange children horizontally
       justifyContent: 'flex-start',
-      alignItems: 'center', // Center vertically
-    },
-    containerMin: {
-        flex: 1,
-        flexDirection: 'row', // Arrange children horizontally
-        justifyContent: 'flex-start',
-        alignItems: 'center', // Center vertically
-        maxHeight: '40%',
-        maxWidth: '40%',
-    },
+      alignItems: 'center', // Center vertically,
+      borderColor: '#752580',
+      borderWidth: 1,
+      margin: 1,
+    }
   });

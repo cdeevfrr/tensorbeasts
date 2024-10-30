@@ -303,14 +303,11 @@ function solveWM1M2({
 
 const styles = StyleSheet.create({
     container: {
-        flex: 100,
+        flex: 5,
         position: 'relative',
-        width: '90%',
-        height: '90%',
-        backgroundColor: 'grey',
+        // backgroundColor: 'grey',
     },
     child: {
-        backgroundColor: 'yellow',
         position: 'absolute',
     }
 })

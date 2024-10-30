@@ -1,32 +1,25 @@
 import { BattleState } from "@/Game/Battle/BattleState";
-import { View, StyleSheet } from "react-native";
 import { BlockC } from "./BlockC";
+import { FiveDContainer } from "./FiveDContainer";
 
 export function BlockBoardC({board}: {board: BattleState["board"]}){
-    const xPlanes = [...board.blocks]
-    xPlanes.reverse()
-    return <View style={styles.container}>
-        {xPlanes.map((xHyperplane, index) => {
-            const y = 0
-            const z = 0
-            const a = 0
-            const b = 0
-            const block = xHyperplane[y][z][a][b]
-            return <BlockC 
-              block={block} 
-              // Use index here because 
-              // JSON.stringify(block) isn't actually unique and causes errors in practice,
-              // and there's no state on blocks.
-              key={index}/>
-        })}
-    </View>
-}
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#25292e',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-});
+    const elements: Parameters<typeof FiveDContainer>[0]['elements'] = []
+    for (let x = 0; x < board.blocks.length; x++){
+        for (let y = 0; y < board.blocks[x].length; y++){
+            for (let z = 0; z < board.blocks[x][y].length; z++){
+                for (let a = 0; a < board.blocks[x][y][z].length; a++){
+                    for (let b = 0; b < board.blocks[x][y][z][a].length; b++){
+                        const block = board.blocks[x][y][z][a][b]
+                        elements.push({
+                            component: <BlockC block={block} />,
+                            location: [x, y, z, a, b],
+                        })
+                    }
+                }
+            }
+        }
+    }
+
+    return <FiveDContainer elements={elements}/>
+}

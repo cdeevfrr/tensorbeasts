@@ -386,16 +386,10 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     backgroundColor: '#25292e',
-    justifyContent: 'center',
-    alignItems: 'center'
   },
   leftBlock: {
     flex: 3,
-    justifyContent: 'center',
-    alignItems: 'center',
-    minHeight: 0,
-    minWidth: 0,
-    maxHeight: '95%'
+    maxHeight: '95%',
   },
   rightBlock: {
     flex: 1,

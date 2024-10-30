@@ -1,16 +1,18 @@
 import { GameColors } from "@/constants/GameColors";
 import { BeastState } from "@/Game/Battle/BeastState";
 import { useState } from "react";
-import { Pressable, View } from "react-native";
+import { Pressable, View, StyleSheet } from "react-native";
 import Svg, { Rect, Text } from "react-native-svg";
 import { BeastDetailModal } from "./BeastDetailModal";
 
 export function BeastStateC({
     beast,
-    beastClickCallback
+    beastClickCallback,
+    minimize
 }: {
     beast: BeastState
-    beastClickCallback: (beast: BeastState) => any
+    beastClickCallback: (beast: BeastState) => any,
+    minimize?: boolean
 }){
     const [showDetail, setShowDetail] = useState(false)
 
@@ -18,18 +20,19 @@ export function BeastStateC({
         .map(skill => skill.chargeRequirement)
         .reduce((a, b) => Math.max(a, b), 0)
     
-    return <View>
-      <Pressable 
+    return <View style={minimize? StyleSheet.flatten([styles.container, {maxWidth: 30} ]): styles.container}>
+        <Pressable 
+        style={styles.pressable}
         onPress={() => beastClickCallback(beast)}
         onLongPress={() => {
             console.log("Long press!")
             setShowDetail(true)
         }}>
-      <Svg 
-        height="50%" 
-        width="50%" 
+    <Svg 
+        style={styles.svg}
         viewBox="0 0 100 100"
     >
+        {/* <Rect width='100%' height='100%' fill='yellow'></Rect> */}
         <Rect 
             x="15"
             y="15"
@@ -107,8 +110,8 @@ export function BeastStateC({
             </Text>
         })}
       </Svg>
-      </Pressable>
-      {showDetail && 
+    </Pressable>
+       {showDetail && 
         <BeastDetailModal 
           beast={beast}
           onRequestClose={() => setShowDetail(false)}
@@ -117,3 +120,23 @@ export function BeastStateC({
       }
     </View>
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        // Need a maxHeight here to bound the views inside their row.
+        maxHeight: '100%',
+        // TODO: setting maxWidth is a hack. Find some other way
+        // to tell the styling that each beast SVG should only be
+        // as wide as it is tall.
+        maxWidth: 80,
+        margin: 5,
+    },
+    pressable: {
+        flex: 1,
+        flexDirection: 'row',
+    },
+    svg: {
+        flex: 1,
+    }
+})
