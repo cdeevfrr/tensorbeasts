@@ -211,18 +211,20 @@ export function FiveDContainer({
                 + d2 * w 
                 // Offset by 3DGridOverhang rightwards
                 + d4 * w * threeDGridOverhang / 100
-                // Offset for z scale width change
+                // Offset for z scale width change (based on d4)
                 +  (w * (1-zScale) / 2)
                 // Convert to string & tell typescript it's a percentage.
                 +  "%" as DimensionValue
             const top = 
                 // Find the right grid up & down
-                m2 + d5 * (m2 + gridHeight) 
+                // Vertically, d5 = 0 is the BOTTOM.
+                m2 + (maxes[4] - element.location[4]) * (m2 + gridHeight) 
                 // Go to your index in the grid
-                + d1 * w 
+                // Vertically, d1 = 0 is the BOTTOM.
+                + (maxes[0] - element.location[0]) * w 
                 // Offset by 3DGridOverhang downwards
                 + d4 * w * threeDGridOverhang / 100
-                // Offset for z scale width change
+                // Offset for z scale width change (based on d4)
                 + (w * (1-zScale) / 2)
                 // Convert to string & tell typescript it's a percentage.
                 + "%" as DimensionValue
