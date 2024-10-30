@@ -15,7 +15,7 @@ const minimumMargin = 2
 // It's recommended to add about a 5% margin to your components, since
 // it's not otherwise included.
 export function FiveDContainer({
-    elements
+    elements,
 }:{
     elements: Array<{
         component: ReactNode, 

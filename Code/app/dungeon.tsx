@@ -1,3 +1,4 @@
+import { FiveDContainer } from "@/components/FiveDContainer";
 import { JSONView } from "@/components/JSONView";
 import { Movement } from "@/components/Movement";
 import { battleStateKey, dungeonStateKey, partiesKey } from "@/constants/GameConstants";
@@ -12,6 +13,7 @@ import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import React from "react";
 import { useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
+import Svg, { Circle, Rect } from "react-native-svg";
 
 // A bit misleading name - it really is the chance to get a new beast at this cleared location.
 // A respawn would be the same beast again.
@@ -68,10 +70,39 @@ export default function Dungeon({
     </View>
   }
 
+  const elements: Parameters<typeof FiveDContainer>[0]['elements'] = []
+  for (const location of dungeonState.seen){
+
+    elements.push({
+      location,
+      component: <Svg viewBox="0 0 100 100">
+        <Rect
+          x='10'
+          y='10'
+          width='80'
+          height='80'
+          fill='brown'
+        />
+        {locationsEqual(location, dungeonState.location) && 
+            <Circle
+              cx="50"
+              cy="50"
+              r="30"
+              stroke='black'
+              strokeWidth="2.5"
+              fill='grey'
+            />
+        }
+      </Svg>
+    })
+  }
+
+
 
 
   return (
     <View style={styles.container}>
+      <FiveDContainer elements={elements}/>
       <JSONView json={{
         location: dungeonState.location,
         seen: dungeonState.seen,
@@ -191,7 +222,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#25292e',
     margin: '2%',
     justifyContent: 'center',
-    alignItems: 'center',
   },
   scrollViewContainer: {
     flex: 1,
