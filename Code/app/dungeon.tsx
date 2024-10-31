@@ -119,17 +119,10 @@ export default function Dungeon({
                 location: newLocation
             }
 
-            console.log("Checking locations")
-            console.log(newDungeonState.seen)
-            console.log(newLocation)
-
             const isNewLocation = newDungeonState.seen.every(l => {
               const equal = ! locationsEqual(newLocation, l)
-              console.log("Doesn't match " + l + "? " + equal)
               return equal
             })
-
-            console.log("Is new location" + isNewLocation)
 
             if (isNewLocation || Math.random() < respawnChance) {
               // Create battle state & save to async storage
@@ -137,8 +130,6 @@ export default function Dungeon({
                 enemies: dungeonState.map.getBattleAt({location: newLocation}),
                 party: dungeonState.party
               })
-
-              console.log("Created new battle " + JSON.stringify(b))
 
               await AsyncStorage.setItem(battleStateKey, JSON.stringify(b))
 

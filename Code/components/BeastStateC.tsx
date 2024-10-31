@@ -25,7 +25,6 @@ export function BeastStateC({
         style={styles.pressable}
         onPress={() => beastClickCallback(beast)}
         onLongPress={() => {
-            console.log("Long press!")
             setShowDetail(true)
         }}>
     <Svg 
@@ -87,10 +86,6 @@ export function BeastStateC({
         {
             beast.beast.supportSkills.map((skill, index)=> {
                 const x = Math.floor(skill.chargeRequirement / maxCharge * 60) + 20
-
-                if (x <= 0 || isNaN(x)){
-                    console.log("Got the issue: " + JSON.stringify(skill))
-                }
 
                 return <Rect
                     key={index}

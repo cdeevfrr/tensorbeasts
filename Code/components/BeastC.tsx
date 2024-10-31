@@ -18,7 +18,6 @@ export function BeastC({
         <Pressable
             onPress={() => beastClickCallback(beast)}
             onLongPress={() => {
-                console.log("Long press!")
                 setShowDetail(true)
             }}
         >

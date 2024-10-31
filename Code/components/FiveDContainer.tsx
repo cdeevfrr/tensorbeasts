@@ -156,8 +156,6 @@ export function FiveDContainer({
         d5: ld5,
     })
 
-    console.log("Using margins " + JSON.stringify(bestFound))
-
     const m1 = bestFound.m1
     const m2 = bestFound.m2
     const w = bestFound.w
@@ -230,23 +228,6 @@ export function FiveDContainer({
                 + "%" as DimensionValue
             const width = (w * zScale) + "%" as DimensionValue
             const height = (w * zScale) + "%" as DimensionValue
-
-            console.log(JSON.stringify({
-                d1,d2,d3,d4,d5
-            }))
-            console.log(JSON.stringify({
-                gridHeight,
-                gridOffset: m2 + d5 * (m2 + gridHeight) ,
-                indexOffset: d1 * w ,
-                fourDOffset: d4 * w * threeDGridOverhang,
-                fourDRescaleOffset: (w * (1-zScale) / 2),
-            }))
-            console.log(JSON.stringify({
-                left, 
-                top,
-                width,
-                height,
-            }))
 
             return <View 
               style={StyleSheet.flatten([
