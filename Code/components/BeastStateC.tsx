@@ -34,10 +34,10 @@ export function BeastStateC({
     >
         {/* <Rect width='100%' height='100%' fill='yellow'></Rect> */}
         <Rect 
-            x="15"
-            y="15"
-            width="70"
-            height="70"
+            x="0"
+            y="0"
+            width="98"
+            height="98"
             stroke="red"
             strokeWidth="2"
             fill={beast.beast.colors?.[0] ?
@@ -47,18 +47,18 @@ export function BeastStateC({
 
         {/* Health bar */}
         <Rect
-            x="20"
+            x="5"
             y="65"
-            width="60"
+            width="90"
             height="5"
             stroke="grey"
             strokeWidth="0.2"
             fill="grey"
         />
         <Rect
-            x="20"
+            x="5"
             y="65"
-            width={ Math.floor(beast.currentHP / beast.maxHP * 60)}
+            width={ Math.floor(beast.currentHP / beast.maxHP * 90)}
             height="5"
             stroke="grey"
             strokeWidth="0.2"

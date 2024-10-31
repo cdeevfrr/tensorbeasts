@@ -2,6 +2,7 @@
 import { Modal, View, StyleSheet, Button } from 'react-native';
 import { Beast } from '@/Game/Beasts/Beast';
 import { BeastC } from './BeastC';
+import { BoxC } from './BoxC';
 
 export function BoxModal({
     onRequestClose,
@@ -16,13 +17,6 @@ export function BoxModal({
     visible: boolean,
     canSelectNull: boolean,
 }){
-  let modifiedBox: Array<Beast | null> = box
-  if (canSelectNull){
-    modifiedBox = [
-      null,
-      ...modifiedBox
-    ]
-  }
   return <Modal
       transparent={true}
       visible={visible}
@@ -31,13 +25,10 @@ export function BoxModal({
       }}>
         <View style={styles.centeredView}>
         <View style={styles.modalView}>
-          {/** TODO: Make a scrollable grid view */}
-          {modifiedBox.map((beast) => {
-              return <BeastC 
-                beast={beast} 
-                beastClickCallback={onSelect}
-                key={beast && beast.uuid}/>
-          })}
+          <BoxC 
+            box={box} 
+            canSelectNull={canSelectNull} 
+            beastClickedCallback={onSelect}/>
           <Button onPress={()=> {
             onRequestClose();
           }} title='Cancel'/>
@@ -67,7 +58,9 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.25,
     shadowRadius: 4,
-    elevation: 5
+    elevation: 5,
+    height: '70%',
+    width: '50%',
   },
   skillButton: {
     padding: 10

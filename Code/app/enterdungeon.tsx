@@ -41,40 +41,34 @@ export default function EnterDungeon({
       return cancelFunction
     }, []));
 
+    if (parties.length === 0 
+    || ( parties[0].core.every(beast => beast === null) )) {
+      return <View style={styles.container}>
+        <Text style={styles.text}>Enter Dungeon screen</Text>
+        <Text style={styles.text}>You need to make a party with a core beast first!</Text>
+      </View>
+    }
+
     return (
       <View style={styles.container}>
         <Text style={styles.text}>Enter Dungeon screen</Text>
-        {(
-            parties.length > 0 
-            && ( // nonempty party
-                ! parties[0].vanguard.every(beast => beast === null)
-                || ! parties[0].core.every(beast => beast === null)
-                || ! parties[0].support.every(beast => beast === null)
-            )
-        )? 
-            <View style={styles.container}>
-                <PartyPlanC editable={false} party={parties[0]}/>
-                <Button
-                  title='Ready! Go to dungeon'
-                  onPress={() => {
-                    (async () => {
-                      // TODO: disable button before our async behavior.
-                      await AsyncStorage.removeItem(dungeonStateKey)
-                      router.replace({
-                          pathname: '/dungeon',
-                          params: {
-                              partyNumber: 0,
-                              dungeonNumber: 1,
-                          }
-                      })
-                    })()
-                  }}
-                />
-            </View>
-            :
-            <Text style={styles.text}>You need to make a party first!</Text>
-        }
-        
+        <PartyPlanC editable={false} party={parties[0]}/>
+        <Button
+          title='Ready! Go to dungeon'
+          onPress={() => {
+            (async () => {
+              // TODO: disable button before our async behavior.
+              await AsyncStorage.removeItem(dungeonStateKey)
+              router.replace({
+                  pathname: '/dungeon',
+                  params: {
+                      partyNumber: 0,
+                      dungeonNumber: 1,
+                  }
+              })
+            })()
+          }}
+        />
       </View>
     );
   }

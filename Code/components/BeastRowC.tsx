@@ -20,10 +20,14 @@ export function BeastRowC({
 }
 
 const styles = StyleSheet.create({
+    // Components that show beasts should try to grow as much as possible.
+    // Beast components can shrink infinitely and rely on containing components to
+    // give them as much space as possible.
     container: {
       flex: 1,
-      flexDirection: 'row', // Arrange children horizontally
+      flexDirection: 'row',
+      // Rely on the child component's flexGrow: 0 setting and the 
+      // react default alignItems:stretch here.
       justifyContent: 'flex-start',
-      alignItems: 'center', // Center vertically
     }
   });

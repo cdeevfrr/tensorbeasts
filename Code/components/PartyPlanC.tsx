@@ -77,6 +77,7 @@ export default function PartyPlanC({
                 index: party.support.indexOf(beast)
             })
         }: () => {}}/>
+        <View style={{backgroundColor: 'grey'}}></View>
       </View>
     );
   }
@@ -85,8 +86,13 @@ const styles = StyleSheet.create({
 container: {
     flex: 1,
     backgroundColor: '#ffffff',
+    borderRadius: 10,
     justifyContent: 'center',
-    alignItems: 'center',
+    // Components that show beasts should try to grow as much as possible.
+    // Beast components can shrink infinitely and rely on containing components to
+    // give them as much space as possible.
+    alignSelf: 'stretch', 
+    margin: '5%',
 },
 text: {
     color: '#fff',

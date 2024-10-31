@@ -1,8 +1,8 @@
 import { GameColors } from "@/constants/GameColors";
 import { Beast } from "@/Game/Beasts/Beast";
 import { useState } from "react";
-import { Pressable, View } from "react-native";
-import Svg, { Rect, Text } from "react-native-svg";
+import { Pressable, View, StyleSheet } from "react-native";
+import Svg, { Rect } from "react-native-svg";
 import { BeastDetailModal } from "./BeastDetailModal";
 
 export function BeastC({
@@ -14,7 +14,7 @@ export function BeastC({
 }){
     const [showDetail, setShowDetail] = useState(false)
 
-    return <View>
+    return <View style={styles.view}>
         <Pressable
             onPress={() => beastClickCallback(beast)}
             onLongPress={() => {
@@ -23,8 +23,6 @@ export function BeastC({
             }}
         >
         <Svg 
-            height="50%" 
-            width="50%" 
             viewBox="0 0 100 100"
             
         >
@@ -50,3 +48,17 @@ export function BeastC({
       }
     </View>
 }
+
+const styles = StyleSheet.create({
+    // Components that show beasts should try to grow as much as possible.
+    // Beast components can shrink infinitely and rely on containing components to
+    // give them as much space as possible.
+    view: {
+        // Beasts are usually shown in BeastRow components.
+        // These styles let the containing component stretch it to fill 
+        // the cross axis (flexDirection: row, alignItems: stretch)
+        // but not stretch it any more along the main axis (since flexGrow = 0)
+        aspectRatio: 1,
+        flexGrow: 0,
+    }
+})
