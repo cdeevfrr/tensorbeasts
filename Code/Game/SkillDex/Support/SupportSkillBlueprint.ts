@@ -3,7 +3,7 @@ import { BeastState } from "../../Battle/BeastState"
 import { BattleState } from "../../Battle/BattleState"
 
 export interface SkillBlueprint {
-    factory: (props: any) => Omit<SupportSkill, 'type'>,
+    factory: ({quality}:{quality: number}) => Omit<SupportSkill, 'type'>,
     // Indicates which pseudolevels might see a beast spawn with this core skill
     psuedolevels: Array<number>,
     // Indicates, for a given pseudolevel where this skill can be generated, how rare it should be among other skills.

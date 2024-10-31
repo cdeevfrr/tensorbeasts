@@ -4,9 +4,9 @@ import { destroyBlocks } from "@/Game/Battle/BattleState"
 
 
 export const MatchColorBlockDestroy: SkillBlueprint = {
-    factory: () => {
+    factory: ({quality}) => {
         return {
-            chargeRequirement: 30,
+            chargeRequirement: 60 / quality,
             name: "Destroy Color",
         }
     },

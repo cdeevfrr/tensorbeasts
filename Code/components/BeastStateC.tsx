@@ -86,9 +86,15 @@ export function BeastStateC({
         />}
         {
             beast.beast.supportSkills.map((skill, index)=> {
+                const x = Math.floor(skill.chargeRequirement / maxCharge * 60) + 20
+
+                if (x <= 0 || isNaN(x)){
+                    console.log("Got the issue: " + JSON.stringify(skill))
+                }
+
                 return <Rect
                     key={index}
-                    x={Math.floor(skill.chargeRequirement / maxCharge * 60) + 20}
+                    x={x}
                     y="75"
                     width="2"
                     height="5"

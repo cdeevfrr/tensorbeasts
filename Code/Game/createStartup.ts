@@ -100,7 +100,7 @@ const initialBox: Array<Beast> = [
       level: 1,
     
       supportSkills: [{
-        ...SupportSkills.SingleBlockDestroy.factory({}),
+        ...SupportSkills.SingleBlockDestroy.factory({quality: 2}),
         type: "SingleBlockDestroy"
       }],
     },{ uuid: '736c475e-e3db-4ef6-aefe-ce245cfaa687',
@@ -125,11 +125,11 @@ const initialBox: Array<Beast> = [
     
       supportSkills: [
         {
-          ...SupportSkills.SingleBlockDestroy.factory({}),
+          ...SupportSkills.SingleBlockDestroy.factory({quality: 2}),
           type: "SingleBlockDestroy"
         },
         {
-          ...SupportSkills.MatchColorBlockDestroy.factory({}),
+          ...SupportSkills.MatchColorBlockDestroy.factory({quality: 2}),
           type: "MatchColorBlockDestroy"
         }],
     }
