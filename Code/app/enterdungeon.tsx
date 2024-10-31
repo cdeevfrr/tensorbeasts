@@ -1,5 +1,6 @@
 import PartyPlanC from "@/components/PartyPlanC";
-import { dungeonStateKey, partiesKey } from "@/constants/GameConstants";
+import { boxKey, dungeonStateKey, partiesKey } from "@/constants/GameConstants";
+import { Beast } from "@/Game/Beasts/Beast";
 import { PartyPlan } from "@/Game/Beasts/PartyPlan";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect } from "expo-router";
@@ -28,6 +29,7 @@ export default function EnterDungeon({
 
       const load = async () => {
         if (!inputParties){
+          await refreshPartiesFromBox()
           const result = await AsyncStorage.getItem(partiesKey)
 
           if (result && isActive){
@@ -90,3 +92,39 @@ const styles = StyleSheet.create({
         margin: '5%'
     },
 });
+
+// Not sure where refreshPartiesFromBox function should live? 
+// It lives here for now.
+async function refreshPartiesFromBox () {
+  const initPartyString = await AsyncStorage.getItem(partiesKey)
+  if (!initPartyString){
+    return
+  }
+
+  const boxString = await AsyncStorage.getItem(boxKey)
+  if (!boxString){
+    return
+  }
+
+  const box: Array<Beast> = JSON.parse(boxString)
+
+  const initialParties: Array<PartyPlan> = JSON.parse(initPartyString)
+
+  for (const party of initialParties){
+    for (const array of [
+      party.vanguard,
+      party.core,
+      party.support,
+    ]) {
+      for (let i = 0; i < array.length; i++){
+        const uuid = array[i]?.uuid
+        console.log("refreshing uuid " + uuid)
+        if (uuid){
+          array[i] = box.find(b => b.uuid === uuid) || null
+        }
+      }
+    }
+  }
+
+  await AsyncStorage.setItem(partiesKey, JSON.stringify(initialParties))
+}

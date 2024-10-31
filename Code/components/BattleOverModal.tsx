@@ -67,7 +67,6 @@ async function saveRewards(battleState: BattleState){
     battleState.playerParty.support
   ]) {
     for (const beast of array) {
-      console.log("Updating exp on beast "+ beast.beast.uuid)
       if (beast.currentHP > 0) {
         const index = box.findIndex(b => b.uuid === beast.beast.uuid)
         let savedBeast = box[index]
@@ -82,7 +81,6 @@ async function saveRewards(battleState: BattleState){
             savedBeast = levelUp({ beast: savedBeast })
           }
         }
-        console.log("Updated exp on beast " + savedBeast.uuid)
         box[index] = savedBeast
       }
     }
