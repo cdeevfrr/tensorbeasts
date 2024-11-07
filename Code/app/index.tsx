@@ -1,8 +1,14 @@
+import { addCustomBeastToBox } from "@/Game/createStartup";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Link } from "expo-router";
-import { Text, View, StyleSheet, Button } from "react-native";
+import { useState } from "react";
+import { Text, View, StyleSheet, Button, Pressable } from "react-native";
+import Collapsible from 'react-native-collapsible';
+
 
 export default function Index() {
+  const [isCollapsed, setIsCollapsed] = useState(true);
+
   return (
     <View
       style={styles.container}
@@ -17,12 +23,21 @@ export default function Index() {
       <Link href="/parties" style={styles.button}>
         Manage Parties
       </Link>
-      <Button 
-        title="Clear all storage (DANGEROUS!!! DELETES ALL BEASTS!)"
-        onPress={() => {
-          AsyncStorage.clear()
-        }}
-      />
+      <Pressable onPress={() => setIsCollapsed(!isCollapsed)}>
+        <Text style={styles.button}>Developer options</Text>
+      </Pressable>
+      <Collapsible collapsed={isCollapsed}>
+        <View style={styles.container}>
+        <Button 
+            title="Add custom beast to box"
+            onPress={() => addCustomBeastToBox()}
+        />
+        <Button 
+            title="Clear all storage (DANGEROUS!!! DELETES ALL BEASTS!)"
+            onPress={() => AsyncStorage.clear()}
+        />
+        </View>
+      </Collapsible>
     </View>
   );
 }

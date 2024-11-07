@@ -8,6 +8,7 @@ import { addLocations, emptyBoard, locationsEqual } from "@/Game/Battle/Board";
 import { Beast } from "@/Game/Beasts/Beast";
 import { DungeonState, generateNewDungeonRun, loadDungeon } from "@/Game/Dungeon/DungeonState";
 import { Party } from "@/Game/Dungeon/Party";
+import { PassiveSkills } from "@/Game/SkillDex/Passive/PassiveSkillList";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import React from "react";
@@ -203,7 +204,26 @@ function makeNewBattle({party, enemies}:{party: Party, enemies: Array<Beast>}): 
     fall = fallOne(fall)
   }
 
-  return fall;
+  const passivesActivated = fall
+
+  for (const array of [party.vanguard, party.support]){
+    for (const beast of array){
+      if (beast.beast.passiveSkills){
+        for (const passiveSkill of beast.beast.passiveSkills){
+          const skillType = PassiveSkills[passiveSkill.type]
+          if (skillType.activate){
+            skillType.activate(
+              passiveSkill,
+              passivesActivated,
+              beast
+            )
+          }
+        }
+      }
+    }
+  }
+
+  return passivesActivated;
 }
 
 

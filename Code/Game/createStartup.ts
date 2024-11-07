@@ -8,6 +8,7 @@ import { CoreAttackSkills } from "./SkillDex/Core/CoreAttack/CoreAttackList";
 import { SupportSkills } from "./SkillDex/Support/SupportSkillList";
 import { boxKey, partiesKey } from "@/constants/GameConstants";
 import { PartyPlan } from "./Beasts/PartyPlan";
+import { PassiveSkill } from "./SkillDex/Passive/PassiveSkill";
 
 // All functions should operate very carefully to ensure you don't delete data
 // if there's already data at that spot.
@@ -133,4 +134,59 @@ const initialBox: Array<Beast> = [
           type: "MatchColorBlockDestroy"
         }],
     }
-    ]
+  ]
+
+
+// Used for developer testing only, there are buttons in the UI to add this beast to the current box.
+export async function addCustomBeastToBox(){
+  const currentBoxString = await AsyncStorage.getItem(boxKey)
+
+  if(!currentBoxString){
+    throw new Error("Tried to add custom beast to a box, but box isn't initialized yet!")
+  }
+
+  const currentBox: Array<Beast> = JSON.parse(currentBoxString)
+
+  // Remove any duplicates of the custom beast
+  // No clue what happens if two beasts have the same UUID.
+  const filtered = currentBox.filter(x => x.uuid !== customBeast.uuid)
+  
+  filtered.push(customBeast)
+  await AsyncStorage.setItem(boxKey, JSON.stringify(filtered))
+}
+
+const customBeast: Beast = { 
+  uuid: 'ManuallyCreatedDeveloperBeast',
+  colors: [2],
+  species: 2,
+
+  baseAttack: 10,
+  baseDefense: 10,
+  baseHP: 100,
+
+  growthDetails: {
+
+    attackGain: 1,
+    defenseGain: 1,
+    hpGain: 1,
+
+    experience: 100,
+    growthRate: 1,
+  },
+
+  level: 1,
+
+  supportSkills: [],
+  coreMatchSkill: {
+    fixME: 1
+  },
+  passiveSkills: [
+    {
+      name: "Custom boardSize skill",
+      type: "BoardSize",
+      toAdd: 1,
+      dimension: 1,
+    } as PassiveSkill
+  ]
+
+}

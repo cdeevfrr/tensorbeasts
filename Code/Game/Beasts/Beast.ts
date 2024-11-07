@@ -1,4 +1,5 @@
 import { CoreAttackSkill } from "../SkillDex/Core/CoreAttack/CoreAttackSkill"
+import { PassiveSkill } from "../SkillDex/Passive/PassiveSkill"
 import { SupportSkill } from "../SkillDex/Support/SupportSkill"
 
 // Represents a beast when managing your collection of beasts, outside a dungeon.
@@ -41,6 +42,8 @@ export interface Beast {
 
     coreAttackSkill?: CoreAttackSkill,
     coreMatchSkill?: {fixME: number} // TODO: MatchSkill
+
+    passiveSkills?: Array<PassiveSkill>
 }
 
 export function expForNextLevel({beast}: {beast: Beast}){
