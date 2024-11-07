@@ -23,8 +23,14 @@ export interface BattleState {
 // fill in all nulls in the battle's board.
 // This function must live here because we need things like the battle current effects to decide
 // what new blocks to generate.
+// (TODO: Make it live in board, but pass in block generation function as an arg)
 export function fallOne(battleState: BattleState, clone: boolean = true){
+    return fallOneInternal(battleState, clone).newBattleState
+}
+
+function fallOneInternal(battleState: BattleState, clone: boolean = true){
     const newBattleState: BattleState = clone? JSON.parse(JSON.stringify(battleState)) : battleState
+    let diff = false;
 
     // Gravity goes in the x direction, x=0 is the bottom of the screen & the bottom of gravity.
 
@@ -41,6 +47,7 @@ export function fallOne(battleState: BattleState, clone: boolean = true){
         // Heck, we should probably even expose a 'Fall' that just takes a 'generateBlock' function
         // as an arg.
         if (!accessLocation([x,y,z,a,b], newBoard)) {
+            diff = true
             const above = accessLocation([x+1,y,z,a,b], newBoard) 
             if (above == undefined){
                 newBoard.blocks[x][y][z][a][b] = generateBlock(battleState)
@@ -52,13 +59,17 @@ export function fallOne(battleState: BattleState, clone: boolean = true){
     }
 
     newBattleState.board = newBoard
-    return newBattleState
+    return {newBattleState, diff}
 }
 
 export function fall(battleState: BattleState, clone = true){
-    // TODO:
-    // While fallOne causes changes, keep falling. 
-    return fallOne(battleState, clone)
+    let {diff, newBattleState} = fallOneInternal(battleState, clone) 
+    while (diff){
+        const result = fallOneInternal(newBattleState, false) 
+        diff = result.diff
+        newBattleState = result.newBattleState
+    }
+    return newBattleState
 }
 
 /**
