@@ -240,7 +240,7 @@ export function processBeastAttack({
                 newState.beastDrops = []
             }
             // TODO: Calculate drop probability based on more stuff
-            const dropProbability = .2
+            const dropProbability = .5
             if (Math.random() < dropProbability){
                 newState.beastDrops.push(calculateDrop(target.beast))
             }
