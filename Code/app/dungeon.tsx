@@ -8,6 +8,7 @@ import { addLocations, emptyBoard, locationsEqual } from "@/Game/Battle/Board";
 import { Beast } from "@/Game/Beasts/Beast";
 import { DungeonState, generateNewDungeonRun, loadDungeon } from "@/Game/Dungeon/DungeonState";
 import { Party } from "@/Game/Dungeon/Party";
+import { isBoardSizePassive } from "@/Game/SkillDex/Passive/BoardSize";
 import { PassiveSkills } from "@/Game/SkillDex/Passive/PassiveSkillList";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
@@ -98,8 +99,21 @@ export default function Dungeon({
     })
   }
 
+  // Always let people travel in the x direction.
+  // Other dimensions are based on what party members are alive.
+  const dimensions = [true, false, false, false, false]
 
-
+  for (const array of [dungeonState.party.vanguard, dungeonState.party.support]){
+    for (const beastState of array){
+      if (beastState.currentHP > 0 && beastState.beast.passiveSkills){
+        for (const passive of beastState.beast.passiveSkills){
+          if (isBoardSizePassive(passive)){
+            dimensions[passive.dimension] = true
+          }
+        }
+      }
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -109,7 +123,7 @@ export default function Dungeon({
         seen: dungeonState.seen,
       }}/>
       <Movement
-        dimensions={[true, false, false, false, false]}
+        dimensions={dimensions}
         moveCallback={(l) => {
           const newLocation = addLocations(dungeonState.location, l)
 

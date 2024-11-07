@@ -55,7 +55,7 @@ type BoardSize = PassiveSkill & {
     toAdd: number,
 }
 
-function isBoardSizePassive(p: PassiveSkill): p is BoardSize {
+export function isBoardSizePassive(p: PassiveSkill): p is BoardSize {
     return p.type === "BoardSize"
 }
 

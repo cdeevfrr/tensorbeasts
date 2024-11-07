@@ -1,4 +1,4 @@
-import { addCustomBeastToBox } from "@/Game/createStartup";
+import { addCustomBeastToBox, createBox } from "@/Game/createStartup";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Link } from "expo-router";
 import { useState } from "react";
@@ -34,7 +34,10 @@ export default function Index() {
         />
         <Button 
             title="Clear all storage (DANGEROUS!!! DELETES ALL BEASTS!)"
-            onPress={() => AsyncStorage.clear()}
+            onPress={async () => {
+              await AsyncStorage.clear()
+              await createBox()
+            }}
         />
         </View>
       </Collapsible>
