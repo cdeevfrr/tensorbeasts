@@ -1,5 +1,7 @@
 import { CountAttack } from "./CountAttack";
+import { MatchColorAttack } from "./MatchColorAttack";
 
 export const CoreAttackSkills = {
-    "CountAttack": CountAttack
+    "CountAttack": CountAttack,
+    "MatchColorAttack": MatchColorAttack
 }
