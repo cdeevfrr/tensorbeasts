@@ -112,8 +112,10 @@ const l10SupportProbs: Array<number> = [
 const l10CoreAtkSkills: Array<keyof typeof CoreAttackSkills | null> = [
     null,
     "CountAttack",
+    "MatchColorAttack",
 ]
 const l10CoreAtkProbs: Array<number> = [
     30,
-    70,
+    35,
+    35,
 ]
