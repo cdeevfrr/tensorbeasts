@@ -145,7 +145,7 @@ export function generateBeast({
                 probabilities: probabilities
             }) as keyof typeof SupportSkills
             beast.supportSkills.push({
-                ...SupportSkills[skillType].factory({}),
+                ...SupportSkills[skillType].factory({quality: 1}),
                 type: skillType,
             })
         }
