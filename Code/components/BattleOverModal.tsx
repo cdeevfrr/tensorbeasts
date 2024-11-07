@@ -6,6 +6,7 @@ import { router } from "expo-router";
 import { Button, Modal, StyleSheet, View, Text } from "react-native";
 import { BeastRowC } from "./BeastRowC";
 import { DungeonState } from "@/Game/Dungeon/DungeonState";
+import { BeastC } from "./BeastC";
 
 export function BattleOverModal({
     visible,
@@ -37,10 +38,20 @@ export function BattleOverModal({
 
           <Text>Rewards: </Text>
           <Text>EXP: {battleState.expReward}</Text>
-          <BeastRowC
-            beasts={battleState.beastDrops || []}
-            beastClickCallback={() => {}}
-          />
+            {/* {battleState.beastDrops && battleState.beastDrops.map(beast => {
+              return <BeastC
+                beast={beast}
+                beastClickCallback={() => {}}
+                key={beast.uuid}
+              />
+            })} */}
+          {battleState.beastDrops && 
+          <View style={{ height: 100, width: 400 }}>
+            <BeastRowC
+              beasts={battleState.beastDrops}
+              beastClickCallback={() => { }}
+            />
+          </View>}
         </View>
         </View>
     </Modal>
