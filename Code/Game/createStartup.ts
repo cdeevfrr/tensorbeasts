@@ -73,8 +73,9 @@ const initialBox: Array<Beast> = [
       level: 1,
     
       supportSkills: [],
-      coreMatchSkill: {
-        fixME: 1
+      coreGroupSkill: {
+        name: "Continuous group manual",
+        type: "Continuous",
       },
       coreAttackSkill: {
         ...CoreAttackSkills.CountAttack.factory({ quality: 1 }),
@@ -177,8 +178,9 @@ const customBeast: Beast = {
   level: 1,
 
   supportSkills: [],
-  coreMatchSkill: {
-    fixME: 1
+  coreGroupSkill: {
+    name: "Continuous group manual",
+    type: 'Continuous'
   },
   passiveSkills: [
     {
@@ -186,7 +188,25 @@ const customBeast: Beast = {
       type: "BoardSize",
       toAdd: 1,
       dimension: 1,
-    } as PassiveSkill
+    } as PassiveSkill,
+    {
+      name: "Custom boardSize skill 2",
+      type: "BoardSize",
+      toAdd: 1,
+      dimension: 2,
+    } as PassiveSkill,
+    {
+      name: "Custom boardSize skill 3",
+      type: "BoardSize",
+      toAdd: 1,
+      dimension: 3,
+    } as PassiveSkill,
+    {
+      name: "Custom boardSize skill 4",
+      type: "BoardSize",
+      toAdd: 1,
+      dimension: 4,
+    } as PassiveSkill,
   ]
 
 }

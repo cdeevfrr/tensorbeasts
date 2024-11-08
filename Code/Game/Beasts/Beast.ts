@@ -1,4 +1,5 @@
 import { CoreAttackSkill } from "../SkillDex/Core/CoreAttack/CoreAttackSkill"
+import { GroupSkill } from "../SkillDex/Core/GroupCriteria/CoreGroupSkill"
 import { PassiveSkill } from "../SkillDex/Passive/PassiveSkill"
 import { SupportSkill } from "../SkillDex/Support/SupportSkill"
 
@@ -41,7 +42,7 @@ export interface Beast {
     supportSkills: Array<SupportSkill>, // Active effects started by player
 
     coreAttackSkill?: CoreAttackSkill,
-    coreMatchSkill?: {fixME: number} // TODO: MatchSkill
+    coreGroupSkill?: GroupSkill 
 
     passiveSkills?: Array<PassiveSkill>
 }

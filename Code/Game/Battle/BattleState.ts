@@ -9,6 +9,8 @@ import { randInt } from "../util"
 import { Beast, calcExpReward, calculateDrop } from "../Beasts/Beast"
 import { beastAt, Party, PartyLocation } from "../Dungeon/Party"
 import { Target } from "./Target"
+import { calculateAttack, createPowerSpread } from "./PowerSpread"
+import { CoreAttackSkills } from "../SkillDex/Core/CoreAttack/CoreAttackList"
 
 export interface BattleState {
     playerParty: Party
@@ -18,6 +20,11 @@ export interface BattleState {
     stack: Array<DestroyEvent>,
     beastDrops?: Array<Beast>,
     expReward?: number,
+    // The beast whos core grouping skill is CURRENTLY active, and should 
+    // cause grouping to occur without any user input.
+    // Undefined initially, and is set when the user clicks 'attack' thru 
+    // to when they click 'do it'.
+    groupingBeast?: Beast
 }
 
 // fill in all nulls in the battle's board.
@@ -72,6 +79,17 @@ export function fall(battleState: BattleState, clone = true){
     return newBattleState
 }
 
+export function addGroupingBeast(battleState: BattleState, groupingBeast: Beast) {
+    const newState = {
+        ...battleState,
+        groupingBeast
+    }
+
+    recalcuateBeastDamage(newState)
+
+    return newState
+}
+
 /**
  * Destroy the blocks at the selected locations; fall afterwards.
  * 
@@ -102,7 +120,80 @@ export function destroyBlocks(battleState: BattleState, locations: Array<Locatio
         setLocation(location, newBattleState.board, null)
     }
 
+    recalcuateBeastDamage(newBattleState)
+
     return fall(newBattleState, false)
+}
+
+// Since this statefully modifies battleState, don't export. Only call it if you've
+// already cloned battleState.
+function recalcuateBeastDamage(battleState: BattleState){
+    let powerSpread = createPowerSpread({matches: [], powers: []})
+    if (battleState.groupingBeast && battleState.groupingBeast.coreAttackSkill) {
+        powerSpread = CoreAttackSkills[
+            battleState.groupingBeast.coreAttackSkill.type
+        ].process({
+            self: battleState.groupingBeast.coreAttackSkill,
+            stack: battleState.stack
+        })
+    }
+
+    console.log(battleState.groupingBeast)
+    console.log(powerSpread)
+    
+      // Player calculation
+      for (const array of [
+        battleState.playerParty.vanguard,
+        battleState.playerParty.core,
+        battleState.playerParty.support,
+      ]){
+        for (const beast of array){
+          beast.pendingAttacks = []
+          const powers = calculateAttack({
+            powerSpread,
+            beast: beast.beast
+          })
+          for (const power of powers){
+            beast.pendingAttacks.push({
+              target: {
+                party: 'enemyParty',
+                partylocation: {
+                  array: 'vanguard',
+                  index: 0
+                }
+              },
+              ...power
+            })
+          }
+        }
+      }
+    
+      // Enemy calculation (should be consolidated with player calculation.)
+      for (const array of [
+        battleState.enemyParty.vanguard,
+        battleState.enemyParty.core,
+        battleState.enemyParty.support,
+      ]){
+        for (const beast of array){
+          beast.pendingAttacks = []
+          const powers = calculateAttack({
+            powerSpread,
+            beast: beast.beast
+          })
+          for (const power of powers){
+            beast.pendingAttacks.push({
+              target: {
+                party: 'playerParty',
+                partylocation: {
+                  array: 'vanguard',
+                  index: 0
+                }
+              },
+              ...power
+            })
+          }
+        }
+      }
 }
 
 export function generateBlock(battleState: BattleState): Block{
@@ -172,6 +263,7 @@ export function processBeastAttack({
     attacker: BeastState,
     battleState: BattleState,
 }): BattleState {
+    console.log("Processing beast " + attacker.beast.uuid)
 
     // collect 'attacks' & return early if needed.
 
@@ -181,12 +273,8 @@ export function processBeastAttack({
 
     const attacks = attacker.pendingAttacks;
 
-    if (!attacks){
-        return battleState
-    }
-    if (attacks.length == 0){
-        return battleState
-    }
+    // Still have to clone even if attacks isn't present,
+    // since we have to set the beast's 'hasAttackedthisTurn' to true.
 
     // Clone, then wipe the new pendingAttacks array.
     const newState: BattleState = JSON.parse(JSON.stringify(battleState))
@@ -198,7 +286,7 @@ export function processBeastAttack({
     attacker.hasAttackedThisTurn = true
     // actually do the attacks
 
-    for (const attack of attacks){
+    for (const attack of attacks || []){
         const target = getTargetedBeast({
             b: newState, 
             t: attack.target,
@@ -258,6 +346,11 @@ export function processBeastAttack({
         }
     } 
     return newState
+}
+
+// Add this event to the stack, and recalculate all pendingAttacks for all beasts
+export function addStackEvent(b: BattleState, s: DestroyEvent){
+
 }
 
 export function addCharge(b: BattleState, charge: number): BattleState{

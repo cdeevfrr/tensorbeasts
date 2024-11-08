@@ -1,1 +1,0 @@
-// Match when a continuous block of the same color/number/shape is of size greater than (quality).

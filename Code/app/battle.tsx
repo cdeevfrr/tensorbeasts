@@ -4,33 +4,48 @@ import { SkillSelectModal } from '@/components/SkillSelectModal';
 import { StackC } from '@/components/StackC';
 import { SupportSkill } from '@/Game/SkillDex/Support/SupportSkill';
 import { BeastState } from '@/Game/Battle/BeastState';
-import { addCharge, BattleState, findNextAttacker, lost, processBeastAttack, useSkill, won } from '@/Game/Battle/BattleState';
-import { SupportSkills } from '@/Game/SkillDex/Support/SupportSkillList';
-import { useEffect, useState } from 'react';
-import { Text, View, StyleSheet, Button, Alert, Modal, Pressable } from 'react-native';
-import { CoreAttackSkills } from '@/Game/SkillDex/Core/CoreAttack/CoreAttackList';
+import { addCharge, addGroupingBeast, BattleState, destroyBlocks, findNextAttacker, lost, processBeastAttack, useSkill, won } from '@/Game/Battle/BattleState';
+import { useRef, useState } from 'react';
+import { Text, View, StyleSheet, Button, Alert, Modal, Pressable, Animated } from 'react-native';
 import { ConfirmCoreModal } from '@/components/ConfirmCoreModal';
-import { CoreAttackSkill } from '@/Game/SkillDex/Core/CoreAttack/CoreAttackSkill';
-import { calculateAttack } from '@/Game/Battle/PowerSpread';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { battleStateKey } from '@/constants/GameConstants';
 import { BattleOverModal } from '@/components/BattleOverModal';
 import { DiedModal } from '@/components/DiedModal';
 import { useFocusEffect } from 'expo-router';
 import React from 'react';
+import { CoreGroupSkills } from '@/Game/SkillDex/Core/GroupCriteria/CoreGroupSkillList';
 
 
-
-// Flow from not yet attacking (initial) to 
-// selecting a core beast (match style & core attack style)
-// to selecting which beast attacks which other beasts (select targets)
+// There's lots of states here.
+// 
+// The important one is the main attack flow.
+// 
+// This goes through states:
+// - initial (nothing done yet)
+// - You clicked attack, pick a core beast
+// - You clicked a core beast, are you sure?
+// - Grouping state (skills still usable)
+// - Do it! (attacks occur)
+// - Back to initial
+//
+// In the grouping state, the core beast's grouping effect will take over
+// & play an animation any time a group is found (which can be on first entry, or on skill use.)
+// 
+// We detect if we're in the grouping state by battleState.groupingBeast not being undefined.
+// 
+// We use two kinds of isAnimating flags to prevent all user input.
+// 
+// This is because isMatchAnimating relies on recursive renders to eventually
+// be turned to false; but the normal isAnimating flag should be turned off
+// by whatever turned it on.
 type attackFlowState = {
-  state: 'initial' | 'pickCore' | 'confirmCore' | 'selectAttackerOrFinish' | 'selectTarget' | 'animating',
+  state: 'initial' | 'pickCore',
   coreBeast?: BeastState,
-  selectedAttacker?: BeastState,
 }
 
 const animationMs = 300
+const groupAnimationMs = 1000
 
 const runningInterval: {interval: null | NodeJS.Timeout} = {
   interval: null
@@ -41,11 +56,16 @@ export default function BattleScreen({
 }: {
   presetState: BattleState
 }) {
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedBeast, setSelectedBeast] = useState<BeastState | null>(null)
+  const [selectedSupportBeast, setSelectedSupportBeast] = useState<BeastState | null>(null)
   const [battleState, setBattleState] = useState<BattleState | undefined>(presetState)
   const [attackFlowState, setAttackFlowState] = useState<attackFlowState>({state: 'initial'})
 
+  const [isAnimating, setIsAnimating] = useState(false)
+  const [isGroupAnimating, setIsGroupAnimating] = useState(false)
+  const groupAnimationPercentage = useRef(new Animated.Value(0));
+
+
+  // Loading behavior common to all top level pages, loads battleState.
   if (!presetState){
     useFocusEffect(React.useCallback(() => {
       let isActive = true
@@ -72,18 +92,55 @@ export default function BattleScreen({
   }
 
 
-  // TODO: Combine these two callbacks into a supportSkillFlowState
-  const useSupportSkillCallback = (beast: BeastState) => {
-    setSelectedBeast(beast)
-    setModalVisible(true);
+  const chooseSupportSkillCallback = (beast: BeastState) => {
+    setSelectedSupportBeast(beast)
   };
   const useSkillCallback = (beast: BeastState, skill: SupportSkill) => {
     const newState = useSkill(battleState, beast, skill)
+    // TODO: Animate something.
     setBattleState(newState)
+    if (newState.groupingBeast){
+      setIsGroupAnimating(true)
+    }
+  }
+
+  if(isGroupAnimating){
+    if (!battleState.groupingBeast || !battleState.groupingBeast.coreGroupSkill){
+      setIsGroupAnimating(false)
+      // TODO: save battle state to async storage.
+    } else {
+      const serializedSkill = battleState.groupingBeast.coreGroupSkill
+      const skillBlueprint = CoreGroupSkills[serializedSkill.type]
+      const nextGroup = skillBlueprint.nextGroup(serializedSkill, battleState.board)
+      if (!nextGroup){
+        setIsGroupAnimating(false)
+        // TODO: save battle state to async storage
+      } else {
+        // In this state, users should't be able to click anything. They're forced to
+        // wait for the callback that destroys the blocks, which then triggers
+        // re-grouping; until !nextGroup so we setGroupAnimating(false)
+        // (see the previous if condition)
+        groupAnimationPercentage.current = new Animated.Value(0)
+        Animated.timing(groupAnimationPercentage.current, {
+          toValue: 1,
+          duration: groupAnimationMs,
+          useNativeDriver: false,
+        }).start(() => {
+          setBattleState(
+            destroyBlocks(battleState, nextGroup, true)
+          )
+        })
+      }
+    }
   }
 
   return (
     <View style={styles.container}>
+      {/* This modal just prevents clicks during animations */}
+      <Modal 
+        transparent={true}
+        visible={isAnimating || isGroupAnimating}
+      />
       {/* Left side */}
       <View style={styles.leftBlock}>
           {/* Render any enemies */} 
@@ -124,7 +181,7 @@ export default function BattleScreen({
               beastClickCallback={attackFlowState.state == 'pickCore'? (beast: BeastState) => {
                   // TODO: confirm button?
                   setAttackFlowState({
-                    state: 'confirmCore',
+                    state: 'initial',
                     coreBeast: beast,
                   })
                 }: 
@@ -135,7 +192,7 @@ export default function BattleScreen({
               beasts={battleState.playerParty.support}
               beastClickCallback={
                 attackFlowState.state == 'initial'? 
-                  useSupportSkillCallback : 
+                  chooseSupportSkillCallback : 
                   () => {}}
               minimize={attackFlowState.state == 'pickCore'}
               />
@@ -149,29 +206,36 @@ export default function BattleScreen({
           />
         </View>
         <View style={styles.attackButton}>
-          {attackFlowState.state == 'initial' && <Button 
+          {/* Attack button to begin attack/match phase*/}
+          {attackFlowState.state == 'initial' && ! battleState.groupingBeast && <Button 
             title={"Attack"} 
             onPress={() => {
               setAttackFlowState({state: 'pickCore'})
               }}/>
             }
-          {attackFlowState.state == 'selectAttackerOrFinish' && <Button 
+          {/* Do it button (completes attack) */}
+          {battleState.groupingBeast !== undefined && <Button 
             title={"Do it!"} 
             onPress={async () => {
-              setAttackFlowState({
-                ...attackFlowState,
-                state: 'animating'
-              })
-              await animateTeamAttacks({
+              setIsAnimating(true)
+              const newBattleState = await animateTeamAttacks({
                 battleState,
                 setBattleState,
               })
               setAttackFlowState({
                 state: 'initial'
               })
+              delete newBattleState['groupingBeast']
+              setBattleState({
+                ...newBattleState,
+                stack: []
+              })
+              // TODO: Save battle state to async storage
+              setIsAnimating(false)
               }}/>
             }
-          {attackFlowState.state == 'initial' && <Pressable
+          {/* Charge button */}
+          {attackFlowState.state == 'initial' && !battleState.groupingBeast && <Pressable
               onPressIn={(e) => {
                 runningInterval.interval = setInterval(
                   () => {
@@ -199,37 +263,28 @@ export default function BattleScreen({
       </View>
       {/* Confirm/cancel modals */}
       <SkillSelectModal
-        beast={selectedBeast}
-        onRequestClose={() => setModalVisible(false)}
+        beast={selectedSupportBeast}
+        onRequestClose={() => setSelectedSupportBeast(null)}
         useSkill={useSkillCallback}
-        visible={modalVisible}
+        visible={!!selectedSupportBeast}
       />
-      {attackFlowState.state == 'confirmCore' && <ConfirmCoreModal
-        beast={attackFlowState.coreBeast as BeastState} // We know it's not undefined in this state. 
+      {/* this modal needs to be rendered conditionaly because it takes a non-null beast.*/}
+      {attackFlowState.coreBeast && <ConfirmCoreModal
+        // We know coreBeast isn't undefined in this state. 
+        beast={attackFlowState.coreBeast as BeastState}
         onRequestClose={() => setAttackFlowState({state: 'initial'})}
         onRequestConfirm={async () => {
+            // This relies on the react behavior of batching state updates.
+            setIsGroupAnimating(true)
             setAttackFlowState({
-              ...attackFlowState,
-              state: 'animating'
+              state: 'initial'
             })
-            await matchAnimation({
-              battleState,
-              matchCriteria: undefined, // attackFlowState.coreBeast?.beast.coreMatchSkill,
-              setBattleState,
-            })
-            console.log("Done matching")
-            await calculateDamageAnimation({
-              battleState: battleState,
-              coreAttackCriteria: attackFlowState.coreBeast?.beast?.coreAttackSkill,
-              setBattleState: setBattleState,
-            })
-            setAttackFlowState({
-              ...attackFlowState,
-              state: 'selectAttackerOrFinish'
-            })
-            console.log("Done calculating damage")
+            setBattleState(addGroupingBeast(
+              battleState, 
+              (attackFlowState.coreBeast as BeastState).beast)
+            )
         }}
-        visible={attackFlowState.state == 'confirmCore'}
+        visible={attackFlowState.coreBeast !== undefined}
       />}
       <BattleOverModal
         visible={won(battleState)}
@@ -237,111 +292,6 @@ export default function BattleScreen({
       {lost(battleState) && <DiedModal visible={true}/>}
     </View>
   );
-}
-
-async function matchAnimation({
-  battleState,
-  matchCriteria,
-}: {
-  battleState: BattleState
-  matchCriteria: undefined,
-  setBattleState: (d: BattleState) => void
-}){
-  // todo: 
-  // define `matchOne` in BattleState
-  // In this function:
-  // until no changes: {
-  //    repeatedly call matchOne, setBattleState, until no matches found
-  //    until no changes: {
-  //       repeatedly call fallOne, setBattleState
-  //    }
-  // }
-}
-
-
-// TODO:
-// This function should animate one stack process at a time, not one beast at a time.
-// It should also divide the calculation part (especially the target choice) from the animation order.
-async function calculateDamageAnimation({
-  battleState: battleState,
-  coreAttackCriteria,
-  setBattleState: setBattleState,
-}: {
-  battleState: BattleState,
-  coreAttackCriteria?: CoreAttackSkill,
-  setBattleState: (d: BattleState) => void,
-}){
-  if (!coreAttackCriteria){
-    return
-  }
-  const newBattleState: BattleState = JSON.parse(JSON.stringify(battleState))
-  newBattleState.stack = []
-
-  const powerSpread = CoreAttackSkills[coreAttackCriteria.type].process({
-    self: coreAttackCriteria,
-    stack: battleState.stack
-  })
-
-  // Player calculation
-  for (const array of [
-    newBattleState.playerParty.vanguard,
-    newBattleState.playerParty.core,
-    newBattleState.playerParty.support,
-  ]){
-    for (const beast of array){
-      beast.pendingAttacks = []
-      const powers = calculateAttack({
-        powerSpread,
-        beast: beast.beast
-      })
-      for (const power of powers){
-        beast.pendingAttacks.push({
-          target: {
-            party: 'enemyParty',
-            partylocation: {
-              array: 'vanguard',
-              index: 0
-            }
-          },
-          ...power
-        })
-      }
-      console.log("Calculated beast " + beast.beast.uuid)
-      setBattleState(JSON.parse(JSON.stringify(newBattleState)))
-      await new Promise(resolve => setTimeout(resolve, animationMs));
-    }
-  }
-
-  // Enemy calculation (should be consolidated with player calculation.)
-  for (const array of [
-    newBattleState.enemyParty.vanguard,
-    newBattleState.enemyParty.core,
-    newBattleState.enemyParty.support,
-  ]){
-    for (const beast of array){
-      beast.pendingAttacks = []
-      const powers = calculateAttack({
-        powerSpread,
-        beast: beast.beast
-      })
-      for (const power of powers){
-        beast.pendingAttacks.push({
-          target: {
-            party: 'playerParty',
-            partylocation: {
-              array: 'vanguard',
-              index: 0
-            }
-          },
-          ...power
-        })
-      }
-      console.log("Calculated beast " + beast.beast.uuid)
-      setBattleState(JSON.parse(JSON.stringify(newBattleState)))
-      await new Promise(resolve => setTimeout(resolve, animationMs));
-    }
-  }
-  
 }
 
 
@@ -379,6 +329,8 @@ async function animateTeamAttacks({
     setBattleState(animatedBattleState)
     await new Promise(resolve => setTimeout(resolve, animationMs));
   }
+
+  return animatedBattleState
 }
 
 const styles = StyleSheet.create({
