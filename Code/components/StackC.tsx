@@ -3,8 +3,8 @@ import { View, Text, StyleSheet} from "react-native";
 
 export function StackC({destroyEvents}: {destroyEvents: Array<DestroyEvent>}){
     return <View style={styles.stack}>
-        {destroyEvents.map(dEvent => {
-            return <Text>Destroyed {countBlocksDestroyed({destroyEvent: dEvent})} block(s)</Text>
+        {destroyEvents.map((dEvent, index) => {
+            return <Text key={index}>Destroyed {countBlocksDestroyed({destroyEvent: dEvent})} block(s)</Text>
         })}
     </View>
 }
