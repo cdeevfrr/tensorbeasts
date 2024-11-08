@@ -348,11 +348,6 @@ export function processBeastAttack({
     return newState
 }
 
-// Add this event to the stack, and recalculate all pendingAttacks for all beasts
-export function addStackEvent(b: BattleState, s: DestroyEvent){
-
-}
-
 export function addCharge(b: BattleState, charge: number): BattleState{
     const newState: BattleState = JSON.parse(JSON.stringify(b))
     for (const array of [
