@@ -1,5 +1,7 @@
-import { ContinuousGroup } from "./Continuous";
+import { ContinuousThreeGroup } from "./Continuous";
+import { GroupOneColor } from "./GroupOneColor";
 
 export const CoreGroupSkills = {
-    "Continuous": ContinuousGroup,
+    "ContinuousThree": ContinuousThreeGroup,
+    "GroupOneColor": GroupOneColor,
 }

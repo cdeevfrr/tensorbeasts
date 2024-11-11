@@ -69,6 +69,10 @@ export function addLocations(l1: Location, l2: Location){
     return l1.map((val, index) => {return val + l2[index]})
 }
 
+export function negateLocation(l1: Location){
+    return l1.map(val => -val)
+}
+
 // Vector util function
 export function locationsEqual(l1: Location, l2: Location){
     const result = l1[0] === l2[0] &&

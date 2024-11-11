@@ -63,9 +63,7 @@ async function saveRewards(battleState: BattleState){
     // Load box
     const boxString = await AsyncStorage.getItem(boxKey) || '[]'
     const box = JSON.parse(boxString) as Array<Beast>
-    
-    console.log(battleState.beastDrops)
-    
+        
     // Save new drops to box.
     for (const drop of battleState.beastDrops || []){
         box.push(drop)

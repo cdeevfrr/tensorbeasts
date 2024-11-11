@@ -1,26 +1,44 @@
-// Form a group when a continuous block of the same color/number/shape is of size greater than (quality).
+// Form a group when a continuous block of the same 
+// color/number/shape is of size greater than (quality).
 
-import { accessLocation } from "@/Game/Battle/Board";
+import { accessLocation, Location, locationsIter } from "@/Game/Battle/Board";
 import { GroupSkillBlueprint } from "./CoreGroupSkillBlueprint";
+import { doesMatch, Match } from "@/Game/Beasts/Match";
+import * as GroupingUtil from "./GroupingUtils";
 
-export const ContinuousGroup: GroupSkillBlueprint = {
+
+export const ContinuousThreeGroup: GroupSkillBlueprint = {
     factory: () => {
         return {
-            name: "Groups of 3 contiguous (no diagonals)",
-            type: "Continuous"
+            name: "Exactly 3, same color, touching (no diagonals)",
+            type: "ContinuousThree"
+            // TODO: matcher: ["color"] or ["color", "shape"] or ["number", "shape"] or similar.
         }
     },
     nextGroup: (self, board) => {
-        // To find a match:
-        // Scan by locationsIter (x=0 first)
-        // Given a particular block, expand it contiguously.
-        //     (for matching: same color or same number or something. 
-        //      For straights, straight.)
-        // Once expanded, check if it hits the match criteria
-        const block = accessLocation([0, 0, 0, 0, 0], board)
-        if (block){
-            if (block.color !== 2){
-                return [[0,0,0,0,0]]
+        const seen = new Set<Location>()
+
+        for (const location of locationsIter(board)){
+            if (!seen.has(location)){
+                const initialBlock = accessLocation(location, board)
+                const match: Match = {
+                    color: initialBlock?.color
+                }
+                const expanded = GroupingUtil.expandBorder({
+                    board,
+                    initialToVisit: [location],
+                    matches: ({block}) => {
+                        return doesMatch(block, match)
+                    },
+                    maxSize: 3,
+                })
+                if (expanded.length >= 3){
+                    return expanded
+                } else {
+                    for (const location of expanded) {
+                        seen.add(location)
+                    }
+                }
             }
         }
         return undefined

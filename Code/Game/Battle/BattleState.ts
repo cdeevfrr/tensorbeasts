@@ -137,9 +137,6 @@ function recalcuateBeastDamage(battleState: BattleState){
             stack: battleState.stack
         })
     }
-
-    console.log(battleState.groupingBeast)
-    console.log(powerSpread)
     
       // Player calculation
       for (const array of [
