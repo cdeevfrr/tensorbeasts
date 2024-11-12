@@ -123,7 +123,10 @@ export default function BattleScreen({
         groupAnimationPercentage.current = new Animated.Value(0)
         Animated.timing(groupAnimationPercentage.current, {
           toValue: 1,
-          duration: groupAnimationMs,
+          duration: Math.max(
+            10,
+            Math.floor(groupAnimationMs / ( (battleState.stack.length + 3) / 3))
+          ),
           useNativeDriver: false,
         }).start(() => {
           setBattleState(

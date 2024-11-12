@@ -3,9 +3,13 @@ import { View, Text, StyleSheet} from "react-native";
 
 export function StackC({destroyEvents}: {destroyEvents: Array<DestroyEvent>}){
     return <View style={styles.stack}>
-        {destroyEvents.map((dEvent, index) => {
-            return <Text key={index}>Destroyed {countBlocksDestroyed({destroyEvent: dEvent})} block(s)</Text>
-        })}
+        { destroyEvents.length > 30 ? 
+            <Text>{destroyEvents.length} Block Destroy Events</Text>
+            :
+            destroyEvents.map((dEvent, index) => {
+                return <Text key={index}>Destroyed {countBlocksDestroyed({destroyEvent: dEvent})} block(s)</Text>
+            })
+        }
     </View>
 }
 
