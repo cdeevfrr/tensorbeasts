@@ -124,11 +124,12 @@ export default function BattleScreen({
         Animated.timing(groupAnimationPercentage.current, {
           toValue: 1,
           duration: Math.max(
-            10,
+            5,
             Math.floor(groupAnimationMs / ( (battleState.stack.length + 3) / 3))
           ),
           useNativeDriver: false,
         }).start(() => {
+          // TODO: setBattleState(highlight(nextGroup))
           setBattleState(
             destroyBlocks(battleState, nextGroup, true)
           )

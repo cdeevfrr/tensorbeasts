@@ -3,9 +3,10 @@ import { View, Text, StyleSheet} from "react-native";
 
 export function StackC({destroyEvents}: {destroyEvents: Array<DestroyEvent>}){
     return <View style={styles.stack}>
-        { destroyEvents.length > 30 ? 
+        <View style={styles.header}>
             <Text>{destroyEvents.length} Block Destroy Events</Text>
-            :
+        </View>
+        { destroyEvents.length <= 30 &&
             destroyEvents.map((dEvent, index) => {
                 return <Text key={index}>Destroyed {countBlocksDestroyed({destroyEvent: dEvent})} block(s)</Text>
             })
@@ -19,7 +20,7 @@ const styles = StyleSheet.create({
         margin: 20,
         backgroundColor: "white",
         borderRadius: 5,
-        padding: 35,
+        padding: 15,
         alignItems: "center",
         shadowColor: "#000",
         shadowOffset: {
@@ -30,4 +31,7 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 5
     },
+    header: {
+        backgroundColor: "#dddddd"
+    }
 })
