@@ -1,8 +1,16 @@
 import { BattleState } from "@/Game/Battle/BattleState";
 import { BlockC } from "./BlockC";
 import { FiveDContainer } from "./FiveDContainer";
+import { Block } from "@/Game/Battle/Block";
+import { Location } from "@/Game/Battle/Board";
 
-export function BlockBoardC({board}: {board: BattleState["board"]}){
+export function BlockBoardC({
+    board,
+    blockCallback,
+}: {
+    board: BattleState["board"]
+    blockCallback: ((block: Block | null, location: Location) => void) | null
+}){
 
     const elements: Parameters<typeof FiveDContainer>[0]['elements'] = []
     for (let x = 0; x < board.blocks.length; x++){
@@ -12,7 +20,12 @@ export function BlockBoardC({board}: {board: BattleState["board"]}){
                     for (let b = 0; b < board.blocks[x][y][z][a].length; b++){
                         const block = board.blocks[x][y][z][a][b]
                         elements.push({
-                            component: <BlockC block={block} />,
+                            component: <BlockC 
+                              block={block} 
+                              {...(blockCallback? {callback: (block: Block | null) => {
+                                blockCallback(block, [x, y, z, a, b])
+                              }} :{})}
+                              />,
                             location: [x, y, z, a, b],
                         })
                     }

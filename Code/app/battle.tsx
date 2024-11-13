@@ -4,7 +4,7 @@ import { SkillSelectModal } from '@/components/SkillSelectModal';
 import { StackC } from '@/components/StackC';
 import { SupportSkill } from '@/Game/SkillDex/Support/SupportSkill';
 import { BeastState } from '@/Game/Battle/BeastState';
-import { addCharge, addGroupingBeast, BattleState, destroyBlocks, findNextAttacker, lost, processBeastAttack, useSkill, won } from '@/Game/Battle/BattleState';
+import { addCharge, addGroupingBeast, BattleState, continueSkill, destroyBlocks, findBeast, findNextAttacker, lost, processBeastAttack, useSkill, won } from '@/Game/Battle/BattleState';
 import { useRef, useState } from 'react';
 import { Text, View, StyleSheet, Button, Alert, Modal, Pressable, Animated } from 'react-native';
 import { ConfirmCoreModal } from '@/components/ConfirmCoreModal';
@@ -15,6 +15,8 @@ import { DiedModal } from '@/components/DiedModal';
 import { useFocusEffect } from 'expo-router';
 import React from 'react';
 import { CoreGroupSkills } from '@/Game/SkillDex/Core/GroupCriteria/CoreGroupSkillList';
+import { Block } from '@/Game/Battle/Block';
+import { Location } from '@/Game/Battle/Board';
 
 
 // There's lots of states here.
@@ -47,7 +49,7 @@ type attackFlowState = {
 const animationMs = 300
 const groupAnimationMs = 1000
 
-const runningInterval: {interval: null | NodeJS.Timeout} = {
+const runningChargeInterval: {interval: null | NodeJS.Timeout} = {
   interval: null
 }
 
@@ -101,6 +103,29 @@ export default function BattleScreen({
     setBattleState(newState)
     if (newState.groupingBeast){
       setIsGroupAnimating(true)
+    }
+  }
+
+  let blockCallback: null | ((block: Block | null, location: Location) => void) = null
+  if (!isAnimating && !isGroupAnimating && battleState.processingSkill) { 
+      const uuid = battleState.processingSkill.beastUUID
+      const skillNum = battleState.processingSkill.skillNum
+      blockCallback = (block: Block | null, location: Location) => {
+        const beast = findBeast(battleState, {beast: {uuid}})
+        if (!beast){
+          const reRenderState = {
+            ...battleState
+          }
+          delete reRenderState.processingSkill
+          setBattleState(reRenderState)
+        } else {
+          const skill = beast.beast.supportSkills[skillNum]
+          const newState = continueSkill(battleState, beast, skill, location)
+          setBattleState(newState)
+          if (newState.groupingBeast){
+            setIsGroupAnimating(true)
+          }
+        }
     }
   }
 
@@ -170,7 +195,7 @@ export default function BattleScreen({
           />
 
           {/* Render the block board */} 
-          <BlockBoardC board={battleState.board}/>
+          <BlockBoardC board={battleState.board} blockCallback={blockCallback}/>
 
           {/* Vanguard */} 
           <BeastStateRowC 
@@ -240,7 +265,7 @@ export default function BattleScreen({
           {/* Charge button */}
           {attackFlowState.state == 'initial' && !battleState.groupingBeast && <Pressable
               onPressIn={(e) => {
-                runningInterval.interval = setInterval(
+                runningChargeInterval.interval = setInterval(
                   () => {
                     setBattleState((prevBattleState)=> {
                       return prevBattleState && addCharge(prevBattleState, 1)
@@ -251,8 +276,8 @@ export default function BattleScreen({
                 e.stopPropagation()
               }}
               onPressOut={(e)=>{
-                runningInterval.interval &&
-                clearInterval(runningInterval.interval)
+                runningChargeInterval.interval &&
+                clearInterval(runningChargeInterval.interval)
                 e.stopPropagation()
               }}
               style={({pressed}) => [

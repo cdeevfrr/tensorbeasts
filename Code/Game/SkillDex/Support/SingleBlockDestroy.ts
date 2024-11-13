@@ -1,5 +1,6 @@
 import { destroyBlocks } from "@/Game/Battle/BattleState"
 import { SkillBlueprint } from "./SupportSkillBlueprint"
+import { setupContinue } from "./SupportSkill"
 
 export const SingleBlockDestroy: SkillBlueprint = {
     factory: ({quality}) => {
@@ -13,7 +14,12 @@ export const SingleBlockDestroy: SkillBlueprint = {
     },
     psuedolevels: [...Array.from(Array(15).keys())], 
     execute: (self, battleState, caller, props) => {
-        return destroyBlocks(battleState, [[0, 0, 0, 0, 0]])
+        return setupContinue(self, battleState, caller)
+    },
+    continue: (self, battleState, caller, selection ) => {
+        const result = destroyBlocks(battleState, [selection])
+        delete result.processingSkill
+        return result
     },
     commonality: 100,
 }

@@ -24,7 +24,15 @@ export interface BattleState {
     // cause grouping to occur without any user input.
     // Undefined initially, and is set when the user clicks 'attack' thru 
     // to when they click 'do it'.
-    groupingBeast?: Beast
+    groupingBeast?: Beast,
+
+    // Indicates that the user selected a skill, and this skill is waiting 
+    // for the user to choose a block before continuing.
+    // If non empty, set block onClick to be `callSkill(theIndicatedSkill, block)` 
+    processingSkill?: {
+        beastUUID: string,
+        skillNum: number
+    }
 }
 
 // fill in all nulls in the battle's board.
@@ -210,9 +218,27 @@ export function useSkill(battleState: BattleState, beast: BeastState, skill: Sup
     return newState
 }
 
+export function continueSkill(
+    battleState: BattleState, 
+    beast: BeastState | null, 
+    skill: SupportSkill, 
+    selected: Location,
+) : BattleState {
+    const blueprint = SupportSkills[skill.type]
+    if(!beast || beast.currentHP <= 0 || !blueprint.continue){
+        const result = {
+            ...battleState
+        }
+        delete result.processingSkill
+        return result
+    }
+
+    return blueprint.continue(skill, battleState, beast, selected)
+}
+
 // Used when you cloned a battleState and want to find the new Beast JSON that
 // has the same UUID as the one in the previous battleState.
-export function findBeast(state: BattleState, beast: BeastState){
+export function findBeast(state: BattleState, beast: {beast: {uuid: string}}){
     for (const array of [
         state.playerParty.vanguard,
         state.playerParty.core,

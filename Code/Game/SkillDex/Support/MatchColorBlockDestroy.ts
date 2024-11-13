@@ -1,6 +1,7 @@
 import { accessLocation } from "@/Game/Battle/Board"
 import { SkillBlueprint } from "./SupportSkillBlueprint"
 import { destroyBlocks } from "@/Game/Battle/BattleState"
+import { setupContinue } from "./SupportSkill"
 
 
 export const MatchColorBlockDestroy: SkillBlueprint = {
@@ -11,14 +12,20 @@ export const MatchColorBlockDestroy: SkillBlueprint = {
         }
     },
     execute: (self, battleState, caller, props) => {
-        // TODO somehow, get a location from the player?
-        const location = [0,0,0,0,0]
-        const selectedBlock = accessLocation(location, battleState.board)
+        return setupContinue(self, battleState, caller)
+    },
+    continue: (self, battleState, caller, selection ) => {
+        const result = {
+            ...battleState
+        }
+        delete result.processingSkill
+
+        const selectedBlock = accessLocation(selection, battleState.board)
         const selectedColor = selectedBlock?.color || -1
         if (caller.beast.colors && caller.beast.colors.includes(selectedColor)){
-            return destroyBlocks(battleState, [[0,0,0,0,0]])
+            return destroyBlocks(result, [selection])
         } else {
-            return battleState
+            return result
         }
     },
     psuedolevels: [...Array.from(Array(15).keys())],
