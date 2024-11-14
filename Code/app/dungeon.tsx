@@ -2,7 +2,7 @@ import { FiveDContainer } from "@/components/FiveDContainer";
 import { JSONView } from "@/components/JSONView";
 import { Movement } from "@/components/Movement";
 import { battleStateKey, dungeonStateKey, partiesKey } from "@/constants/GameConstants";
-import { BattleState, completed, fallOne, lost } from "@/Game/Battle/BattleState";
+import { BattleState, completed, fall, lost } from "@/Game/Battle/BattleState";
 import { toBeastState } from "@/Game/Battle/BeastState";
 import { addLocations, emptyBoard, locationsEqual } from "@/Game/Battle/Board";
 import { Beast } from "@/Game/Beasts/Beast";
@@ -212,13 +212,9 @@ function makeNewBattle({party, enemies}:{party: Party, enemies: Array<Beast>}): 
 
   console.log("Starting battle" + result)
 
-  let fall = fallOne(result)
-  
-  while(fall.board.blocks[0][0][0][0][0] === null){
-    fall = fallOne(fall)
-  }
+  const fallen = fall(result)
 
-  const passivesActivated = fall
+  const passivesActivated = fallen
 
   for (const array of [party.vanguard, party.support]){
     for (const beast of array){

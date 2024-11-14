@@ -1,16 +1,15 @@
-import { accessLocation, Board, cloneBoard } from "./Board"
-import { DestroyEvent } from "./DestroyEvent"
-import { locationsIter, Location, setLocation } from "./Board"
-import { Block } from "./Block"
-import { BeastState } from "./BeastState"
+import { Beast, calcExpReward, calculateDrop } from "../Beasts/Beast"
+import { beastAt, Party } from "../Dungeon/Party"
+import { CoreAttackSkills } from "../SkillDex/Core/CoreAttack/CoreAttackList"
 import { SupportSkill } from "../SkillDex/Support/SupportSkill"
 import { SupportSkills } from "../SkillDex/Support/SupportSkillList"
 import { randInt } from "../util"
-import { Beast, calcExpReward, calculateDrop } from "../Beasts/Beast"
-import { beastAt, Party, PartyLocation } from "../Dungeon/Party"
-import { Target } from "./Target"
+import { BeastState } from "./BeastState"
+import { Block } from "./Block"
+import { accessLocation, Board, cloneBoard, Location, locationsIter, setLocation, fall as boardFall } from "./Board"
+import { DestroyEvent } from "./DestroyEvent"
 import { calculateAttack, createPowerSpread } from "./PowerSpread"
-import { CoreAttackSkills } from "../SkillDex/Core/CoreAttack/CoreAttackList"
+import { Target } from "./Target"
 
 export interface BattleState {
     playerParty: Party
@@ -35,56 +34,16 @@ export interface BattleState {
     }
 }
 
-// fill in all nulls in the battle's board.
-// This function must live here because we need things like the battle current effects to decide
-// what new blocks to generate.
-// (TODO: Make it live in board, but pass in block generation function as an arg)
-export function fallOne(battleState: BattleState, clone: boolean = true){
-    return fallOneInternal(battleState, clone).newBattleState
-}
-
-function fallOneInternal(battleState: BattleState, clone: boolean = true){
-    const newBattleState: BattleState = clone? JSON.parse(JSON.stringify(battleState)) : battleState
-    let diff = false;
-
-    // Gravity goes in the x direction, x=0 is the bottom of the screen & the bottom of gravity.
-
-    const newBoard = newBattleState.board
-
-    // For each y, z, a, b coordinate:
-    //   check at x=0, x=1, x=2, and so on.
-    //   If null, grab from the one above (if exists).
-    //   If null and at top, generate one. 
-    // This relies on the fact that locationsIter presents locations with lower x value first.
-    for (const [x, y, z, a, b] of locationsIter(battleState.board)){
-        // TODO: Clean this up.
-        // Boards should be a full on class, exposing a swap function.
-        // Heck, we should probably even expose a 'Fall' that just takes a 'generateBlock' function
-        // as an arg.
-        if (!accessLocation([x,y,z,a,b], newBoard)) {
-            diff = true
-            const above = accessLocation([x+1,y,z,a,b], newBoard) 
-            if (above == undefined){
-                newBoard.blocks[x][y][z][a][b] = generateBlock(battleState)
-            } else {
-                newBoard.blocks[x][y][z][a][b] = above
-                newBoard.blocks[x+1][y][z][a][b] = null
-            }
-        }
+export function fall(battleState: BattleState, clone: boolean = true){
+    const newBoard = boardFall({
+        board: battleState.board,
+        clone: true,
+        generateBlock: () => generateBlock(battleState),
+    })
+    return {
+        ...battleState,
+        board: newBoard
     }
-
-    newBattleState.board = newBoard
-    return {newBattleState, diff}
-}
-
-export function fall(battleState: BattleState, clone = true){
-    let {diff, newBattleState} = fallOneInternal(battleState, clone) 
-    while (diff){
-        const result = fallOneInternal(newBattleState, false) 
-        diff = result.diff
-        newBattleState = result.newBattleState
-    }
-    return newBattleState
 }
 
 export function addGroupingBeast(battleState: BattleState, groupingBeast: Beast) {

@@ -270,3 +270,65 @@ export function removeColumnFromDimension(
     return result
 
 }
+
+function fallOneInternal({
+    board,
+    clone = true,
+    generateBlock,
+}:{
+    board: Board, 
+    clone: boolean,
+    generateBlock: () => Block
+}){
+    const newBoard: Board = clone? {...board} : board
+
+    let diffFound = false;
+
+    // Gravity goes in the x direction, x=0 is the bottom of the screen & the bottom of gravity.
+
+    // For each y, z, a, b coordinate:
+    //   check at x=0, x=1, x=2, and so on.
+    //   If null, grab from the one above (if exists).
+    //   If null and at top, generate one. 
+    // This relies on the fact that locationsIter presents locations with lower x value first.
+    for (const [x, y, z, a, b] of locationsIter(newBoard)){
+        // TODO: Clean this up.
+        // Boards should be a full on class, exposing a swap function.
+        // Heck, we should probably even expose a 'Fall' that just takes a 'generateBlock' function
+        // as an arg.
+        if (!accessLocation([x,y,z,a,b], newBoard)) {
+            diffFound = true
+            const above = accessLocation([x+1,y,z,a,b], newBoard) 
+            if (above == undefined){
+                newBoard.blocks[x][y][z][a][b] = generateBlock()
+            } else {
+                newBoard.blocks[x][y][z][a][b] = above
+                newBoard.blocks[x+1][y][z][a][b] = null
+            }
+        }
+    }
+
+    return {newBoard, diff: diffFound}
+}
+
+export function fall({
+    board,
+    clone = true,
+    generateBlock,
+}: {
+    board: Board, 
+    clone: boolean,
+    generateBlock: () => Block
+}){
+    const state = fallOneInternal({board, clone, generateBlock}) 
+    while (state.diff){
+        const nextState = fallOneInternal({
+            board: state.newBoard, 
+            clone: false, 
+            generateBlock
+        }) 
+        state.diff = nextState.diff
+        state.newBoard = nextState.newBoard
+    }
+    return state.newBoard
+}
