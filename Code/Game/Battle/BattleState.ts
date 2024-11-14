@@ -161,6 +161,7 @@ function recalcuateBeastDamage(battleState: BattleState){
 }
 
 export function generateBlock(battleState: BattleState): Block{
+    // TODO: use gameConstants.maxColors, maxNumbers, ... here.
     return {
         color: randInt({min: 1, maxExclusive: 6}),
         shape: randInt({min: 1, maxExclusive: 6}),
