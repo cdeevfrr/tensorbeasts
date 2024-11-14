@@ -99,14 +99,17 @@ function dimensions(board: Board): Location{
 // Create an empty board of the given dimensions, eg, a 5X2X1X1X1 board.
 // I haven't thought about what happens if one of the dimensions is 0.
 export function emptyBoard(dimensions: Array<number>): Board{
+    // Have to map here or else every entry in the array points to the same
+    // single instance (all future setLocation on any index in the array
+    // seem to collapse to the whole board pointing to the same single block)
+    // This bug can be hard to catch because as soon as we JSON.parse(JSON.stringify),
+    // it goes away.
     return {
-        blocks: Array(dimensions[0]).fill(
-            Array(dimensions[1]).fill(
-                Array(dimensions[2]).fill(
-                    Array(dimensions[3]).fill(
-                        Array(dimensions[4]).fill(
-                            null
-                        )
+        blocks: Array(dimensions[0]).fill(null).map( x => 
+            Array(dimensions[1]).fill(null).map( x =>
+                Array(dimensions[2]).fill(null).map( x => 
+                    Array(dimensions[3]).fill(null).map( x =>
+                        Array(dimensions[4]).fill(null).map( x => null)
                     )
                 )
             )
@@ -299,7 +302,7 @@ function fallOneInternal({
         if (!accessLocation([x,y,z,a,b], newBoard)) {
             diffFound = true
             const above = accessLocation([x+1,y,z,a,b], newBoard) 
-            if (above == undefined){
+            if (above === undefined){
                 newBoard.blocks[x][y][z][a][b] = generateBlock()
             } else {
                 newBoard.blocks[x][y][z][a][b] = above

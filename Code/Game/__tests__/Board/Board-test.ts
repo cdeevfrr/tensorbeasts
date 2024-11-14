@@ -1,5 +1,5 @@
 import { Block } from "@/Game/Battle/Block"
-import { addColumnToDimension, emptyBoard, removeColumnFromDimension } from "@/Game/Battle/Board"
+import { addColumnToDimension, emptyBoard, fall, removeColumnFromDimension, setLocation } from "@/Game/Battle/Board"
 
 
 it('creates empty boards correctly', () => {
@@ -127,4 +127,46 @@ it('Removes dimensions correctly', () => {
         constructed.blocks
     )
 
+})
+
+it('falls correctly', () => {
+    let board = emptyBoard([3,3,1,1,1])
+    setLocation([2,2,0,0,0], board, {color: 8, number: 8, shape: 8})
+
+    // Should start looking like
+    // [[[[null]]],[[[null]]],[[[null]]]],
+    // [[[[null]]],[[[null]]],[[[null]]]],
+    // [[[[null]]],[[[null]]],[[[{8, 8, 8}]]]],
+
+    // We fall 'upwards' because we oriented gravity as negative x, and
+    // we oriented x=0 as the first entry in the array and x=2 as the last.
+
+    // So after the first fall step, it should look like
+    // [[[[null]]],[[[null]]],[[[null]]]],
+    // [[[[null]]],[[[null]]],[[[{8, 8, 8}]]]],
+    // [[[[{1, 0, 0}]]],[[[{2, 0, 0}]]],[[[{3, 0, 0}]]]],
+
+    // Repeating falls, you get to the expected state.
+
+    let count = 0
+    const changingGenerate = () => {
+        count += 1
+        return {
+            color: count,
+            number: 0,
+            shape: 0
+        }
+    }
+
+    board = fall({
+        board,
+        clone: false,
+        generateBlock: changingGenerate,
+    })
+
+    expect(board.blocks).toEqual([
+        [[[[{color: 1, number: 0, shape: 0}]]],[[[{color: 2, number: 0, shape: 0}]]],[[[{color: 8, number: 8, shape: 8}]]]],
+        [[[[{color: 4, number: 0, shape: 0}]]],[[[{color: 5, number: 0, shape: 0}]]],[[[{color: 3, number: 0, shape: 0}]]]],
+        [[[[{color: 7, number: 0, shape: 0}]]],[[[{color: 8, number: 0, shape: 0}]]],[[[{color: 6, number: 0, shape: 0}]]]],
+    ])
 })
