@@ -152,40 +152,59 @@ export default function BattleScreen({
           clone: true,
           shouldFall: false,
         })
+        
         const fallenBattleState = fall(destroyedBlocksBattleState)
 
-        // The remainder of this else block is equivalent to
-        // animateTo(destroyedBlockBattleState).then({
-        //    animateTo(fallenBattleState)
-        // }
-        // do NOT set isGroupAnimating to false. Recursive renders will decide if we should do that.
-        setAnimatingToBattleState(destroyedBlocksBattleState)
-        groupAnimationPercentage.current.resetAnimation()
-        Animated.timing(groupAnimationPercentage.current, {
-          toValue: 1,
-          duration: Math.max(
-            2,
-            Math.floor(groupAnimationMs / ( (battleState.stack.length + 3) / 3))
-          ),
-          useNativeDriver: false,
-        }).start(() => {
-          setAnimatingToBattleState(fallenBattleState)
-          setBattleState(
-            destroyedBlocksBattleState
-          )
+        const duration = Math.floor(groupAnimationMs / ( (battleState.stack.length + 3) / 3))
+
+        if (duration > 1000){
+          // The remainder of this 'if' block is equivalent to
+          // animateTo(destroyedBlockBattleState).then({
+          //    animateTo(fallenBattleState)
+          // }
+          // do NOT set isGroupAnimating to false. Recursive renders will decide if we should do that.
+          setAnimatingToBattleState(destroyedBlocksBattleState)
           groupAnimationPercentage.current.resetAnimation()
           Animated.timing(groupAnimationPercentage.current, {
             toValue: 1,
-            duration: Math.max(
-              2,
-              Math.floor(groupAnimationMs / ( (battleState.stack.length + 3) / 3))
-            ),
+            duration,
+            useNativeDriver: false,
+          }).start(() => {
+            setAnimatingToBattleState(fallenBattleState)
+            setBattleState(
+              destroyedBlocksBattleState
+            )
+            groupAnimationPercentage.current.resetAnimation()
+            setTimeout(() => {
+              Animated.timing(groupAnimationPercentage.current, {
+                toValue: 1,
+                duration,
+                useNativeDriver: false,
+              }).start(() => {
+                setAnimatingToBattleState(null)
+                setBattleState(fallenBattleState)
+              })
+            }, 2000)
+          })
+        } else if (duration > 100) {
+          // The remainder of this 'if' block is equivalent to
+          // animateTo(fallenBattleState)
+          setAnimatingToBattleState(fallenBattleState)
+          groupAnimationPercentage.current.resetAnimation()
+          Animated.timing(groupAnimationPercentage.current, {
+            toValue: 1,
+            duration,
             useNativeDriver: false,
           }).start(() => {
             setAnimatingToBattleState(null)
             setBattleState(fallenBattleState)
           })
-        })
+        } else {
+          // If animation time is small, just jump straight to the finish after a small ms delay.
+          setTimeout(() => {
+            setBattleState(fallenBattleState)
+          }, duration)
+        }
       }
     }
   }

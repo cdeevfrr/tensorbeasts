@@ -10,5 +10,6 @@ export interface Block {
     // if unmasked, is number shown?
     numberVisible?: boolean,
 
-    masked?: boolean
+    masked?: boolean,
+    id: string,
 }

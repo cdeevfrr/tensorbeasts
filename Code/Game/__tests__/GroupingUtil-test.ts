@@ -167,14 +167,19 @@ it('Finds neighbor directions correctly', () => {
     )
 })
 
+const baseBlockFields = {
+    number: 1,
+    shape: 1,
+    id: "1",
+}
 it('expands borders correctly', () => {
     const board: Board = {
         blocks: [
-            [[[[{color: 1, number: 1, shape: 1}]]], [[[{color: 1, number: 1, shape: 1}]]]],
-            [[[[{color: 5, number: 1, shape: 1}]]], [[[{color: 5, number: 1, shape: 1}]]]],
-            [[[[{color: 1, number: 1, shape: 1}]]], [[[{color: 5, number: 1, shape: 1}]]]],
-            [[[[{color: 1, number: 1, shape: 1}]]], [[[{color: 5, number: 1, shape: 1}]]]],
-            [[[[{color: 1, number: 1, shape: 1}]]], [[[{color: 5, number: 1, shape: 1}]]]],
+            [[[[{color: 1, ...baseBlockFields}]]], [[[{color: 1, ...baseBlockFields}]]]],
+            [[[[{color: 5, ...baseBlockFields}]]], [[[{color: 5, ...baseBlockFields}]]]],
+            [[[[{color: 1, ...baseBlockFields}]]], [[[{color: 5, ...baseBlockFields}]]]],
+            [[[[{color: 1, ...baseBlockFields}]]], [[[{color: 5, ...baseBlockFields}]]]],
+            [[[[{color: 1, ...baseBlockFields}]]], [[[{color: 5, ...baseBlockFields}]]]],
         ]
     }
 
@@ -190,11 +195,11 @@ it('expands borders correctly', () => {
 
     const board2: Board = {
         blocks: [
-            [[[[{color: 1, number: 1, shape: 1}]]], [[[{color: 1, number: 1, shape: 1}]]]],
-            [[[[null                           ]]], [[[{color: 1, number: 1, shape: 1}]]]],
-            [[[[{color: 1, number: 1, shape: 1}]]], [[[{color: 5, number: 1, shape: 1}]]]],
-            [[[[{color: 1, number: 1, shape: 1}]]], [[[{color: 5, number: 1, shape: 1}]]]],
-            [[[[{color: 1, number: 1, shape: 1}]]], [[[{color: 5, number: 1, shape: 1}]]]],
+            [[[[{color: 1, ...baseBlockFields}]]], [[[{color: 1, ...baseBlockFields}]]]],
+            [[[[null                           ]]], [[[{color: 1, ...baseBlockFields}]]]],
+            [[[[{color: 1, ...baseBlockFields}]]], [[[{color: 5, ...baseBlockFields}]]]],
+            [[[[{color: 1, ...baseBlockFields}]]], [[[{color: 5, ...baseBlockFields}]]]],
+            [[[[{color: 1, ...baseBlockFields}]]], [[[{color: 5, ...baseBlockFields}]]]],
         ]
     }
 

@@ -1,3 +1,4 @@
+import { v4 } from "uuid"
 import { Beast, calcExpReward, calculateDrop } from "../Beasts/Beast"
 import { beastAt, Party } from "../Dungeon/Party"
 import { CoreAttackSkills } from "../SkillDex/Core/CoreAttack/CoreAttackList"
@@ -179,6 +180,7 @@ export function generateBlock(battleState: BattleState): Block{
         color: randInt({min: 1, maxExclusive: 6}),
         shape: randInt({min: 1, maxExclusive: 6}),
         number: randInt({min: 1, maxExclusive: 6}),
+        id: v4()
     }
 }
 

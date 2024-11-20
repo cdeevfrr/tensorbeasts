@@ -11,6 +11,12 @@ const threeDGridOverhang = 40
 // in terms of percent of the overall parent container.
 const minimumMargin = 2
 
+// Helpful
+const toPercentInterpolation = {
+    inputRange: [0, 100],
+    outputRange: ['0%', '100%']
+}
+
 // Render the elements in a 5D arrangement.
 // It's recommended to add about a 5% margin to your components, since
 // it's not otherwise included.
@@ -20,35 +26,35 @@ export function FiveDContainer({
 }:{
     elements: Array<{
         component: ReactNode, 
-        location: Array<number>,
-        location2?: Array<number>,
+        location: Array<number>  | "up" | "right",
+        location2?: Array<number>  | "up" | "right",
     }>,
     animationPercentage?: Animated.Value,
 }){
     // Game plan:
-    // Figure out how many dimensions/items there are in each dimension.
-    // Use that to calculate absolute locations (in terms of percentages).
+    // 
+    // We're gonna draw one of these things based on the dimensions used in the inputs:
     // 
     // 1:
     //    x
     //    x
     //    x
-
+    //
     // 2:
     //  x x x
     //  x x x
     //  x x x
-
+    //
     // 3:
     //  x x x   x x x   x x x
     //  x x x   x x x   x x x
     //  x x x   x x x   x x x
-
+    //
     // 4:
     //  x x x   vxvxvx   x x x
     //  vxvxvx  vxvxvx   xvxvx
     //  x x x   vxvxvx   x x x
-
+    // 
     // 5:
     //  x x x   vxvxvx   x x x
     //  vxvxvx  vxvxvx   xvxvx
@@ -57,21 +63,120 @@ export function FiveDContainer({
     //  x x x   vxvxvx   x x x
     //  vxvxvx  vxvxvx   xvxvx
     //  x x x   vxvxvx   x x x
+    //
+    //
+    // If location2s and an animationPercentage are included,
+    // calculate each element's location&widths twice;
+    // interpolate the values.
+    // 
 
     if (elements.length === 0){
         throw new Error("Don't render this with no elements. I don't want to consider the edge cases.")
     }
 
+    const sharedConstants1 = calculateSharedConstants(elements.map(e => e.location))
+
+    // Sort by d4 so that things with higher values in the 4th dimension
+    // are rendered last. 
+    elements.sort((element1, element2) => {
+        if (element1.location != "up" && element1.location != "right"
+            && element2.location != "up" && element2.location != "right"
+        ) {
+            return element1.location[3] - element2.location[3]
+        } else {
+            return 0
+        }
+    })
+    
+    if (!animationPercentage){
+        return <View style={styles.container}>
+            {
+            elements.map((element, index) => {
+                const {top, left, width, height} = calculateScreenLocation({
+                    location: element.location,
+                    sharedMeasurements: sharedConstants1
+                })
+                return <View 
+                style={StyleSheet.flatten([
+                    styles.child, 
+                    {
+                        top: top + "%" as DimensionValue,
+                        left: left + "%" as DimensionValue,
+                        width: width + "%" as DimensionValue,
+                        height: height + "%" as DimensionValue,
+                    },
+                ])}
+                key={index}
+                >
+                    {element.component}
+                </View>
+            })}
+        </View>
+    } else {
+        const sharedConstants2 = calculateSharedConstants(elements.map(e => (e.location2 || "up")))
+        return <View style={styles.container}>
+            {
+            elements.map((element, index) => {
+                const {top, left, width, height} = calculateScreenLocation({
+                    location: element.location,
+                    sharedMeasurements: sharedConstants1
+                })
+                const secondScreenLocation = calculateScreenLocation({
+                    location: element.location2 || "up",
+                    sharedMeasurements: sharedConstants2
+                })
+                return <Animated.View 
+                    style={StyleSheet.flatten([
+                        styles.child, 
+                        {
+                            top: animationPercentage.interpolate({
+                                inputRange: [0, 1],
+                                outputRange: [top, secondScreenLocation.top]
+                            }).interpolate(toPercentInterpolation),
+                            left: animationPercentage.interpolate({
+                                inputRange: [0, 1],
+                                outputRange: [left, secondScreenLocation.left]
+                            }).interpolate(toPercentInterpolation),
+                            width: animationPercentage.interpolate({
+                                inputRange: [0, 1],
+                                outputRange: [width, secondScreenLocation.width]
+                            }).interpolate(toPercentInterpolation),
+                            height: animationPercentage.interpolate({
+                                inputRange: [0, 1],
+                                outputRange: [height, secondScreenLocation.height]
+                            }).interpolate(toPercentInterpolation),
+                        },
+                    ])}
+                    key={index}
+                    >
+                        {element.component}
+                </Animated.View>
+            })}
+        </View>
+    }
+}
+
+function calculateSharedConstants(locations: Array< Array<number> | "up" | "right" >) {
     const mins = [Infinity,Infinity,Infinity,Infinity,Infinity]
     const maxes = [-Infinity,-Infinity,-Infinity,-Infinity,-Infinity]
-    for (const element of elements) {
-        const location  = element.location
+    for (const location of locations) {
         for (const i of [0,1,2,3,4]){
-            // TODO: Take into account location2 dimesions here.
-            mins[i] = Math.min(mins[i], location[i])
-            maxes[i] = Math.max(maxes[i], location[i])
+            if (location && location != "up" && location != "right"){
+                mins[i] = Math.min(mins[i], location[i])
+                maxes[i] = Math.max(maxes[i], location[i])
+            }
         }
     }
+
+    for (const i of [0, 1, 2, 3, 4]){
+        if (!isFinite(mins[i])){
+            mins[i] = 0
+        }
+        if (!isFinite(maxes[i])){
+            maxes[i] = 0
+        }
+    }
+
     const lengths = maxes.map((x, index) => {
         return x - mins[index] + 1
     })
@@ -98,45 +203,16 @@ export function FiveDContainer({
     const gridHeight = sharedWidth * ld1 + (ld4 - 1) * ( threeDGridOverhang / 100 ) * sharedWidth
     const gridLength = sharedWidth * ld2 + (ld4 - 1) * ( threeDGridOverhang / 100 ) * sharedWidth
 
-
-
-    // Sort by d4 so that things with higher values in the 4th dimension
-    // are rendered last.
-    elements.sort((element1, element2) => {
-        return element1.location[3] - element2.location[3]
-    })
-
-    return <View style={styles.container}>
-        {
-        elements.map((element) => {
-            const {top, left, width, height} = calculateScreenLocation({
-                location: element.location,
-                sharedMeasurements: {
-                    gridHeight,
-                    gridLength,
-                    marginHorizontal,
-                    marginVertical,
-                    maxes,
-                    mins,
-                    sharedWidth
-                }
-            })
-            return <View 
-              style={StyleSheet.flatten([
-                styles.child, 
-                {
-                    top,
-                    left,
-                    width,
-                    height,
-                },
-              ])}
-              key={JSON.stringify(element.location)}
-            >
-                {element.component}
-            </View>
-        })}
-    </View>
+    return {
+        mins,
+        maxes,
+        lengths,
+        sharedWidth,
+        marginHorizontal,
+        marginVertical,
+        gridHeight,
+        gridLength,
+    }
 }
 
 function CalcMarginsAndWidths({
@@ -246,7 +322,7 @@ function calculateScreenLocation({
     location,
     sharedMeasurements,
 }: {
-    location: Array<number>,
+    location: Array<number> | "right" | "up",
     sharedMeasurements: {
         mins: Array<number>,
         maxes: Array<number>,
@@ -256,7 +332,7 @@ function calculateScreenLocation({
         marginHorizontal: number,
         marginVertical: number,
     }
-}) {
+}): {top: number, left: number, width: number, height: number} {
     // Ok, now that we have w, m1, m2
     // we can solve for the left, top, width height of any given child element.
     //
@@ -277,6 +353,24 @@ function calculateScreenLocation({
     // left = m1 + d3(m1 +gridLength) + d2 * w
     // top = m2 + d5(m2 + gridHeight) + d1 * w
 
+    if (location === "right"){
+        return {
+            top: 50,
+            left: 150,
+            width: 0,
+            height: 0,
+        }
+    }
+
+    if (location === "up"){
+        return {
+            top: -150,
+            left: 50,
+            width: 0,
+            height: 0,
+        }
+    }
+
     const d1 = location[0] - sharedMeasurements.mins[0]
     const d2 = location[1] - sharedMeasurements.mins[1]
     const d3 = location[2] - sharedMeasurements.mins[2]
@@ -295,8 +389,6 @@ function calculateScreenLocation({
         + d4 * sharedMeasurements.sharedWidth * threeDGridOverhang / 100
         // Offset for z scale width change (based on d4)
         +  (sharedMeasurements.sharedWidth * (1-zScale) / 2)
-        // Convert to string & tell typescript it's a percentage.
-        +  "%" as DimensionValue
     const top = 
         // Find the right grid up & down
         // Vertically, d5 = 0 is the BOTTOM.
@@ -308,10 +400,8 @@ function calculateScreenLocation({
         + d4 * sharedMeasurements.sharedWidth * threeDGridOverhang / 100
         // Offset for z scale width change (based on d4)
         + (sharedMeasurements.sharedWidth * (1-zScale) / 2)
-        // Convert to string & tell typescript it's a percentage.
-        + "%" as DimensionValue
-    const width = (sharedMeasurements.sharedWidth * zScale) + "%" as DimensionValue
-    const height = (sharedMeasurements.sharedWidth * zScale) + "%" as DimensionValue
+    const width = (sharedMeasurements.sharedWidth * zScale)
+    const height = (sharedMeasurements.sharedWidth * zScale)
 
     return {
         top,
