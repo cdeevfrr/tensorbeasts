@@ -67,7 +67,17 @@ export function addGroupingBeast(battleState: BattleState, groupingBeast: Beast)
  * @param clone 
  * @returns 
  */
-export function destroyBlocks(battleState: BattleState, locations: Array<Location>, clone = true): BattleState{
+export function destroyBlocks({
+    battleState,
+    locations,
+    clone = true,
+    shouldFall = true,
+}:{
+    battleState: BattleState, 
+    locations: Array<Location>, 
+    clone?: boolean,
+    shouldFall?: boolean
+}): BattleState {
     const newBattleState: BattleState = clone? JSON.parse(JSON.stringify(battleState)) : battleState
 
     const destroyEvent: DestroyEvent = {
@@ -89,7 +99,11 @@ export function destroyBlocks(battleState: BattleState, locations: Array<Locatio
 
     recalcuateBeastDamage(newBattleState)
 
-    return fall(newBattleState, false)
+    if (shouldFall){
+        return fall(newBattleState, false)
+    } else {
+        return newBattleState
+    }
 }
 
 // Since this statefully modifies battleState, don't export. Only call it if you've

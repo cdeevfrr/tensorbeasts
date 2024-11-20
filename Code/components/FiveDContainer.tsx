@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { DimensionValue, StyleSheet, View } from "react-native";
+import { Animated, DimensionValue, StyleSheet, View } from "react-native";
 
 
 // The percentage overhang from a 3D grid when one block is on top of another block.
@@ -16,13 +16,14 @@ const minimumMargin = 2
 // it's not otherwise included.
 export function FiveDContainer({
     elements,
+    animationPercentage,
 }:{
     elements: Array<{
         component: ReactNode, 
         location: Array<number>,
         location2?: Array<number>,
-        animationPercentage?: number,
-    }>
+    }>,
+    animationPercentage?: Animated.Value,
 }){
     // Game plan:
     // Figure out how many dimensions/items there are in each dimension.
@@ -75,6 +76,76 @@ export function FiveDContainer({
         return x - mins[index] + 1
     })
 
+    const ld1 = lengths[0]
+    const ld2 = lengths[1]
+    const ld3 = lengths[2]
+    const ld4 = lengths[3]
+    const ld5 = lengths[4]
+
+    const bestFound = CalcMarginsAndWidths({
+        d1: ld1,
+        d2: ld2,
+        d3: ld3,
+        d4: ld4,
+        d5: ld5,
+    })
+
+    const marginHorizontal = bestFound.marginHorizontal
+    const marginVertical = bestFound.marginVertical
+    const sharedWidth = bestFound.width
+
+
+    const gridHeight = sharedWidth * ld1 + (ld4 - 1) * ( threeDGridOverhang / 100 ) * sharedWidth
+    const gridLength = sharedWidth * ld2 + (ld4 - 1) * ( threeDGridOverhang / 100 ) * sharedWidth
+
+
+
+    // Sort by d4 so that things with higher values in the 4th dimension
+    // are rendered last.
+    elements.sort((element1, element2) => {
+        return element1.location[3] - element2.location[3]
+    })
+
+    return <View style={styles.container}>
+        {
+        elements.map((element) => {
+            const {top, left, width, height} = calculateScreenLocation({
+                location: element.location,
+                sharedMeasurements: {
+                    gridHeight,
+                    gridLength,
+                    marginHorizontal,
+                    marginVertical,
+                    maxes,
+                    mins,
+                    sharedWidth
+                }
+            })
+            return <View 
+              style={StyleSheet.flatten([
+                styles.child, 
+                {
+                    top,
+                    left,
+                    width,
+                    height,
+                },
+              ])}
+              key={JSON.stringify(element.location)}
+            >
+                {element.component}
+            </View>
+        })}
+    </View>
+}
+
+function CalcMarginsAndWidths({
+    d1,
+    d2,
+    d3,
+    d4,
+    d5,
+}:{d1: number, d2: number, d3: number, d4: number, d5: number }){
     // Now, we need to solve for the width/height of a block, call it w.
     // The 5D case should show us all the variables we need, and the other
     // cases should happen by setting some variable values to 1.
@@ -142,118 +213,7 @@ export function FiveDContainer({
     // and then set that m value to 2. The other m value can be calculated 
     // once we have w.
 
-    const ld1 = lengths[0]
-    const ld2 = lengths[1]
-    const ld3 = lengths[2]
-    const ld4 = lengths[3]
-    const ld5 = lengths[4]
 
-    const bestFound = solveWM1M2({
-        d1: ld1,
-        d2: ld2,
-        d3: ld3,
-        d4: ld4,
-        d5: ld5,
-    })
-
-    const m1 = bestFound.m1
-    const m2 = bestFound.m2
-    const w = bestFound.w
-
-
-    const gridHeight = w * ld1 + (ld4 - 1) * ( threeDGridOverhang / 100 ) * w
-    const gridLength = w * ld2 + (ld4 - 1) * ( threeDGridOverhang / 100 ) * w
-
-    // Sort by d4 so that things with higher values in the 4th dimension
-    // are rendered last.
-    elements.sort((element1, element2) => {
-        return element1.location[3] - element2.location[3]
-    })
-
-    return <View style={styles.container}>
-        {
-        elements.map((element, index) => {
-            // Ok, now that we have w, m1, m2
-            // we can solve for the left, top, width height of any given child element.
-            //
-            //5:
-            // m1     m1      m1       m1  m2
-            //  x x x   vxvxvx   x x x
-            //  vxvxvx  vxvxvx   xvxvx
-            //  x x x   vxvxvx   x x x
-            //                             m2
-            //  x x x   vxvxvx   x x x
-            //  vxvxvx  vxvxvx   xvxvx
-            //  x x x   vxvxvx   x x x
-            //                             m2
-            //
-            // Width = height = w
-            // Rescale d1, d2, d3, d4, d5 = di - min(di).
-            // 
-            // left = m1 + d3(m1 +gridLength) + d2 * w
-            // top = m2 + d5(m2 + gridHeight) + d1 * w
-
-            const d1 = element.location[0] - mins[0]
-            const d2 = element.location[1] - mins[1]
-            const d3 = element.location[2] - mins[2]
-            const d4 = element.location[3] - mins[3]
-            const d5 = element.location[4] - mins[4]
-
-            // For sending things 'backwards' into the screen
-            const zScale = Math.pow(.95, d4)
-
-            const left = 
-                // Find the right grid left & right
-                m1 + d3 * (m1 + gridLength)
-                // Go to your index in the grid
-                + d2 * w 
-                // Offset by 3DGridOverhang rightwards
-                + d4 * w * threeDGridOverhang / 100
-                // Offset for z scale width change (based on d4)
-                +  (w * (1-zScale) / 2)
-                // Convert to string & tell typescript it's a percentage.
-                +  "%" as DimensionValue
-            const top = 
-                // Find the right grid up & down
-                // Vertically, d5 = 0 is the BOTTOM.
-                m2 + (maxes[4] - element.location[4]) * (m2 + gridHeight) 
-                // Go to your index in the grid
-                // Vertically, d1 = 0 is the BOTTOM.
-                + (maxes[0] - element.location[0]) * w 
-                // Offset by 3DGridOverhang downwards
-                + d4 * w * threeDGridOverhang / 100
-                // Offset for z scale width change (based on d4)
-                + (w * (1-zScale) / 2)
-                // Convert to string & tell typescript it's a percentage.
-                + "%" as DimensionValue
-            const width = (w * zScale) + "%" as DimensionValue
-            const height = (w * zScale) + "%" as DimensionValue
-
-            return <View 
-              style={StyleSheet.flatten([
-                styles.child, 
-                {
-                    top,
-                    left,
-                    width,
-                    height,
-                },
-              ])}
-              key={JSON.stringify(element.location)}
-            >
-                {element.component}
-            </View>
-        })}
-    </View>
-}
-
-function solveWM1M2({
-    d1,
-    d2,
-    d3,
-    d4,
-    d5,
-}:{d1: number, d2: number, d3: number, d4: number, d5: number }){
     // w = (100% - m1 * (d3 + 1)) / (d3(d2  + (d4 - 1)* 3dGridOverhang/100))
     // w = (100% - m2 * (d5 + 1)) / (d5(d1  + (d4 - 1)* 3dGridOverhang/100))
     // 
@@ -265,19 +225,99 @@ function solveWM1M2({
         // w = (100% - m2 * (d5 + 1)) / (d5(d1  + (d4 - 1)* 3dGridOverhang/100))
         // m2 = (w(d5(d1  + (d4 - 1)* 3dGridOverhang/100)) - 100) / (d5 + 1) * -1
         return {
-            w: w1,
-            m1: minimumMargin,
-            m2: (w1 * (d5 * (d1  + (d4 - 1)* (threeDGridOverhang/100))) - 100) / (-d5 - 1)
+            width: w1,
+            marginHorizontal: minimumMargin,
+            marginVertical: (w1 * (d5 * (d1  + (d4 - 1)* (threeDGridOverhang/100))) - 100) / (-d5 - 1)
         }
     } else {
         // Solve for m1:
         // w = (100% - m1 * (d3 + 1)) / (d3(d2  + (d4 - 1)* 3dGridOverhang/100))
         // m1 = (w * (d3 * (d2  + (d4 - 1)* 3dGridOverhang/100))) - 100) / (-d3 - 1)
         return {
-            w: w2,
-            m1: (w2 * (d3 * (d2  + (d4 - 1)* threeDGridOverhang/100)) - 100) / (-d3 - 1),
-            m2: minimumMargin,
+            width: w2,
+            marginHorizontal: (w2 * (d3 * (d2  + (d4 - 1)* threeDGridOverhang/100)) - 100) / (-d3 - 1),
+            marginVertical: minimumMargin,
         }
+    }
+}
+
+
+function calculateScreenLocation({
+    location,
+    sharedMeasurements,
+}: {
+    location: Array<number>,
+    sharedMeasurements: {
+        mins: Array<number>,
+        maxes: Array<number>,
+        gridHeight: number,
+        gridLength: number,
+        sharedWidth: number,
+        marginHorizontal: number,
+        marginVertical: number,
+    }
+}) {
+    // Ok, now that we have w, m1, m2
+    // we can solve for the left, top, width height of any given child element.
+    //
+    //5:
+    // m1     m1      m1       m1  m2
+    //  x x x   vxvxvx   x x x
+    //  vxvxvx  vxvxvx   xvxvx
+    //  x x x   vxvxvx   x x x
+    //                             m2
+    //  x x x   vxvxvx   x x x
+    //  vxvxvx  vxvxvx   xvxvx
+    //  x x x   vxvxvx   x x x
+    //                             m2
+    //
+    // Width = height = w
+    // Rescale d1, d2, d3, d4, d5 = di - min(di).
+    // 
+    // left = m1 + d3(m1 +gridLength) + d2 * w
+    // top = m2 + d5(m2 + gridHeight) + d1 * w
+
+    const d1 = location[0] - sharedMeasurements.mins[0]
+    const d2 = location[1] - sharedMeasurements.mins[1]
+    const d3 = location[2] - sharedMeasurements.mins[2]
+    const d4 = location[3] - sharedMeasurements.mins[3]
+    const d5 = location[4] - sharedMeasurements.mins[4]
+
+    // For sending things 'backwards' into the screen
+    const zScale = Math.pow(.95, d4)
+
+    const left = 
+        // Find the right grid left & right
+        sharedMeasurements.marginHorizontal + d3 * (sharedMeasurements.marginHorizontal + sharedMeasurements.gridLength)
+        // Go to your index in the grid
+        + d2 * sharedMeasurements.sharedWidth 
+        // Offset by 3DGridOverhang rightwards
+        + d4 * sharedMeasurements.sharedWidth * threeDGridOverhang / 100
+        // Offset for z scale width change (based on d4)
+        +  (sharedMeasurements.sharedWidth * (1-zScale) / 2)
+        // Convert to string & tell typescript it's a percentage.
+        +  "%" as DimensionValue
+    const top = 
+        // Find the right grid up & down
+        // Vertically, d5 = 0 is the BOTTOM.
+        sharedMeasurements.marginVertical + (sharedMeasurements.maxes[4] - location[4]) * (sharedMeasurements.marginVertical + sharedMeasurements.gridHeight) 
+        // Go to your index in the grid
+        // Vertically, d1 = 0 is the BOTTOM.
+        + (sharedMeasurements.maxes[0] - location[0]) * sharedMeasurements.sharedWidth 
+        // Offset by 3DGridOverhang downwards
+        + d4 * sharedMeasurements.sharedWidth * threeDGridOverhang / 100
+        // Offset for z scale width change (based on d4)
+        + (sharedMeasurements.sharedWidth * (1-zScale) / 2)
+        // Convert to string & tell typescript it's a percentage.
+        + "%" as DimensionValue
+    const width = (sharedMeasurements.sharedWidth * zScale) + "%" as DimensionValue
+    const height = (sharedMeasurements.sharedWidth * zScale) + "%" as DimensionValue
+
+    return {
+        top,
+        left,
+        width,
+        height,
     }
 }
 

@@ -17,7 +17,10 @@ export const SingleBlockDestroy: SkillBlueprint = {
         return setupContinue(self, battleState, caller)
     },
     continue: (self, battleState, caller, selection ) => {
-        const result = destroyBlocks(battleState, [selection])
+        const result = destroyBlocks({
+            battleState, 
+            locations: [selection],
+        })
         delete result.processingSkill
         return result
     },

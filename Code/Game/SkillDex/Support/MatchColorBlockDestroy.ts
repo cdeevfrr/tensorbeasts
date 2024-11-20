@@ -23,7 +23,11 @@ export const MatchColorBlockDestroy: SkillBlueprint = {
         const selectedBlock = accessLocation(selection, battleState.board)
         const selectedColor = selectedBlock?.color || -1
         if (caller.beast.colors && caller.beast.colors.includes(selectedColor)){
-            return destroyBlocks(result, [selection])
+            return destroyBlocks({
+                battleState: result, 
+                locations: [selection],
+                clone: true, // Not sure if this is needed here?
+            })
         } else {
             return result
         }

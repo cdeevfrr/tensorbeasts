@@ -4,7 +4,7 @@ import { SkillSelectModal } from '@/components/SkillSelectModal';
 import { StackC } from '@/components/StackC';
 import { SupportSkill } from '@/Game/SkillDex/Support/SupportSkill';
 import { BeastState } from '@/Game/Battle/BeastState';
-import { addCharge, addGroupingBeast, BattleState, continueSkill, destroyBlocks, findBeast, findNextAttacker, lost, processBeastAttack, useSkill, won } from '@/Game/Battle/BattleState';
+import { addCharge, addGroupingBeast, BattleState, continueSkill, destroyBlocks, fall, findBeast, findNextAttacker, lost, processBeastAttack, useSkill, won } from '@/Game/Battle/BattleState';
 import { useRef, useState } from 'react';
 import { Text, View, StyleSheet, Button, Alert, Modal, Pressable, Animated } from 'react-native';
 import { ConfirmCoreModal } from '@/components/ConfirmCoreModal';
@@ -65,6 +65,7 @@ export default function BattleScreen({
   const [isAnimating, setIsAnimating] = useState(false)
   const [isGroupAnimating, setIsGroupAnimating] = useState(false)
   const groupAnimationPercentage = useRef(new Animated.Value(0));
+  const [animatingToBattleState, setAnimatingToBattleState] = useState<BattleState | null>(null);
 
 
   // Loading behavior common to all top level pages, loads battleState.
@@ -129,7 +130,7 @@ export default function BattleScreen({
     }
   }
 
-  if(isGroupAnimating){
+  if(isGroupAnimating && !animatingToBattleState){
     if (!battleState.groupingBeast || !battleState.groupingBeast.coreGroupSkill){
       setIsGroupAnimating(false)
       // TODO: save battle state to async storage.
@@ -145,7 +146,21 @@ export default function BattleScreen({
         // wait for the callback that destroys the blocks, which then triggers
         // re-grouping; until !nextGroup so we setGroupAnimating(false)
         // (see the previous if condition)
-        groupAnimationPercentage.current = new Animated.Value(0)
+        const destroyedBlocksBattleState = destroyBlocks({
+          battleState, 
+          locations: nextGroup, 
+          clone: true,
+          shouldFall: false,
+        })
+        const fallenBattleState = fall(destroyedBlocksBattleState)
+
+        // The remainder of this else block is equivalent to
+        // animateTo(destroyedBlockBattleState).then({
+        //    animateTo(fallenBattleState)
+        // }
+        // do NOT set isGroupAnimating to false. Recursive renders will decide if we should do that.
+        setAnimatingToBattleState(destroyedBlocksBattleState)
+        groupAnimationPercentage.current.resetAnimation()
         Animated.timing(groupAnimationPercentage.current, {
           toValue: 1,
           duration: Math.max(
@@ -154,9 +169,22 @@ export default function BattleScreen({
           ),
           useNativeDriver: false,
         }).start(() => {
+          setAnimatingToBattleState(fallenBattleState)
           setBattleState(
-            destroyBlocks(battleState, nextGroup, true)
+            destroyedBlocksBattleState
           )
+          groupAnimationPercentage.current.resetAnimation()
+          Animated.timing(groupAnimationPercentage.current, {
+            toValue: 1,
+            duration: Math.max(
+              2,
+              Math.floor(groupAnimationMs / ( (battleState.stack.length + 3) / 3))
+            ),
+            useNativeDriver: false,
+          }).start(() => {
+            setAnimatingToBattleState(null)
+            setBattleState(fallenBattleState)
+          })
         })
       }
     }
@@ -195,8 +223,11 @@ export default function BattleScreen({
           />
 
           {/* Render the block board */} 
-          <BlockBoardC board={battleState.board} blockCallback={blockCallback}/>
-
+          <BlockBoardC 
+              board={battleState.board} 
+              blockCallback={blockCallback}
+              boardTo={animatingToBattleState? animatingToBattleState.board : undefined}
+              animationPercent={groupAnimationPercentage.current}/>
           {/* Vanguard */} 
           <BeastStateRowC 
               beasts={battleState.playerParty.vanguard}

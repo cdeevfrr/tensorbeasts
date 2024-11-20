@@ -2,16 +2,20 @@ import { BattleState } from "@/Game/Battle/BattleState";
 import { BlockC } from "./BlockC";
 import { FiveDContainer } from "./FiveDContainer";
 import { Block } from "@/Game/Battle/Block";
-import { Location } from "@/Game/Battle/Board";
+import { Board, Location } from "@/Game/Battle/Board";
+import { Animated } from "react-native";
 
 export function BlockBoardC({
     board,
     blockCallback,
+    boardTo,
+    animationPercent,
 }: {
-    board: BattleState["board"]
-    blockCallback: ((block: Block | null, location: Location) => void) | null
+    board: Board,
+    blockCallback: ((block: Block | null, location: Location) => void) | null,
+    boardTo?: Board,
+    animationPercent?: Animated.Value
 }){
-
     const elements: Parameters<typeof FiveDContainer>[0]['elements'] = []
     for (let x = 0; x < board.blocks.length; x++){
         for (let y = 0; y < board.blocks[x].length; y++){
