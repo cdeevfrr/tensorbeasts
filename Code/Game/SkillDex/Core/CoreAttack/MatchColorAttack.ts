@@ -32,7 +32,4 @@ export const MatchColorAttack: CoreAttackSkillBlueprint = {
             powers: includedColors.map(x => x / 5)
         })
     },
-
-    // Unused, scheduled to be removed from the type.
-    pseudolevels: [1]
 }

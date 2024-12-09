@@ -32,5 +32,4 @@ export const CountAttack: CoreAttackSkillBlueprint = {
             powers: [count / self.threshold]
         })
     },
-    pseudolevels: [...Array.from(Array(30).keys())]
 }
