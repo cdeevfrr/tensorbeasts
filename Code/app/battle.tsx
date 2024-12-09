@@ -4,7 +4,7 @@ import { SkillSelectModal } from '@/components/SkillSelectModal';
 import { StackC } from '@/components/StackC';
 import { SupportSkill } from '@/Game/SkillDex/Support/SupportSkill';
 import { BeastState } from '@/Game/Battle/BeastState';
-import { addCharge, addGroupingBeast, BattleState, continueSkill, destroyBlocks, findBeast, findNextAttacker, lost, processBeastAttack, useSkill, won } from '@/Game/Battle/BattleState';
+import { addCharge, addGroupingBeast, BattleState, continueSkill, destroyBlocks, fall, findBeast, findNextAttacker, lost, processBeastAttack, useSkill, won } from '@/Game/Battle/BattleState';
 import { useRef, useState } from 'react';
 import { Text, View, StyleSheet, Button, Alert, Modal, Pressable, Animated } from 'react-native';
 import { ConfirmCoreModal } from '@/components/ConfirmCoreModal';
@@ -38,7 +38,7 @@ import { Location } from '@/Game/Battle/Board';
 // 
 // We use two kinds of isAnimating flags to prevent all user input.
 // 
-// This is because isMatchAnimating relies on recursive renders to eventually
+// This is because isGroupAnimating relies on recursive renders to eventually
 // be turned to false; but the normal isAnimating flag should be turned off
 // by whatever turned it on.
 type attackFlowState = {
@@ -62,11 +62,19 @@ export default function BattleScreen({
   const [battleState, setBattleState] = useState<BattleState | undefined>(presetState)
   const [attackFlowState, setAttackFlowState] = useState<attackFlowState>({state: 'initial'})
 
+  // Normal animations. Eg animations showing the damage done to each beast.
   const [isAnimating, setIsAnimating] = useState(false)
+  // Something triggered grouping & falling, this indicates
+  // we're animating that and users shouldn't interact. It's harder to know when to turn
+  // this one off.
   const [isGroupAnimating, setIsGroupAnimating] = useState(false)
   const groupAnimationPercentage = useRef(new Animated.Value(0));
+  // Used for one piece of group animating.
+  const [isSubGroupAnimating, setIsSubGroupAnimating] = useState(false);
+  const [animatingToBattleState, setAnimatingToBattleState] = useState<BattleState | null>(null);
 
 
+  const animationFlag = isAnimating || isGroupAnimating || isSubGroupAnimating
   // Loading behavior common to all top level pages, loads battleState.
   if (!presetState){
     useFocusEffect(React.useCallback(() => {
@@ -106,8 +114,10 @@ export default function BattleScreen({
     }
   }
 
+  // If the user just clicked to use a skill, and that skill has block selection in it,
+  // add the appropriate block callback.
   let blockCallback: null | ((block: Block | null, location: Location) => void) = null
-  if (!isAnimating && !isGroupAnimating && battleState.processingSkill) { 
+  if (!animationFlag && battleState.processingSkill) { 
       const uuid = battleState.processingSkill.beastUUID
       const skillNum = battleState.processingSkill.skillNum
       blockCallback = (block: Block | null, location: Location) => {
@@ -129,35 +139,92 @@ export default function BattleScreen({
     }
   }
 
-  if(isGroupAnimating){
+  const finishGroupAnimating = () => {
+    setIsGroupAnimating(false)
+    // TODO: save battle state to async storage.
+  }
+
+  const animateTo = async (toState: BattleState, duration: number) => {
+    return new Promise(resolve => {
+      setAnimatingToBattleState(toState)
+      groupAnimationPercentage.current.resetAnimation()
+      Animated.timing(groupAnimationPercentage.current, {
+        toValue: 1,
+        duration,
+        useNativeDriver: false,
+      }).start(() => {
+        setAnimatingToBattleState(null)
+        setBattleState(toState)
+        groupAnimationPercentage.current.resetAnimation()
+        resolve(null)
+      })
+    })
+  }
+
+  // This group animations block has a lot of logic to cause events (eg fall) and re-rendering.
+  // If you enter this `if` block, users cannot interact with the app until 
+  // you call finishAnimating (which is the only way to set isGroupAnimating to false).
+  // If isSubGroupAnimating, then there should be an async process that will cause a re-render later, 
+  // you shouldn't need to actively call finishAnimating yourself.
+  if(isGroupAnimating && !animatingToBattleState && !isSubGroupAnimating){
     if (!battleState.groupingBeast || !battleState.groupingBeast.coreGroupSkill){
-      setIsGroupAnimating(false)
-      // TODO: save battle state to async storage.
+      finishGroupAnimating()
     } else {
+      // In this state, users should't be able to click anything. They're forced to
+        // wait for the animations that destroy blocks, which then triggers
+        // re-grouping; until we setGroupAnimating(false) (by calling finishAnimating)
+      // This else block represents one 'fall' event. Multiple falls may occur, causing
+      // re-rendering, before we finishAnimating.
+      //
+      // Game plan: 
+      // Calculate battleStates for each group found, and a fallen battle state.
+      // Animate between each state while keeping isGroupAnimating true.
+      // Only finishAnimating if no groups were found at all.
       const serializedSkill = battleState.groupingBeast.coreGroupSkill
       const skillBlueprint = CoreGroupSkills[serializedSkill.type]
-      const nextGroup = skillBlueprint.nextGroup(serializedSkill, battleState.board)
-      if (!nextGroup){
-        setIsGroupAnimating(false)
-        // TODO: save battle state to async storage
+
+      const animateStates = [battleState]
+
+      let nextGroup = skillBlueprint.nextGroup(serializedSkill, animateStates[animateStates.length - 1].board)
+      while (nextGroup) {
+        animateStates.push(destroyBlocks({
+          battleState: animateStates[animateStates.length - 1], 
+          locations: nextGroup, 
+          clone: true,
+          shouldFall: false,
+        }))
+        nextGroup = skillBlueprint.nextGroup(serializedSkill, animateStates[animateStates.length - 1].board)
+      }
+
+      if (animateStates.length === 1){
+        // We didn't find any groups, so group animating is done!
+        finishGroupAnimating()
       } else {
-        // In this state, users should't be able to click anything. They're forced to
-        // wait for the callback that destroys the blocks, which then triggers
-        // re-grouping; until !nextGroup so we setGroupAnimating(false)
-        // (see the previous if condition)
-        groupAnimationPercentage.current = new Animated.Value(0)
-        Animated.timing(groupAnimationPercentage.current, {
-          toValue: 1,
-          duration: Math.max(
-            2,
-            Math.floor(groupAnimationMs / ( (battleState.stack.length + 3) / 3))
-          ),
-          useNativeDriver: false,
-        }).start(() => {
-          setBattleState(
-            destroyBlocks(battleState, nextGroup, true)
-          )
-        })
+        animateStates.push(fall(animateStates[animateStates.length - 1]))
+
+        const duration = Math.min(
+          3000,
+          Math.floor(groupAnimationMs / ( (battleState.stack.length + 3) / 30))
+        )
+
+        if (duration > 1000){ // animate all transitions
+          setIsSubGroupAnimating(true);
+          // Have to await animateTo here so that we go one animation at a time,
+          // instead of firing them all at once.
+          (async () => {
+            for (let toStateIndex = 1; toStateIndex < animateStates.length; toStateIndex ++){
+              const toState = animateStates[toStateIndex]
+              await animateTo(toState, Math.floor(duration / animateStates.length))
+            }
+            setIsSubGroupAnimating(false)
+          })()
+        } else if (duration > 100) { // low duration, only animate directly to the end.
+          animateTo(animateStates[animateStates.length - 1], duration)
+        } else { // duration is VERY small, no animations - just jump straight to the end after a small ms delay.
+          setTimeout(() => {
+            setBattleState(animateStates[animateStates.length - 1])
+          }, duration)
+        }
       }
     }
   }
@@ -195,8 +262,11 @@ export default function BattleScreen({
           />
 
           {/* Render the block board */} 
-          <BlockBoardC board={battleState.board} blockCallback={blockCallback}/>
-
+          <BlockBoardC 
+              board={battleState.board} 
+              blockCallback={blockCallback}
+              boardTo={animatingToBattleState? animatingToBattleState.board : undefined}
+              animationPercent={groupAnimationPercentage.current}/>
           {/* Vanguard */} 
           <BeastStateRowC 
               beasts={battleState.playerParty.vanguard}

@@ -20,6 +20,7 @@ function generateBlock(): Block {
         color: 1,
         number: 1,
         shape: 1,
+        id: "1",
     }
 }
 
