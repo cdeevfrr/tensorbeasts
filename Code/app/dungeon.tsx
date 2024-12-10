@@ -139,8 +139,12 @@ export default function Dungeon({
               return equal
             })
 
-            if (isNewLocation || Math.random() < respawnChance) {
-              // Create battle state & save to async storage
+            if (isNewLocation){
+              newDungeonState.seen.push(newLocation)
+            }
+
+            // Maybe create a battle state & save to async storage
+            if ( isNewLocation ||  Math.random() < respawnChance) {
               const b = makeNewBattle({
                 enemies: dungeonState.map.getBattleAt({location: newLocation}),
                 party: dungeonState.party
@@ -148,14 +152,7 @@ export default function Dungeon({
 
               await AsyncStorage.setItem(battleStateKey, JSON.stringify(b))
 
-              if (isNewLocation){
-                newDungeonState.seen.push(newLocation)
-              }
-
               // TODO run an animation
-
-              // Navigate to the battle screen!
-              // Make sure a 'pop' will put you back in the dungeon screen.
               router.navigate('/battle')
             }
 
