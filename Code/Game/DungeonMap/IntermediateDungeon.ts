@@ -1,10 +1,15 @@
 import { Beast } from "../Beasts/Beast"
 import { Location } from "../Battle/Board"
 import { DungeonMap, generateBeast } from "./DungeonMap"
+import { boxTileImage } from "./Images"
 
 export const intermediateDungeon : DungeonMap = {
     getBattleAt: getBattleAt,
-    id: 'intermediateDungeon',
+    getTileAt: () => {return {
+        image: boxTileImage({background: 'brown', foreground: 'red'}), 
+        walkable: true, 
+        opaque: false
+    }},    id: 'intermediateDungeon',
 }
 
 function getBattleAt({location}:{location: Location}): Array<Beast>{

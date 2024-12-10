@@ -6,10 +6,16 @@ import { SupportSkills } from "../SkillDex/Support/SupportSkillList";
 import { CoreAttackSkills } from "../SkillDex/Core/CoreAttack/CoreAttackList";
 import { PassiveSkill } from "../SkillDex/Passive/PassiveSkill";
 import { BoardSize } from "../SkillDex/Passive/BoardSize";
+import { boxTileImage } from "./Images";
 
 
 export const beginnerDungeon : DungeonMap = {
     getBattleAt: getBattleAt,
+    getTileAt: () => {return {
+        image: boxTileImage({background: 'brown', foreground: 'red'}), 
+        walkable: true, 
+        opaque: false
+    }},
     id: 'beginnerDungeon',
 }
 

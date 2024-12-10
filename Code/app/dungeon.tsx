@@ -72,30 +72,45 @@ export default function Dungeon({
     </View>
   }
 
+  const playerComponent =<View style={{
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  }}
+  >
+    <Svg 
+    viewBox="0 0 100 100">
+      <Circle
+        cx="50"
+        cy="50"
+        r="30"
+        stroke='black'
+        strokeWidth="2.5"
+        fill='grey'
+      />
+  </Svg>
+  </View>
+
   const elements: Parameters<typeof FiveDContainer>[0]['elements'] = []
   for (const location of dungeonState.seen){
+    let tileComponent = dungeonState.map.getTileAt({location}).image
+    
+    if (locationsEqual(location, dungeonState.location)){
+      tileComponent = <View style={{
+        width: '100%', 
+        height: '100%',
+      }}>
+        {tileComponent}
+        {playerComponent}
+      </View>
+    }
 
     elements.push({
       location,
-      component: <Svg viewBox="0 0 100 100">
-        <Rect
-          x='10'
-          y='10'
-          width='80'
-          height='80'
-          fill='brown'
-        />
-        {locationsEqual(location, dungeonState.location) && 
-            <Circle
-              cx="50"
-              cy="50"
-              r="30"
-              stroke='black'
-              strokeWidth="2.5"
-              fill='grey'
-            />
-        }
-      </Svg>
+      component: tileComponent
     })
   }
 

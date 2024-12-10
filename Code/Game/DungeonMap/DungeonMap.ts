@@ -13,13 +13,20 @@ import 'react-native-get-random-values'
 import { v4 } from "uuid"
 import { beginnerDungeon } from "./BeginnerDungeon";
 import { intermediateDungeon } from "./IntermediateDungeon";
+import { Tile } from "./Tile";
 
 export interface DungeonMap {
     getBattleAt: ({location}: {location: Location}) => Array<Beast>,
+    getTileAt: ({location}: {location: Location}) => Tile
     id: string, // Must be unique across dungeon maps. Used for loading from JSON.
 }
 
 /**
+ * Helper function for maps to use to generate beasts with some reasonable defaults.
+ * 
+ * Maps are responsible for completely specifying the required parts of the
+ * new beast before returning it to a battleState!
+ * 
  * All the leans are numbers, baseline 1.0, that indicate 
  * how much better or worse this thing (HP, core skill) should be 
  * compared to baseline. A 3.0 is one pseudolevel up, for that thing.
