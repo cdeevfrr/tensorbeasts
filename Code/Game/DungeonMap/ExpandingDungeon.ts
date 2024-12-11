@@ -135,7 +135,7 @@ function zone1Beast(): Beast{
         pendingBeast.passiveSkills = []
     }
 
-    const args = {quality: 1, dimension: 1}
+    const args = {quality: 1, dimension: 0}
     pendingBeast.passiveSkills.push(
         {
             ...BoardSize.factory(args),
@@ -169,7 +169,7 @@ function zone2Beast(): Beast{
         pendingBeast.passiveSkills = []
     }
 
-    const args = {quality: pseudolevel, dimension: 2}
+    const args = {quality: pseudolevel, dimension: 1}
     pendingBeast.passiveSkills.push(
         {
             ...BoardSize.factory(args),
@@ -206,7 +206,7 @@ function zone3Beast(): Beast {
     const boardSizeArgs = {
         // quality of 4 or up means add 2 in that dimension.
         quality: pseudolevel - 2, 
-        dimension: randChoice({array: [1, 2], probabilities: [1,1]})
+        dimension: randChoice({array: [0, 1], probabilities: [1,1]})
     }
     pendingBeast.passiveSkills.push(
         {
@@ -244,7 +244,7 @@ function zone4Beast(): Beast{
     const boardSizeArgs1 = {
         // quality of 4 or up means add 2 in that dimension.
         quality: pseudolevel - 4, 
-        dimension: randChoice({array: [1, 2], probabilities: [1,1]})
+        dimension: randChoice({array: [0, 1], probabilities: [1,1]})
     }
     pendingBeast.passiveSkills.push(
         {
@@ -256,7 +256,7 @@ function zone4Beast(): Beast{
     const boardSizeArgs2 = {
         // quality of 4 or up means add 2 in that dimension.
         quality: 1,
-        dimension: 3,
+        dimension: 2,
     }
     pendingBeast.passiveSkills.push(
         {
