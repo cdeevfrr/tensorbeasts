@@ -11,7 +11,7 @@ import { Party } from "@/Game/Dungeon/Party";
 import { isBoardSizePassive } from "@/Game/SkillDex/Passive/BoardSize";
 import { PassiveSkills } from "@/Game/SkillDex/Passive/PassiveSkillList";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import { Link, router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import React from "react";
 import { useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
@@ -141,10 +141,21 @@ export default function Dungeon({
   return (
     <View style={styles.container}>
       <FiveDContainer elements={elements}/>
-      <JSONView json={{
-        location: dungeonState.location,
-        seen: dungeonState.visited,
-      }}/>
+      <View style={{flex: 1, flexDirection: 'row'}}>
+        <JSONView json={{
+          location: dungeonState.location,
+          seen: dungeonState.visited,
+        }}/>
+        <View style={{flex: 1}}>
+        <Link href="/" style={{
+            fontSize: 20,
+            textDecorationLine: 'underline',
+            color: '#fff'
+        }}>
+          Leave Dungeon
+        </Link>
+        </View>
+      </View>
       <Movement
         dimensions={travellableDimensions}
         moveCallback={(l) => {
