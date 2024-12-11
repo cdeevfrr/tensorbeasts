@@ -169,7 +169,7 @@ function zone2Beast(): Beast{
         pendingBeast.passiveSkills = []
     }
 
-    const args = {quality: pseudolevel, dimension: 1}
+    const args = {quality: 1, dimension: 1}
     pendingBeast.passiveSkills.push(
         {
             ...BoardSize.factory(args),
@@ -189,7 +189,7 @@ function zone3Tile(): Tile{
 }
 function zone3Beast(): Beast {
     const pseudolevel = randChoice({
-        array: [4, 5, 6],
+        array: [3, 4, 5],
         probabilities: [5, 2, 1]
     })
     const pendingBeast = generateBeast({
@@ -205,7 +205,7 @@ function zone3Beast(): Beast {
 
     const boardSizeArgs = {
         // quality of 4 or up means add 2 in that dimension.
-        quality: pseudolevel - 2, 
+        quality: pseudolevel - 1, 
         dimension: randChoice({array: [0, 1], probabilities: [1,1]})
     }
     pendingBeast.passiveSkills.push(
@@ -227,7 +227,7 @@ function zone4Tile(): Tile{
 }
 function zone4Beast(): Beast{
     const pseudolevel = randChoice({
-        array: [6, 7, 8],
+        array: [4, 5, 6],
         probabilities: [5, 2, 1]
     })
     const pendingBeast = generateBeast({
@@ -243,7 +243,7 @@ function zone4Beast(): Beast{
 
     const boardSizeArgs1 = {
         // quality of 4 or up means add 2 in that dimension.
-        quality: pseudolevel - 4, 
+        quality: pseudolevel - 2, 
         dimension: randChoice({array: [0, 1], probabilities: [1,1]})
     }
     pendingBeast.passiveSkills.push(
