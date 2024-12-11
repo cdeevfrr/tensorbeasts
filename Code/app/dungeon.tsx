@@ -4,7 +4,7 @@ import { Movement } from "@/components/Movement";
 import { battleStateKey, dungeonStateKey, partiesKey } from "@/constants/GameConstants";
 import { BattleState, fall, lost } from "@/Game/Battle/BattleState";
 import { toBeastState } from "@/Game/Battle/BeastState";
-import { addLocations, emptyBoard, hammingDistance, locationsEqual } from "@/Game/Battle/Board";
+import { addLocations, emptyBoard, maxDistance, locationsEqual } from "@/Game/Battle/Board";
 import { Beast } from "@/Game/Beasts/Beast";
 import { DungeonState, generateNewDungeonRun, loadDungeon, updateSeen } from "@/Game/Dungeon/DungeonState";
 import { Party } from "@/Game/Dungeon/Party";
@@ -19,13 +19,13 @@ import Svg, { Circle, Rect } from "react-native-svg";
 
 // A bit misleading name - it really is the chance to get a new beast at this cleared location.
 // A respawn would be the same beast again.
-const respawnChance = 0.2
+const respawnChance = 0.02
 // Distance around the player that map tiles are loaded
 // When you get to a spot, how far can you see from that spot?
 const renderHammingDistance = 3
 // Distance around the player that already-loaded map tiles are still visible.
 // If you move far from start, eventually we stop showing you the start location.
-const displayHammingDistance = 3
+const displayMaxDistance = 3
 
 export default function Dungeon({
   initialDungeonState,
@@ -102,7 +102,7 @@ export default function Dungeon({
 
   const elements: Parameters<typeof FiveDContainer>[0]['elements'] = []
   for (const location of dungeonState.seen){
-    if (hammingDistance(location, dungeonState.location) < displayHammingDistance){
+    if (maxDistance(location, dungeonState.location) < displayMaxDistance){
       let tileComponent = dungeonState.map.getTileAt({location}).image()
       
       if (locationsEqual(location, dungeonState.location)){
@@ -168,7 +168,7 @@ export default function Dungeon({
             }
 
             // Maybe create a battle state & save to async storage
-            if ( isNewLocation ||  Math.random() < respawnChance) {
+            if ( Math.random() < respawnChance) {
               const b = makeNewBattle({
                 enemies: dungeonState.map.getBattleAt({location: newLocation}),
                 party: dungeonState.party

@@ -77,6 +77,10 @@ export function hammingDistance(l1: Location, l2: Location) {
     return l1.map((val, index) => Math.abs(l2[index] - val)).reduce((a, b) => a+b)
 }
 
+export function maxDistance(l1: Location, l2: Location) {
+    return l1.map((val, index) => Math.abs(l2[index] - val)).reduce((a, b) => Math.max(a, b))
+}
+
 // Vector util function
 export function locationsEqual(l1: Location, l2: Location){
     const result = l1[0] === l2[0] &&
