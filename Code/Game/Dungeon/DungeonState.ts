@@ -2,6 +2,7 @@ import { addLocations, Location, negateLocation } from "../Battle/Board";
 import { PartyPlan } from "../Beasts/PartyPlan";
 import { beginnerDungeon } from "../DungeonMap/BeginnerDungeon";
 import { DungeonMap, findMap } from "../DungeonMap/DungeonMap";
+import { expandingDungeon } from "../DungeonMap/ExpandingDungeon";
 import { intermediateDungeon } from "../DungeonMap/IntermediateDungeon";
 import { Party, toParty } from "./Party";
 
@@ -35,7 +36,8 @@ export async function generateNewDungeonRun({
 }
 const maps = [
     beginnerDungeon,
-    intermediateDungeon
+    intermediateDungeon,
+    expandingDungeon,
 ]
 
 export function loadDungeon(savedData: string){

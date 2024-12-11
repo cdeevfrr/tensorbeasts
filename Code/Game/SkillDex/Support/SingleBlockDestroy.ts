@@ -12,7 +12,6 @@ export const SingleBlockDestroy: SkillBlueprint = {
             name: "Simple Destroy " + quality
         }
     },
-    psuedolevels: [...Array.from(Array(15).keys())], 
     execute: (self, battleState, caller, props) => {
         return setupContinue(self, battleState, caller)
     },
@@ -24,5 +23,4 @@ export const SingleBlockDestroy: SkillBlueprint = {
         delete result.processingSkill
         return result
     },
-    commonality: 100,
 }

@@ -65,7 +65,7 @@ export default function EnterDungeon({
                   pathname: '/dungeon',
                   params: {
                       partyNumber: 0,
-                      dungeonNumber: 1,
+                      dungeonNumber: 3,
                   }
               })
             })()

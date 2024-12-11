@@ -31,7 +31,5 @@ export const MatchColorBlockDestroy: SkillBlueprint = {
         } else {
             return result
         }
-    },
-    psuedolevels: [...Array.from(Array(15).keys())],
-    commonality: 200,
+    }
 }
