@@ -6,7 +6,7 @@ import { boxTileImage } from "./Images"
 export const intermediateDungeon : DungeonMap = {
     getBattleAt: getBattleAt,
     getTileAt: () => {return {
-        image: boxTileImage({background: 'brown', foreground: 'red'}), 
+        image: () => boxTileImage({background: 'brown', foreground: 'red'}), 
         walkable: true, 
         opaque: false
     }},    id: 'intermediateDungeon',

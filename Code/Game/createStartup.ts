@@ -195,18 +195,18 @@ const customBeast: Beast = {
       toAdd: 1,
       dimension: 2,
     } as PassiveSkill,
-    {
-      name: "Custom boardSize skill 3",
-      type: "BoardSize",
-      toAdd: 1,
-      dimension: 3,
-    } as PassiveSkill,
-    {
-      name: "Custom boardSize skill 4",
-      type: "BoardSize",
-      toAdd: 1,
-      dimension: 4,
-    } as PassiveSkill,
+    // {
+    //   name: "Custom boardSize skill 3",
+    //   type: "BoardSize",
+    //   toAdd: 1,
+    //   dimension: 3,
+    // } as PassiveSkill,
+    // {
+    //   name: "Custom boardSize skill 4",
+    //   type: "BoardSize",
+    //   toAdd: 1,
+    //   dimension: 4,
+    // } as PassiveSkill,
   ]
 
 }

@@ -7,15 +7,12 @@ import { CoreAttackSkills } from "../SkillDex/Core/CoreAttack/CoreAttackList";
 import { PassiveSkill } from "../SkillDex/Passive/PassiveSkill";
 import { BoardSize } from "../SkillDex/Passive/BoardSize";
 import { boxTileImage } from "./Images";
+import { Tile } from "./Tile";
 
 
 export const beginnerDungeon : DungeonMap = {
     getBattleAt: getBattleAt,
-    getTileAt: () => {return {
-        image: boxTileImage({background: 'brown', foreground: 'red'}), 
-        walkable: true, 
-        opaque: false
-    }},
+    getTileAt: getTileAt,
     id: 'beginnerDungeon',
 }
 
@@ -104,6 +101,29 @@ function getBattleAt({location}:{location: Location}): Array<Beast>{
     return result
 }
 
+function getTileAt({ location }: { location: Location }): Tile {
+    const colors1 = { background: 'brown', foreground: 'red' }
+    const colors2 = { background: 'yellow', foreground: 'yellow' }
+    const colors3 = { background: 'green', foreground: 'green' }
+
+    let color = colors1
+
+    const sum = location.reduce((a, b) => a+b)
+
+    if ( location[0]%5 === 0 && sum % 6 === 0){
+        color = colors2
+    } else if ((location[0]%5 === 0 || location[0]%5 === 1) 
+        && (sum % 6 === 0 || sum % 6 === 1)){
+        color = colors3
+    }
+
+    return {
+        image: () => boxTileImage(color),
+        walkable: true,
+        opaque: false
+    }
+}
+ 
 const l10SupportSkills: Array<keyof typeof SupportSkills | null> = [
     null,
     "MatchColorBlockDestroy",

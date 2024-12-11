@@ -2,11 +2,11 @@ import { FiveDContainer } from "@/components/FiveDContainer";
 import { JSONView } from "@/components/JSONView";
 import { Movement } from "@/components/Movement";
 import { battleStateKey, dungeonStateKey, partiesKey } from "@/constants/GameConstants";
-import { BattleState, completed, fall, lost } from "@/Game/Battle/BattleState";
+import { BattleState, fall, lost } from "@/Game/Battle/BattleState";
 import { toBeastState } from "@/Game/Battle/BeastState";
-import { addLocations, emptyBoard, locationsEqual } from "@/Game/Battle/Board";
+import { addLocations, emptyBoard, hammingDistance, locationsEqual } from "@/Game/Battle/Board";
 import { Beast } from "@/Game/Beasts/Beast";
-import { DungeonState, generateNewDungeonRun, loadDungeon } from "@/Game/Dungeon/DungeonState";
+import { DungeonState, generateNewDungeonRun, loadDungeon, updateSeen } from "@/Game/Dungeon/DungeonState";
 import { Party } from "@/Game/Dungeon/Party";
 import { isBoardSizePassive } from "@/Game/SkillDex/Passive/BoardSize";
 import { PassiveSkills } from "@/Game/SkillDex/Passive/PassiveSkillList";
@@ -20,6 +20,12 @@ import Svg, { Circle, Rect } from "react-native-svg";
 // A bit misleading name - it really is the chance to get a new beast at this cleared location.
 // A respawn would be the same beast again.
 const respawnChance = 0.2
+// Distance around the player that map tiles are loaded
+// When you get to a spot, how far can you see from that spot?
+const renderHammingDistance = 3
+// Distance around the player that already-loaded map tiles are still visible.
+// If you move far from start, eventually we stop showing you the start location.
+const displayHammingDistance = 3
 
 export default function Dungeon({
   initialDungeonState,
@@ -96,34 +102,36 @@ export default function Dungeon({
 
   const elements: Parameters<typeof FiveDContainer>[0]['elements'] = []
   for (const location of dungeonState.seen){
-    let tileComponent = dungeonState.map.getTileAt({location}).image
-    
-    if (locationsEqual(location, dungeonState.location)){
-      tileComponent = <View style={{
-        width: '100%', 
-        height: '100%',
-      }}>
-        {tileComponent}
-        {playerComponent}
-      </View>
+    if (hammingDistance(location, dungeonState.location) < displayHammingDistance){
+      let tileComponent = dungeonState.map.getTileAt({location}).image()
+      
+      if (locationsEqual(location, dungeonState.location)){
+        tileComponent = <View style={{
+          width: '100%', 
+          height: '100%',
+        }}>
+          {tileComponent}
+          {playerComponent}
+        </View>
+      }
+  
+      elements.push({
+        location,
+        component: tileComponent
+      })
     }
-
-    elements.push({
-      location,
-      component: tileComponent
-    })
   }
 
   // Always let people travel in the x direction.
   // Other dimensions are based on what party members are alive.
-  const dimensions = [true, false, false, false, false]
+  const travellableDimensions = [true, false, false, false, false]
 
   for (const array of [dungeonState.party.vanguard, dungeonState.party.support]){
     for (const beastState of array){
       if (beastState.currentHP > 0 && beastState.beast.passiveSkills){
         for (const passive of beastState.beast.passiveSkills){
           if (isBoardSizePassive(passive)){
-            dimensions[passive.dimension] = true
+            travellableDimensions[passive.dimension] = true
           }
         }
       }
@@ -135,10 +143,10 @@ export default function Dungeon({
       <FiveDContainer elements={elements}/>
       <JSONView json={{
         location: dungeonState.location,
-        seen: dungeonState.seen,
+        seen: dungeonState.visited,
       }}/>
       <Movement
-        dimensions={dimensions}
+        dimensions={travellableDimensions}
         moveCallback={(l) => {
           const newLocation = addLocations(dungeonState.location, l)
 
@@ -149,13 +157,14 @@ export default function Dungeon({
                 location: newLocation
             }
 
-            const isNewLocation = newDungeonState.seen.every(l => {
+            const isNewLocation = newDungeonState.visited.every(l => {
               const equal = ! locationsEqual(newLocation, l)
               return equal
             })
 
             if (isNewLocation){
-              newDungeonState.seen.push(newLocation)
+              newDungeonState.visited.push(newLocation)
+              updateSeen(newDungeonState, renderHammingDistance, travellableDimensions)
             }
 
             // Maybe create a battle state & save to async storage
