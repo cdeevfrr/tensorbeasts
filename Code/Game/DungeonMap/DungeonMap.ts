@@ -14,6 +14,7 @@ import { v4 } from "uuid"
 import { beginnerDungeon } from "./BeginnerDungeon";
 import { intermediateDungeon } from "./IntermediateDungeon";
 import { Tile } from "./Tile";
+import { expandingDungeon } from "./ExpandingDungeon";
 
 export interface DungeonMap {
     getBattleAt: ({location}: {location: Location}) => Array<Beast>,
@@ -226,6 +227,7 @@ export function findMap({
     const maps123: Record<string, DungeonMap> = {
         'beginnerDungeon': beginnerDungeon,
         'intermediateDungeon': intermediateDungeon,
+        'expandingDungeon': expandingDungeon,
     }
     
     if (id in maps123){
