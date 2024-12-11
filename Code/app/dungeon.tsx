@@ -19,7 +19,7 @@ import Svg, { Circle, Rect } from "react-native-svg";
 
 // A bit misleading name - it really is the chance to get a new beast at this cleared location.
 // A respawn would be the same beast again.
-const respawnChance = 0.02
+const respawnChance = 0.3
 // Distance around the player that map tiles are loaded
 // When you get to a spot, how far can you see from that spot?
 const renderHammingDistance = 3
