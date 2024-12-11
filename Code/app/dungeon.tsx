@@ -152,6 +152,10 @@ export default function Dungeon({
 
           const asyncBehavior = async () => {
 
+            if (!dungeonState.map.getTileAt({location: newLocation}).walkable){
+              return
+            }
+
             const newDungeonState = {
                 ...dungeonState,
                 location: newLocation
