@@ -16,9 +16,7 @@ export default function Index() {
         <View
             style={styles.container}
         >
-            <View style={{ margin: '2%', backgroundColor: 'white', flex: 1}}>
-                
-                <Text>Background</Text>
+            <Text style={{color: '#fff'}}>Color1</Text>
                 <select 
                 value={background} 
                 onChange={
@@ -30,7 +28,7 @@ export default function Index() {
                     })}
                 </select>
 
-                <Text>Foreground</Text>
+                <Text style={{color: '#fff'}}>Color2</Text>
                 <select 
                 value={foreground} 
                 onChange={
@@ -42,7 +40,7 @@ export default function Index() {
                     })}
                 </select>
 
-                <Text>Border</Text>
+                <Text style={{color: '#fff'}}>Color3</Text>
                 <select 
                 value={border} 
                 onChange={
@@ -54,13 +52,13 @@ export default function Index() {
                     })}
                 </select>
 
+            <View style={{ margin: '2%', backgroundColor: '#25292e', flex: 1, width: 400, alignItems: 'center', justifyContent: 'center'}}>
 
-                <View style={{backgroundColor: 'white', width: 300}}>
+
+                <View style={{backgroundColor: 'white', width: 300, height: 300, borderColor: 'yellow'}}>
 
                     <TimeBaby 
-                        background={background} 
-                        foreground={1} 
-                        border={1}/>
+                        colors={[background, foreground, border]}/>
                 </View>
             </View>
         </View>
@@ -70,7 +68,7 @@ export default function Index() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#25292e',
+        backgroundColor: 'black',
         alignItems: 'center',
         justifyContent: 'center',
     },
