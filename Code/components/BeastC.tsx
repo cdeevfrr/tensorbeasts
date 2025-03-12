@@ -33,7 +33,7 @@ export function BeastC({
                 stroke={beast?"red":GameColors['default'].border}
                 strokeWidth="2"
                 fill={beast?.colors?.[0] ?
-                    GameColors[beast.colors[0]].background 
+                    GameColors[beast.colors[0] as keyof typeof GameColors].background 
                     : GameColors['default'].background}
             />
         </Svg>

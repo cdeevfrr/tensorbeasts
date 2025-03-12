@@ -25,7 +25,7 @@ export function BlockC({
 
 function BlockSVG ({block}: {block: Block | null}) {
     const colors = block && block.color in GameColors ? 
-        GameColors[block.color] :
+        GameColors[block.color as keyof typeof GameColors] :
         GameColors.default
     return <Svg viewBox="0 0 100 100">
         <Circle

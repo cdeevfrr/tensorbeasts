@@ -40,7 +40,7 @@ export function BeastStateC({
             stroke="red"
             strokeWidth="2"
             fill={beast.beast.colors?.[0] ?
-                GameColors[beast.beast.colors[0]].background 
+                GameColors[beast.beast.colors[0] as keyof typeof GameColors].background 
                 : GameColors['default'].background}
         />
 
@@ -105,7 +105,7 @@ export function BeastStateC({
             return <Text 
               x="20" 
               y={"" + (40 + index * 5)}
-              fill={atk.match.color? GameColors[atk.match.color].border: "black"}
+              fill={atk.match.color? GameColors[atk.match.color as keyof typeof GameColors].border: "black"}
               key={index}>
                 {preDefDamage > 1000? preDefDamage.toExponential() : preDefDamage}
             </Text>
