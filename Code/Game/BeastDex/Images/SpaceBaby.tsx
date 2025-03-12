@@ -10,6 +10,12 @@ export function SpaceBaby({
     const color2 = colors[1] || color1
     const color3 = colors[2] || color2
     const color4 = colors[3] || color3
+
+    // Ruler marks use a background color if colors are different, to make
+    // things stand out. However, they should use a border color if color4 == color1
+    const rulerMarkColor = color1 === color4 ? 
+      GameColors[color4].border:
+      GameColors[color4].background
     return (
         // Settings when building this on boxy-svg.com:
         // viewBox="0 0 500 500"
@@ -46,19 +52,19 @@ export function SpaceBaby({
             {/* Ruler marks */}
             <Line 
             x1="319.142" y1="278.361" x2="273.253" y2="278.37"
-            stroke={GameColors[color4].background}
+            stroke={rulerMarkColor}
             strokeWidth="3"/>
             <Line 
             x1="318.394" y1="323.245" x2="272.505" y2="323.254"
-            stroke={GameColors[color4].background}
+            stroke={rulerMarkColor}
             strokeWidth="3"/>
             <Line 
             x1="317.675" y1="301.269" x2="302.599" y2="301.449"
-            stroke={GameColors[color4].background}
+            stroke={rulerMarkColor}
             strokeWidth="3"/>
             <Line 
             x1="317.743" y1="347.267" x2="302.666" y2="347.447"
-            stroke={GameColors[color4].background}
+            stroke={rulerMarkColor}
             strokeWidth="3"/>
 
             {/* Head outline */}
