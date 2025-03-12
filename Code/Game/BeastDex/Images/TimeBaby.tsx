@@ -13,7 +13,7 @@ export function TimeBaby({
     return (
         // Settings when building this on boxy-svg.com:
         // viewBox="152.591 292.327 113.929 87.225" width="113.929px" height="87.225px"
-        <Svg viewBox="145 235 150 160">
+        <Svg viewBox="145 235 155 155">
             {/* Body */}
             <Ellipse
                 fill={GameColors[color1].background}
