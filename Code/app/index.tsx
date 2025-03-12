@@ -28,6 +28,9 @@ export default function Index() {
       </Pressable>
       <Collapsible collapsed={isCollapsed}>
         <View style={styles.container}>
+        <Link href="/imageviewing" style={styles.button}>
+          Test Images
+        </Link>
         <Button 
             title="Add custom beast to box"
             onPress={() => addCustomBeastToBox()}
