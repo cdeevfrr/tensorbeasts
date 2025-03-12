@@ -1,12 +1,13 @@
 import { boxKey, dungeonStateKey } from "@/constants/GameConstants";
-import { BattleState } from "@/Game/Battle/BattleState";
+import { BattleState, findBeast, rewardExp } from "@/Game/Battle/BattleState";
 import { Beast, expForNextLevel, levelUp } from "@/Game/Beasts/Beast"
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { router } from "expo-router";
-import { Button, Modal, StyleSheet, View, Text } from "react-native";
+import { router, useFocusEffect } from "expo-router";
+import { Button, Modal, StyleSheet, View, Text, Animated } from "react-native";
 import { BeastRowC } from "./BeastRowC";
 import { DungeonState } from "@/Game/Dungeon/DungeonState";
-import { BeastC } from "./BeastC";
+import React, { useRef } from "react";
+import { BeastLevelView, LeveledBeast } from "./BeastLevelView";
 
 export function BattleOverModal({
     visible,
@@ -15,17 +16,50 @@ export function BattleOverModal({
     visible: boolean,
     battleState: BattleState
 }){
+  const animationPercentage = useRef(new Animated.Value(0));
+
+  const rewardedState = rewardExp(battleState)
+
+  const leveledBeasts: Array<LeveledBeast> = []
+  for (const array of [
+    rewardedState.playerParty.support,
+    rewardedState.playerParty.core,
+    rewardedState.playerParty.vanguard
+  ]){
+    for (const beast of array){
+      const prevBeast = findBeast(battleState, beast)
+      if (prevBeast){
+        if (prevBeast.beast.level != beast.beast.level){
+          leveledBeasts.push({prev: prevBeast.beast, new: beast.beast})
+        }
+      }
+    }
+  }
+
   const completed = () => {
     const saveState = async () => {
       console.log("Saving state")
-      await saveRewards(battleState);
-      await savePartyToDungeon(battleState);
+      await saveBeastRewardsToBox(rewardedState);
+      await savePartyToDungeon(rewardedState);
       console.log("Saved state")
       router.navigate('/dungeon');
     }
 
     saveState().catch(console.error)
   }
+
+  useFocusEffect(React.useCallback(() => {
+    animationPercentage.current.resetAnimation()
+
+    Animated.timing(
+      animationPercentage.current,
+      {
+        toValue: 1,
+        useNativeDriver: false,
+        duration: 2000,
+      }
+    )
+  }, []))
 
   return <Modal
       transparent={true}
@@ -38,15 +72,19 @@ export function BattleOverModal({
 
           <Text>Rewards: </Text>
           <Text>EXP: {battleState.expReward}</Text>
-            {/* {battleState.beastDrops && battleState.beastDrops.map(beast => {
-              return <BeastC
-                beast={beast}
-                beastClickCallback={() => {}}
-                key={beast.uuid}
-              />
-            })} */}
+
+          {leveledBeasts.length > 0 && <View style={{height: 100, width: 400}}>
+            <Text>{leveledBeasts.length} beast(s) leveled up!</Text>
+            <View style={{flex: 1, flexDirection: 'row', justifyContent: 'flex-start'}}>
+              {leveledBeasts.map((leveledBeast) => {
+                return <BeastLevelView leveledBeast={leveledBeast}/>
+              }) }
+            </View>
+          </View>}
+
           {battleState.beastDrops && 
           <View style={{ height: 100, width: 400 }}>
+            <Text>Drops sent to the box</Text>
             <BeastRowC
               beasts={battleState.beastDrops}
               beastClickCallback={() => { }}
@@ -59,7 +97,7 @@ export function BattleOverModal({
 
 // DON'T export this!
 // it's kinda hacky for the modal to go to storage like this.
-async function saveRewards(battleState: BattleState){
+async function saveBeastRewardsToBox(battleState: BattleState){
     // Load box
     const boxString = await AsyncStorage.getItem(boxKey) || '[]'
     const box = JSON.parse(boxString) as Array<Beast>

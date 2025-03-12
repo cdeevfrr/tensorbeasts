@@ -1,5 +1,5 @@
 import { v4 } from "uuid"
-import { Beast, calcExpReward, calculateDrop } from "../Beasts/Beast"
+import { Beast, calcExpReward, calculateDrop, expForNextLevel, levelUp } from "../Beasts/Beast"
 import { beastAt, Party } from "../Dungeon/Party"
 import { CoreAttackSkills } from "../SkillDex/Core/CoreAttack/CoreAttackList"
 import { SupportSkill } from "../SkillDex/Support/SupportSkill"
@@ -430,4 +430,41 @@ export function findNextAttacker(battleState: BattleState){
         }
     }
     return null
+}
+
+
+/**
+ * Award the current expReward to all alive player beasts;
+ * return the new battle state.
+ * 
+ * Note that other functions must then save the updated beast data to 
+ * long term storage (both box data & current dungeon run data)
+ * @param battleState 
+ */
+export function rewardExp(battleState: BattleState) {
+    const newBattleState = JSON.parse(JSON.stringify(battleState)) as BattleState
+    for (const array of [
+        newBattleState.playerParty.vanguard,
+        newBattleState.playerParty.core,
+        newBattleState.playerParty.support
+    ]) {
+        for (let i = 0; i < array.length; i++) {
+            const beast = array[i]
+            if (beast.currentHP > 0) {
+                if (!beast.beast.growthDetails) {
+                    throw new Error("Beasts in the box should have growth details.")
+                }
+
+                beast.beast.growthDetails.experience += newBattleState.expReward || 0
+                // TODO: Get rid of the ?.experience here. Need to rejigger types to fix this.
+                while (beast.beast.growthDetails?.experience || 0 > expForNextLevel({ beast: beast.beast })) {
+                    const newBaseBeast = levelUp({ beast: beast.beast })
+                    const hpIncrease = newBaseBeast.baseHP - beast.beast.baseHP
+                    array[i].beast = newBaseBeast
+                    array[i].currentHP += hpIncrease
+                }
+            }
+        }
+    }
+    return newBattleState
 }
