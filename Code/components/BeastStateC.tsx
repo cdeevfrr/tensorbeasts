@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Pressable, View, StyleSheet } from "react-native";
 import Svg, { Rect, Text } from "react-native-svg";
 import { BeastDetailModal } from "./BeastDetailModal";
+import { lookupSVG } from "@/Game/BeastDex/Images";
 
 export function BeastStateC({
     beast,
@@ -19,6 +20,8 @@ export function BeastStateC({
     const maxCharge = beast.beast.supportSkills
         .map(skill => skill.chargeRequirement)
         .reduce((a, b) => Math.max(a, b), 0)
+
+    const beastSVG = lookupSVG(beast.beast)
     
     return <View style={minimize? StyleSheet.flatten([styles.container, {maxWidth: 30} ]): styles.container}>
         <Pressable 
@@ -27,23 +30,13 @@ export function BeastStateC({
         onLongPress={() => {
             setShowDetail(true)
         }}>
+
+    {beastSVG}
+
     <Svg 
-        style={styles.svg}
+        style={{position: 'absolute', height: '100%'}}
         viewBox="0 0 100 100"
     >
-        {/* <Rect width='100%' height='100%' fill='yellow'></Rect> */}
-        <Rect 
-            x="0"
-            y="0"
-            width="98"
-            height="98"
-            stroke="red"
-            strokeWidth="2"
-            fill={beast.beast.colors?.[0] ?
-                GameColors[beast.beast.colors[0] as keyof typeof GameColors].background 
-                : GameColors['default'].background}
-        />
-
         {/* Health bar */}
         <Rect
             x="5"

@@ -19,7 +19,7 @@ export function SpaceBaby({
     return (
         // Settings when building this on boxy-svg.com:
         // viewBox="0 0 500 500"
-        <Svg viewBox="75 90 300 300" width='100%' height='100%'>
+        <Svg viewBox="75 90 300 300">
             {/* Body & tail fill */}
             <Rect x="228.724" y="159.197" width="121.407" height="91.996" 
               fill={GameColors[color1].background}
