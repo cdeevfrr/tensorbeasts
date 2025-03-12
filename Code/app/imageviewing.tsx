@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { View, StyleSheet, Text } from "react-native";
-import { TimeBaby } from "@/Game/BeastDex/Images/TimeBaby";
+import { SpaceBaby } from "@/Game/BeastDex/Images/SpaceBaby";
 import { GameColors } from "@/constants/GameColors";
 
 
@@ -57,7 +57,7 @@ export default function Index() {
 
                 <View style={{backgroundColor: 'white', width: 300, height: 300, borderColor: 'yellow'}}>
 
-                    <TimeBaby 
+                    <SpaceBaby 
                         colors={[background, foreground, border]}/>
                 </View>
             </View>
