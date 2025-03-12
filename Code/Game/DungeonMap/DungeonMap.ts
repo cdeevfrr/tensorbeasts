@@ -104,8 +104,9 @@ export function generateBeast({
         colors: [],
         numbers: []
     }
-    // All single-color beasts for now.
-    const colorCount = 1
+    // Color count should become the responsiblity of the map eventually
+    // Probably generate without colors and let the map decide what colors to add.
+    const colorCount = 3
     for (let i = 0; i < colorCount; i++){
         // Quick hack to give 1/2 of all beasts a color.
         const color = randInt({min: -maxColor, maxExclusive: maxColor + 1})
