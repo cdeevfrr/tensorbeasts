@@ -1,7 +1,7 @@
 // Form a group of just the bottom block if that block is the correct color. 
 
 import { accessLocation } from "@/Game/Battle/Board";
-import { GroupSkillBlueprint } from "./CoreGroupSkillBlueprint";
+import { GroupSkillBlueprint } from "../CoreGroupSkillBlueprint";
 
 export const GroupOneColor: GroupSkillBlueprint = {
     factory: () => {

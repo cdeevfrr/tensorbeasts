@@ -4,8 +4,8 @@
 // Higher quality versions of this skill will have lower threshold.
 
 import { countBlocksDestroyed, DestroyEvent } from "@/Game/Battle/DestroyEvent"
-import { CoreAttackSkill } from "./CoreAttackSkill"
-import { CoreAttackSkillBlueprint } from "./CoreAttackSkillBlueprint"
+import { CoreAttackSkill } from "../CoreAttackSkill"
+import { CoreAttackSkillBlueprint } from "../CoreAttackSkillBlueprint"
 import { createPowerSpread } from "@/Game/Battle/PowerSpread"
 
 export const CountAttack: CoreAttackSkillBlueprint = {

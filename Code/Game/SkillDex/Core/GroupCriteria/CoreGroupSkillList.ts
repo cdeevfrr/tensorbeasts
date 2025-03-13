@@ -1,5 +1,5 @@
-import { ContinuousThreeGroup } from "./Continuous";
-import { GroupOneColor } from "./GroupOneColor";
+import { ContinuousThreeGroup } from "./Dex/Continuous";
+import { GroupOneColor } from "./Dex/GroupOneColor";
 
 export const CoreGroupSkills = {
     "ContinuousThree": ContinuousThreeGroup,

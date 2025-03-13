@@ -1,5 +1,5 @@
-import { MatchColorBlockDestroy } from "./MatchColorBlockDestroy";
-import { SingleBlockDestroy } from "./SingleBlockDestroy";
+import { MatchColorBlockDestroy } from "./Dex/MatchColorBlockDestroy";
+import { SingleBlockDestroy } from "./Dex/SingleBlockDestroy";
 
 export const SupportSkills = {
     "MatchColorBlockDestroy": MatchColorBlockDestroy,

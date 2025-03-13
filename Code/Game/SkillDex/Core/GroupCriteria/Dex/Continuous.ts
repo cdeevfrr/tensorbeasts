@@ -2,9 +2,9 @@
 // color/number/shape is of size greater than (quality).
 
 import { accessLocation, Location, locationsIter } from "@/Game/Battle/Board";
-import { GroupSkillBlueprint } from "./CoreGroupSkillBlueprint";
+import { GroupSkillBlueprint } from "../CoreGroupSkillBlueprint";
 import { doesMatch, Match } from "@/Game/Beasts/Match";
-import * as GroupingUtil from "./GroupingUtils";
+import * as GroupingUtil from "../GroupingUtils";
 
 
 export const ContinuousThreeGroup: GroupSkillBlueprint = {

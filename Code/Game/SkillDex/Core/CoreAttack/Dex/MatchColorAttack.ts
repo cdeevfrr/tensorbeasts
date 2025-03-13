@@ -2,7 +2,7 @@
 // Power is that number divided by 5, for each color.
 
 import { createPowerSpread } from "@/Game/Battle/PowerSpread";
-import { CoreAttackSkillBlueprint } from "./CoreAttackSkillBlueprint";
+import { CoreAttackSkillBlueprint } from "../CoreAttackSkillBlueprint";
 import { maxColor } from "@/constants/GameColors";
 import { accessLocation, locationsIter } from "@/Game/Battle/Board";
 

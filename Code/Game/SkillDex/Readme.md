@@ -1,6 +1,6 @@
 # What's this folder?
 
-Skills are split into Support, Vanguard, Core.grouping & Core.attack .
+Skills are split into Support, Vanguard, Core.grouping & Core.attack, and Passive.
 
 Because we want to make it easy to create new skills, we made a framework for skills to work with. You have to understand this framework to understand the code in these directories.
 

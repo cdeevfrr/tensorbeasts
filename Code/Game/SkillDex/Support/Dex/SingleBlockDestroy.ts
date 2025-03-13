@@ -1,6 +1,6 @@
 import { destroyBlocks } from "@/Game/Battle/BattleState"
-import { SkillBlueprint } from "./SupportSkillBlueprint"
-import { setupContinue } from "./SupportSkill"
+import { SkillBlueprint } from "../SupportSkillBlueprint"
+import { setupContinue } from "../SupportSkill"
 
 export const SingleBlockDestroy: SkillBlueprint = {
     factory: ({quality}) => {

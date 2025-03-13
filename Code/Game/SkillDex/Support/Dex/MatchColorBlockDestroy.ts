@@ -1,7 +1,7 @@
 import { accessLocation } from "@/Game/Battle/Board"
-import { SkillBlueprint } from "./SupportSkillBlueprint"
+import { SkillBlueprint } from "../SupportSkillBlueprint"
 import { destroyBlocks } from "@/Game/Battle/BattleState"
-import { setupContinue } from "./SupportSkill"
+import { setupContinue } from "../SupportSkill"
 
 
 export const MatchColorBlockDestroy: SkillBlueprint = {
