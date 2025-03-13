@@ -7,15 +7,16 @@ import { doesMatch, Match } from "@/Game/Beasts/Match";
 import * as GroupingUtil from "../GroupingUtils";
 
 
-export const ContinuousThreeGroup: GroupSkillBlueprint = {
+export const ContinuousThreeGroup: GroupSkillBlueprint<never, {}>= {
     factory: () => {
         return {
             name: "Exactly 3, same color, touching (no diagonals)",
-            type: "ContinuousThree"
-            // TODO: matcher: ["color"] or ["color", "shape"] or ["number", "shape"] or similar.
+            payload: {
+                // TODO: matcher: ["color"] or ["color", "shape"] or ["number", "shape"] or similar.
+            }
         }
     },
-    nextGroup: (self, board) => {
+    nextGroup: ({board}) => {
         const seen = new Set<Location>()
 
         for (const location of locationsIter(board)){

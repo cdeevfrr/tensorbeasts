@@ -185,7 +185,10 @@ export default function BattleScreen({
 
       const animateStates = [battleState]
 
-      let nextGroup = skillBlueprint.nextGroup(serializedSkill, animateStates[animateStates.length - 1].board)
+      let nextGroup = skillBlueprint.nextGroup({
+        payload: serializedSkill.payload, 
+        board: animateStates[animateStates.length - 1].board
+      })
       while (nextGroup) {
         animateStates.push(destroyBlocks({
           battleState: animateStates[animateStates.length - 1], 
@@ -193,7 +196,10 @@ export default function BattleScreen({
           clone: true,
           shouldFall: false,
         }))
-        nextGroup = skillBlueprint.nextGroup(serializedSkill, animateStates[animateStates.length - 1].board)
+        nextGroup = skillBlueprint.nextGroup({
+          payload: serializedSkill.payload, 
+          board: animateStates[animateStates.length - 1].board
+      })
       }
 
       if (animateStates.length === 1){

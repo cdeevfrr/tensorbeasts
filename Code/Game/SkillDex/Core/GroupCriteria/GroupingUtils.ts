@@ -8,7 +8,8 @@ import { accessLocation, addLocations, Board, boardDimension, Location, negateLo
 // It would be better to take in a board, and divide it into
 // all groups at once (eg, make a list of pending groups; for each 
 // location in the board, add the location to the pending group it
-// should be added to; else make a new pending group for it. Return
+// should be added to; else make a new pending group for it. 
+// (Does this handle U shaped groups?) Return
 // all pending groups)
 // That would be O(board size), instead of the current O(200 * boardSize)
 

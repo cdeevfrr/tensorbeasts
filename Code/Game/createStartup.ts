@@ -76,6 +76,7 @@ const initialBox: Array<Beast> = [
       coreGroupSkill: {
         name: "Continuous group manual",
         type: "ContinuousThree",
+        payload: {},
       },
       coreAttackSkill: {
         ...CoreAttackSkills.CountAttack.factory({ quality: 1 }),
@@ -183,7 +184,8 @@ const customBeast: Beast = {
   supportSkills: [],
   coreGroupSkill: {
     name: "Continuous group manual",
-    type: 'ContinuousThree'
+    type: 'ContinuousThree',
+    payload: {},
   },
   passiveSkills: [
     {

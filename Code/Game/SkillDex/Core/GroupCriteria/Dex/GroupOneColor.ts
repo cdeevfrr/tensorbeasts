@@ -3,14 +3,14 @@
 import { accessLocation } from "@/Game/Battle/Board";
 import { GroupSkillBlueprint } from "../CoreGroupSkillBlueprint";
 
-export const GroupOneColor: GroupSkillBlueprint = {
+export const GroupOneColor: GroupSkillBlueprint<never, {}>= {
     factory: () => {
         return {
             name: "Groups of color 1",
-            type: "GroupOneColor",
+            payload: {}
         }
     },
-    nextGroup: (self, board) => {
+    nextGroup: ({board}) => {
         // To find a match:
         // Scan by locationsIter (x=0 first)
         // Given a particular block, expand it contiguously.
