@@ -384,9 +384,10 @@ export default function BattleScreen({
         }}
         visible={attackFlowState.coreBeast !== undefined}
       />}
-      <BattleOverModal
-        visible={won(battleState)}
-        battleState = {battleState}/>
+      {won(battleState) && // This check prevents calculating levelups every render.
+        <BattleOverModal
+          visible={won(battleState)}
+          battleState = {battleState}/>}
       {lost(battleState) && <DiedModal visible={true}/>}
     </View>
   );
