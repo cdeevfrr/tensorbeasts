@@ -2,7 +2,7 @@
 import { Modal, View, StyleSheet, Button, Text } from 'react-native';
 import { BeastState } from '../Game/Battle/BeastState'
 import { BeastStateC } from './BeastStateC';
-import { Beast } from '@/Game/Beasts/Beast';
+import { Beast, expForNextLevel } from '@/Game/Beasts/Beast';
 import { JSONView } from './JSONView';
 import { BeastC } from './BeastC';
 
@@ -15,6 +15,8 @@ export function BeastDetailModal({
     beast: BeastState | Beast | null,
     visible: boolean,
 }){
+    const underlying = beast && isBeastState(beast)? beast.beast : beast
+
     return <Modal
         transparent={false}
         visible={visible}
@@ -24,14 +26,18 @@ export function BeastDetailModal({
           <View style={styles.centeredView}>
           <View style={styles.modalView}>
             {
-                beast && isBeastState(beast)? 
-                <BeastStateC 
-                  beast={beast}
-                  beastClickCallback={() => {}}/>:
-                <BeastC
-                  beast={beast}
-                  beastClickCallback={() => {}}/>
+                beast && <View style={{flexDirection: 'row', height: '20%'}}> 
+                  {isBeastState(beast)? 
+                  <BeastStateC 
+                    beast={beast}
+                    beastClickCallback={() => {}}/>:
+                  <BeastC
+                    beast={beast}
+                    beastClickCallback={() => {}}/>
+                  }
+                </View>
             }
+            {beast && <Text>EXP to next level: {expForNextLevel({beast: underlying!})}</Text>}
             <JSONView json={beast}/>
             <Button onPress={()=> {
               onRequestClose();
@@ -47,13 +53,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 22
   },
   modalView: {
-    margin: 20,
+    margin: '2%',
     backgroundColor: "white",
     borderRadius: 5,
-    padding: 35,
+    padding: '4%',
     alignItems: "center",
     shadowColor: "#000",
     shadowOffset: {
@@ -64,6 +69,8 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
     maxHeight: '90%',
+    flex: 1,
+    justifyContent: 'center'
   },
 })
 
