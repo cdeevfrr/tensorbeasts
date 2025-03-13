@@ -52,13 +52,16 @@ export default function Index() {
                     })}
                 </select>
 
-            <View style={{ margin: '2%', backgroundColor: '#25292e', flex: 1, width: 400, alignItems: 'center', justifyContent: 'center'}}>
-
-
-                <View style={{backgroundColor: 'white', width: 300, height: 300, borderColor: 'yellow'}}>
-
-                    <SpaceBaby 
-                        colors={[background, foreground, border]}/>
+            <View style={{ margin: '2%', backgroundColor: '#25292e', flex: 1, width: 500, alignItems: 'center', justifyContent: 'center'}}>
+                <View style={{flex: 1, flexDirection: 'row', alignItems: 'center', }}>
+                    <View style={{backgroundColor: 'white', width: 300, height: 300, borderColor: 'yellow'}}>
+                        <SpaceBaby 
+                            colors={[background, foreground, border]}/>
+                    </View>
+                    <View style={{backgroundColor: 'white', width: 100, height: 100, borderColor: 'yellow'}}>
+                        <SpaceBaby 
+                            colors={[background, foreground, border]}/>
+                    </View>
                 </View>
             </View>
         </View>

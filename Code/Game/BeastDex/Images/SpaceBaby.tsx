@@ -21,10 +21,14 @@ export function SpaceBaby({
         // viewBox="0 0 500 500"
         <Svg viewBox="75 90 300 300">
             {/* Body & tail fill */}
-            <Rect x="228.724" y="159.197" width="121.407" height="91.996" 
+            <Rect 
+              x="228.724" 
+              y="159" 
+              width="121.407" 
+              height="93" // This height intentionaly overlaps the body below it. Otherwise, some screen sizes make a pale line between the rects at the neck of the snake.
               fill={GameColors[color1].background}
               />
-            <Rect x="149.312" y="250.8" width="171.035" height="119.772" 
+            <Rect x="149.312" y="251" width="171.035" height="120" 
               fill={GameColors[color1].background}
               />
             <Polygon points="149.574,332.157 149.574,359.118 86.887,359.118" 
