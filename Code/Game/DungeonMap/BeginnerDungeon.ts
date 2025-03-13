@@ -8,6 +8,7 @@ import { PassiveSkill } from "../SkillDex/Passive/PassiveSkill";
 import { BoardSize } from "../SkillDex/Passive/Dex/BoardSize";
 import { boxTileImage } from "./Images";
 import { Tile } from "./Tile";
+import { v4 } from "uuid";
 
 
 export const beginnerDungeon : DungeonMap = {
@@ -48,6 +49,7 @@ function getBattleAt({location}:{location: Location}): Array<Beast>{
                 })
                 nextBeast.supportSkills = [{
                     ...generatedSupportSkill,
+                    id: v4(),
                     type: supportSkillType,
                 }]
             }

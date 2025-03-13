@@ -186,7 +186,11 @@ export function generateBlock(battleState: BattleState): Block{
 }
 
 export function useSkill(battleState: BattleState, beast: BeastState, skill: SupportSkill): BattleState{
-    const newState = SupportSkills[skill.type].execute(skill, battleState, beast, {})
+    const newState = SupportSkills[skill.type].execute({
+        selfId: skill.id, 
+        battleState, 
+        caller: beast, 
+        payload: skill.payload})
     const newBeast = findBeast(newState, beast)
     if (newBeast){
         newBeast.currentCharge -= skill.chargeRequirement
@@ -209,7 +213,13 @@ export function continueSkill(
         return result
     }
 
-    return blueprint.continue(skill, battleState, beast, selected)
+    return blueprint.continue({
+        selfId: skill.id,
+        payload: skill.payload,
+        battleState, 
+        caller: beast, 
+        selection: selected
+    })
 }
 
 // Used when you cloned a battleState and want to find the new Beast JSON that

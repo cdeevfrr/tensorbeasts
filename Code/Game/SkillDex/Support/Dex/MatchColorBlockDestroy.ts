@@ -4,17 +4,18 @@ import { destroyBlocks } from "@/Game/Battle/BattleState"
 import { setupContinue } from "../SupportSkill"
 
 
-export const MatchColorBlockDestroy: SkillBlueprint = {
+export const MatchColorBlockDestroy: SkillBlueprint<{quality: number}, {}> = {
     factory: ({quality}) => {
         return {
             chargeRequirement: 60 / quality,
             name: "Destroy Color",
+            payload: {},
         }
     },
-    execute: (self, battleState, caller, props) => {
-        return setupContinue(self, battleState, caller)
+    execute: ({payload, selfId, battleState, caller}) => {
+        return setupContinue(selfId, battleState, caller)
     },
-    continue: (self, battleState, caller, selection ) => {
+    continue: ({selfId, battleState, caller, selection}) => {
         const result = {
             ...battleState
         }

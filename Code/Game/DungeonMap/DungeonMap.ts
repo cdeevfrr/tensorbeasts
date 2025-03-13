@@ -189,6 +189,7 @@ function generateAndAddDefaultSkills({
             }
             beast.supportSkills.push({
                 ...generatedSupportSkill,
+                id: v4(),
                 type: supportSkillType,
             })
         }

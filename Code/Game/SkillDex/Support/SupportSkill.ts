@@ -8,18 +8,19 @@ export interface SupportSkill {
     chargeRequirement: number,
     name: string,
     type: keyof typeof SupportSkills, // TODO: Fix circular imports here?
+    id: string,
+    payload: any,
 }
 
 // A useful function that many skills use if they just want a block & then to continue.
-export function setupContinue(self: SupportSkill, battleState: BattleState, caller: BeastState) {
+// See the comment on SupportSkillBlueprint.continue?
+export function setupContinue(selfId: string, battleState: BattleState, caller: BeastState) {
     const newBattleState = {
         ...battleState
     }
     const skillNum = caller.beast.supportSkills.findIndex(x => 
         // TODO: Aught to have a way to guarantee uniqueness of skills.
-        self.chargeRequirement === x.chargeRequirement &&
-        self.name === x.name &&
-        self.type === x.type
+        x.id === selfId
     )
     if (skillNum === -1){
         throw new Error(

@@ -8,6 +8,7 @@ import { CoreAttackSkills } from "./SkillDex/Core/CoreAttack/CoreAttackList";
 import { SupportSkills } from "./SkillDex/Support/SupportSkillList";
 import { boxKey, partiesKey } from "@/constants/GameConstants";
 import { PartyPlan } from "./Beasts/PartyPlan";
+import { v4 } from "uuid";
 
 // All functions should operate very carefully to ensure you don't delete data
 // if there's already data at that spot.
@@ -102,6 +103,7 @@ const initialBox: Array<Beast> = [
     
       supportSkills: [{
         ...SupportSkills.SingleBlockDestroy.factory({quality: 2}),
+        id: v4(),
         type: "SingleBlockDestroy"
       }],
     },{ uuid: '736c475e-e3db-4ef6-aefe-ce245cfaa687',
@@ -127,10 +129,12 @@ const initialBox: Array<Beast> = [
       supportSkills: [
         {
           ...SupportSkills.SingleBlockDestroy.factory({quality: 2}),
+          id: v4(),
           type: "SingleBlockDestroy"
         },
         {
           ...SupportSkills.MatchColorBlockDestroy.factory({quality: 2}),
+          id: v4(),
           type: "MatchColorBlockDestroy"
         }],
     }
