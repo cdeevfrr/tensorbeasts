@@ -262,7 +262,7 @@ export function processBeastAttack({
     attacker: BeastState,
     battleState: BattleState,
 }): BattleState {
-    console.log("Processing beast " + attacker.beast.uuid)
+    console.log("Processing beast attacks for " + attacker.beast.uuid)
 
     // collect 'attacks' & return early if needed.
 
@@ -449,17 +449,20 @@ export function rewardExp(battleState: BattleState) {
         newBattleState.playerParty.support
     ]) {
         for (let i = 0; i < array.length; i++) {
-            const beast = array[i]
-            if (beast.currentHP > 0) {
-                if (!beast.beast.growthDetails) {
+            if (array[i].currentHP > 0) {
+                if (!array[i].beast.growthDetails) {
                     throw new Error("Beasts in the box should have growth details.")
                 }
 
-                beast.beast.growthDetails.experience += newBattleState.expReward || 0
-                // TODO: Get rid of the ?.experience here. Need to rejigger types to fix this.
-                while (beast.beast.growthDetails?.experience || 0 > expForNextLevel({ beast: beast.beast })) {
-                    const newBaseBeast = levelUp({ beast: beast.beast })
-                    const hpIncrease = newBaseBeast.baseHP - beast.beast.baseHP
+                // TODO: Get rid of the !.experience here. Need to rejigger types to fix this.
+                array[i].beast.growthDetails!.experience += newBattleState.expReward || 0
+                while ((array[i].beast.growthDetails!.experience || 0) > expForNextLevel({ beast: array[i].beast })) {
+                    console.log(
+                        "Leveling up " + array[i].beast.uuid 
+                        + "; current exp " + array[i].beast.growthDetails!.experience
+                        + "; needed exp " + expForNextLevel({ beast: array[i].beast }))
+                    const newBaseBeast = levelUp({ beast: array[i].beast })
+                    const hpIncrease = newBaseBeast.baseHP - array[i].beast.baseHP
                     array[i].beast = newBaseBeast
                     array[i].currentHP += hpIncrease
                 }
