@@ -5,7 +5,7 @@ import { PassiveSkill } from "./PassiveSkill";
 import { PassiveBlueprint } from "./PassiveSkillBlueprint";
 import { generateBlock } from "@/Game/Battle/BattleState";
 
-export const BoardSize: PassiveBlueprint = {
+export const BoardSize = {
     factory: ({
         quality, 
         dimension = 1,
@@ -48,7 +48,7 @@ export const BoardSize: PassiveBlueprint = {
                 self.dimension)
         }
     }
-}
+} as const satisfies PassiveBlueprint
 
 type BoardSize = PassiveSkill & {
     dimension: boardDimension,
