@@ -1,4 +1,4 @@
-import { BoardSize } from "./BoardSize";
+import { BoardSize } from "./Dex/BoardSize";
 
 export const PassiveSkills = {
     "BoardSize": BoardSize

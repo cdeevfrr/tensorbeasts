@@ -8,7 +8,7 @@ import { addLocations, emptyBoard, maxDistance, locationsEqual } from "@/Game/Ba
 import { Beast } from "@/Game/Beasts/Beast";
 import { DungeonState, generateNewDungeonRun, loadDungeon, updateSeen } from "@/Game/Dungeon/DungeonState";
 import { Party } from "@/Game/Dungeon/Party";
-import { isBoardSizePassive } from "@/Game/SkillDex/Passive/BoardSize";
+import { isBoardSizePassive } from "@/Game/SkillDex/Passive/Dex/BoardSize";
 import { PassiveSkills } from "@/Game/SkillDex/Passive/PassiveSkillList";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Link, router, useFocusEffect, useLocalSearchParams } from "expo-router";
@@ -131,7 +131,7 @@ export default function Dungeon({
       if (beastState.currentHP > 0 && beastState.beast.passiveSkills){
         for (const passive of beastState.beast.passiveSkills){
           if (isBoardSizePassive(passive)){
-            travellableDimensions[passive.dimension] = true
+            travellableDimensions[passive.payload.dimension] = true
           }
         }
       }
@@ -259,7 +259,7 @@ function makeNewBattle({party, enemies}:{party: Party, enemies: Array<Beast>}): 
           const skillType = PassiveSkills[passiveSkill.type]
           if (skillType.activate){
             skillType.activate(
-              passiveSkill,
+              passiveSkill.payload,
               passivesActivated,
               beast
             )

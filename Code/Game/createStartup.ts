@@ -8,7 +8,6 @@ import { CoreAttackSkills } from "./SkillDex/Core/CoreAttack/CoreAttackList";
 import { SupportSkills } from "./SkillDex/Support/SupportSkillList";
 import { boxKey, partiesKey } from "@/constants/GameConstants";
 import { PartyPlan } from "./Beasts/PartyPlan";
-import { PassiveSkill } from "./SkillDex/Passive/PassiveSkill";
 
 // All functions should operate very carefully to ensure you don't delete data
 // if there's already data at that spot.
@@ -186,15 +185,19 @@ const customBeast: Beast = {
     {
       name: "Custom boardSize skill",
       type: "BoardSize",
-      toAdd: 1,
-      dimension: 1,
-    } as PassiveSkill,
+      payload: { 
+        toAdd: 1,
+        dimension: 1,
+      }
+    },
     {
       name: "Custom boardSize skill 2",
       type: "BoardSize",
-      toAdd: 1,
-      dimension: 2,
-    } as PassiveSkill,
+      payload: {
+        toAdd: 1,
+        dimension: 2,
+      }
+    },
     // {
     //   name: "Custom boardSize skill 3",
     //   type: "BoardSize",

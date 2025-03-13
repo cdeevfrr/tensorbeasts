@@ -5,7 +5,7 @@ import { randChoice, randInt } from "../util";
 import { SupportSkills } from "../SkillDex/Support/SupportSkillList";
 import { CoreAttackSkills } from "../SkillDex/Core/CoreAttack/CoreAttackList";
 import { PassiveSkill } from "../SkillDex/Passive/PassiveSkill";
-import { BoardSize } from "../SkillDex/Passive/BoardSize";
+import { BoardSize } from "../SkillDex/Passive/Dex/BoardSize";
 import { boxTileImage } from "./Images";
 import { Tile } from "./Tile";
 

@@ -1,6 +1,6 @@
 import { Location } from "../Battle/Board";
 import { Beast } from "../Beasts/Beast";
-import { BoardSize } from "../SkillDex/Passive/BoardSize";
+import { BoardSize } from "../SkillDex/Passive/Dex/BoardSize";
 import { randChoice } from "../util";
 import { DungeonMap, generateBeast } from "./DungeonMap";
 import { boxTileImage } from "./Images";

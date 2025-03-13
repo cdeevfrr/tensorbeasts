@@ -6,7 +6,8 @@ import { PassiveSkills } from "./PassiveSkillList";
 // attack turn (eg, multiplying attack when certain shapes are in the stack).
 // These are controlled by the existence of activate/deactivate/processStack
 // functions on the skill of that type.
-export interface PassiveSkill {
-    name: string,
-    type: keyof typeof PassiveSkills
+export interface PassiveSkill{
+    name: string, // This is shown to the user. 
+    type: keyof typeof PassiveSkills // this is used for deserialization only
+    payload: any, // This is used by the skill to decide eg how powerful it is. Individual skills type it more fully.
 }
