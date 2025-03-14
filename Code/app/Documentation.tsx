@@ -15,13 +15,18 @@ You can mostly follow along if you open this documentation & the homepage in sep
 
 ## Day 1
 
-Enter a dungeon (you're the grey circle) and move up and down 
-by hitting the blue arrows until you get a battle.
+Enter a dungeon.
+
+Since it's the tutorial, we'll start with only one beast on your team. That's the blue snake.
+
+![Image](dungeon_0)
+
+Once you enter, you're the grey circle. Move up and down 
+by hitting the blue arrows.
 
 ![Image](dungeon_1)
 
-Since it's the tutorial, we'll start this battle with only one beast on your team. That's the blue snake.
-
+Keep moving until you get a battle.
 
 ![Image](starter_1)
 
@@ -48,7 +53,7 @@ Click "Leave Dungeon" and hit the "manage parties" button.
 
 Now, click the bottom left grey box (that's important! Position matters!) 
 
-Select one of the purple penguins to go in that spot.
+Select the first purple penguin to go in that spot.
 
 ![Image](party_1)
 
@@ -103,9 +108,8 @@ The circles in the middle are "Blocks", and all together they make up the "Board
 The bottom is your party; the top is the enemy party. 
 
 - What are the purple boxes? 
-- Why is everything so slow?
 
-Let's get to those!
+Oh, did I forget one?
 
 ### Party Makeup
 
@@ -131,7 +135,7 @@ Go to the dungeon and head either up or down, but go as far as you can. You shou
 
 ![Image](dimension_1)
 
-You need to get into a battle _on that square_ (not the one next to it.) It may take some grinding. Once the battle starts, click and hold on the enemy in the Vanguard, and make sure that it has a passive skill which adds to the _second_ dimension. Keep defeating these beasts until you a beast with this kind of passive skill as a drop!
+You need to get into a battle _on that square_ (not the one next to it.) It may take some grinding. Once the battle starts, click and hold on the enemy in the Vanguard, and make sure that it has a passive skill which adds to the _second_ dimension. Keep defeating these beasts until you get a beast with this kind of passive skill as a drop!
 
 ![Image](dimension_2)
 
@@ -159,19 +163,23 @@ Congrats on finishing day 3!
 
 ## Day 4
 
-Your fancy new dimension doesn't just apply to the dungeon. You also added a dimension to the board!
+Your fancy new dimension doesn't just apply to the dungeon. You also added a dimension to the board! 
 
-Todo: Guide the player through using support skills to get a group of 3 during the attacks phase
-    - Notice how that group is added to the stack
+Try to use your support skills to get a group of 3 blocks of one color all touching. Diagonals don't count. What happens after you confirm your core beast? That's our snake's core grouping skill at work! 
 
-Todo: Show how a dimension beast dying affects your location in the dungeon (needed? Maybe just let people find out.)
+![Image](group_2)
 
+What happens if your dimension beast dies while you're off in the orange squares?
 
+### Core skill & support skill interactions
 You can charge any time before you pick a core beast, and charge is maintained between battles; 
-You can use that charge to execute support skills at any time before you click "do it" button. Try to optimize your support skills to maximize the number of groups your core beast can find before attacking!
+You can use that charge to execute support skills at any time before you click the "do it" button. 
+
+Try to optimize your support skills to maximize the number of groups your core beast can find before attacking!
 
 
-### Fin
+## Fin 
+(of the tutorial)
 
 Now, go explore! Find new kinds of core skills; new support skills, and more dimensions! 
 
@@ -187,6 +195,7 @@ const images = {
     starter_1: require('../assets/images/Tutorial/starter_1.png'),
     starter_2: require('../assets/images/Tutorial/starter_2.png'),
     starter_3: require('../assets/images/Tutorial/starter_3.png'),
+    dungeon_0: require('../assets/images/Tutorial/dungeon_0.png'),
     dungeon_1: require('../assets/images/Tutorial/dungeon_1.png'),
     home_1: require('../assets/images/Tutorial/home_1.png'),
     party_1: require('../assets/images/Tutorial/party_1.png'),
@@ -206,6 +215,9 @@ const images = {
     dimension_4: require('../assets/images/Tutorial/dimension_4.png'),
     dimension_5: require('../assets/images/Tutorial/dimension_5.png'),
     dimension_6: require('../assets/images/Tutorial/dimension_6.png'),
+    group_1: require('../assets/images/Tutorial/group_1.png'),
+    group_2: require('../assets/images/Tutorial/group_2.png'),
+
 }
 
 export default function Documentation() {
