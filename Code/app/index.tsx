@@ -13,10 +13,10 @@ export default function Index() {
     <View
       style={styles.container}
     >
-      <Text>Welcome!</Text>
-      <Link href="/Documentation" style={styles.button}>
-        Documentation
-      </Link>
+      <Text style={{color: '#fff'}}>Welcome!</Text>
+      
+      <View style={{height: 50}}></View>
+
       <Link href="/enterdungeon" style={styles.button}>
         Go to a dungeon
       </Link>
@@ -26,6 +26,12 @@ export default function Index() {
       <Link href="/parties" style={styles.button}>
         Manage Parties
       </Link>
+      <Link href="/Documentation" style={styles.button}>
+        Documentation
+      </Link>
+
+      <View style={{height: 50}}></View>
+
       <Pressable onPress={() => setIsCollapsed(!isCollapsed)}>
         <Text style={styles.button}>Developer options</Text>
       </Pressable>
