@@ -4,23 +4,30 @@
 // Higher quality versions of this skill will have lower threshold.
 
 import { countBlocksDestroyed, DestroyEvent } from "@/Game/Battle/DestroyEvent"
-import { CoreAttackSkill } from "../CoreAttackSkill"
 import { CoreAttackSkillBlueprint } from "../CoreAttackSkillBlueprint"
 import { createPowerSpread } from "@/Game/Battle/PowerSpread"
 
-export const CountAttack: CoreAttackSkillBlueprint = {
+type CountAttackPayload = {
+    threshold: number, 
+    quality: number
+}
+
+
+export const CountAttack: CoreAttackSkillBlueprint<{quality: number}, CountAttackPayload> = {
     factory: ({quality}: {quality: number}) => {
         return {
-            threshold: 5 - Math.floor(quality / 3),
-            quality: quality,
+            payload: {
+                threshold: 5 - Math.floor(quality / 3),
+                quality: quality,
+            },
             name: "Count Attack " + quality
         }
     },
     process: ({
-        self, 
+        payload, 
         stack
     }:{
-        self: CoreAttackSkill & any
+        payload: CountAttackPayload
         stack: Array<DestroyEvent>
     }) => {
         const count = stack.map((event) => {
@@ -29,7 +36,7 @@ export const CountAttack: CoreAttackSkillBlueprint = {
 
         return createPowerSpread({
             matches: [{}],
-            powers: [count / self.threshold]
+            powers: [count / payload.threshold]
         })
     },
 }

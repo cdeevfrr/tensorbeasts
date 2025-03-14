@@ -53,7 +53,7 @@ export function addGroupingBeast(battleState: BattleState, groupingBeast: Beast)
         groupingBeast
     }
 
-    recalcuateBeastDamage(newState)
+    recalculateBeastDamage(newState)
 
     return newState
 }
@@ -98,7 +98,7 @@ export function destroyBlocks({
         setLocation(location, newBattleState.board, null)
     }
 
-    recalcuateBeastDamage(newBattleState)
+    recalculateBeastDamage(newBattleState)
 
     if (shouldFall){
         return fall(newBattleState, false)
@@ -109,13 +109,13 @@ export function destroyBlocks({
 
 // Since this statefully modifies battleState, don't export. Only call it if you've
 // already cloned battleState.
-function recalcuateBeastDamage(battleState: BattleState){
+function recalculateBeastDamage(battleState: BattleState){
     let powerSpread = createPowerSpread({matches: [], powers: []})
     if (battleState.groupingBeast && battleState.groupingBeast.coreAttackSkill) {
         powerSpread = CoreAttackSkills[
             battleState.groupingBeast.coreAttackSkill.type
         ].process({
-            self: battleState.groupingBeast.coreAttackSkill,
+            payload: battleState.groupingBeast.coreAttackSkill.payload,
             stack: battleState.stack
         })
     }

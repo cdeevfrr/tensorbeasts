@@ -6,14 +6,20 @@ import { CoreAttackSkillBlueprint } from "../CoreAttackSkillBlueprint";
 import { maxColor } from "@/constants/GameColors";
 import { accessLocation, locationsIter } from "@/Game/Battle/Board";
 
-export const MatchColorAttack: CoreAttackSkillBlueprint = {
+type MatchColorAttackPayload = {
+    quality: number
+}
+
+export const MatchColorAttack: CoreAttackSkillBlueprint<{quality: number}, MatchColorAttackPayload > = {
     factory: ({quality}) => {
         return {
             name: "Match color attack " + quality,
-            quality,
+            payload: {
+                quality,
+            }
         }
     },
-    process: ({self, stack}) => {
+    process: ({payload, stack}) => {
         // Array index is color - 1, since colors start at 1 not 0.
         const includedColors = Array(maxColor - 1).fill(0)
         for (const destroyEvent of stack) {
