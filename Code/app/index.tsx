@@ -14,7 +14,7 @@ export default function Index() {
       style={styles.container}
     >
       <Text style={{color: '#fff'}}>Welcome!</Text>
-      
+
       <View style={{height: 50}}></View>
 
       <Link href="/enterdungeon" style={styles.button}>
@@ -27,7 +27,7 @@ export default function Index() {
         Manage Parties
       </Link>
       <Link href="/Documentation" style={styles.button}>
-        Documentation
+        Tutorial (Start here!)
       </Link>
 
       <View style={{height: 50}}></View>

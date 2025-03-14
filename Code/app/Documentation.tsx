@@ -11,7 +11,7 @@ Good games teach you to play by slowly exposing you to new features as you play.
 
 That's hard, so instead, here's an outline of what we _would_ put in a tutorial!
 
-You can mostly follow along if you open this documentation in a separate window. 
+You can mostly follow along if you open this documentation & the homepage in separate tabs. [Homepage](../)
 
 ## Day 1
 
