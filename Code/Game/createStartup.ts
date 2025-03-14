@@ -41,8 +41,11 @@ export async function createBox() {
           null
         ],
         support: [
-          ...result.filter(beast => 
-            beast.uuid === '736c475e-e3db-4ef6-aefe-ce245cfaa687' ),
+          // this was once used for quick development. Now, to match the tutorial, we 
+          // make the user manually add it themselves.
+          // ...result.filter(beast => 
+          //   beast.uuid === '736c475e-e3db-4ef6-aefe-ce245cfaa687' ),
+          null,
           null
         ],
     }
