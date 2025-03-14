@@ -14,6 +14,9 @@ export default function Index() {
       style={styles.container}
     >
       <Text>Welcome!</Text>
+      <Link href="/Documentation" style={styles.button}>
+        Documentation
+      </Link>
       <Link href="/enterdungeon" style={styles.button}>
         Go to a dungeon
       </Link>
